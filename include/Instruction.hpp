@@ -16,6 +16,11 @@ struct Instruction {
     
     bool verbose; // verbose for debug
     
+    Instruction(const std::string& mnemonic, const std::string& alt_name, const std::string& flags, 
+		const uint8 opcode, const uint8 bytes, const uint8 cycles, bool verbose = false) : 
+		mnemonic(mnemonic), alt_name(alt_name), flags(flags), opcode(opcode), cycles(cycles), verbose(verbose)
+		{ }
+		
     virtual int op(Registers& registers, Memory& memory) = 0; 
 };
 

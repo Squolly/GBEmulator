@@ -9,4 +9,3 @@ int main() {
     std::cout << "H: " << (int)registers.H << ", L: " << (int)registers.L << ", HL: " << (int)registers.HL << std::endl; 
 
 }
-

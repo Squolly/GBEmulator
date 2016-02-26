@@ -5,10 +5,12 @@
 
 #include <vector>
 
+const int MEMORY_SIZE = 65536; 
+
 struct Memory {
     std::vector<uint8> data; 
     
-    Memory(const int size); 
+    Memory(const int size = MEMORY_SIZE); 
     uint8  read_u8(const uint16 address); 
     uint16 read_u16(const uint16 address);
     bool   write_u8(const uint16 address, const uint8 value); 
