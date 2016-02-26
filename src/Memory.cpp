@@ -1,6 +1,6 @@
 #include "Memory.hpp"
 
- Memory::Memory(const int size) : data(std::vector<uint8>(size, 0) {
+ Memory::Memory(const int size) : data(std::vector<uint8>(size, 0)) {
      
  }
  
