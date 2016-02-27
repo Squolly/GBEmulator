@@ -3,16 +3,25 @@
 
 #include "Memory.hpp"
 #include "Registers.hpp"
-#include "Instruction.hpp" 
 
-class LR35902 {
-public: 
+struct LR35902 {
+    Registers registers; 
+    
+    uint32 cycle_counter; 
+    
     LR35902(); 
     ~LR35902(); 
-
-private: 
-
-
+    
+    void inc_8bit_reg(uint8& reg); 
+    void inc_16bit_reg(uint16& reg); 
+    
+    void dec_8bit_reg(uint8& reg); 
+    void dec_16bit_reg(uint16& reg); 
+    
+    void shift_left_reg_a(); 
+    void shift_right_reg_a(); 
+    
+    void add_16_16(const uint16& reg1, const uint16& reg2); 
 }; 
 
 #endif
