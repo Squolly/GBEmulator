@@ -61,9 +61,9 @@ struct LD_C_d8_In : public Instruction { LD_C_d8_In(); virtual void op(LR35902& 
 struct RRCA_In : public Instruction { RRCA_In(); virtual void op(LR35902& cpu, Memory& memory); }; 
 
 // Constructors
-NOP_In::NOP_Instruction()             : Instruction( "NOP",        "NOP", "----", 0x00, 1,  4, VERBOSE_FLAG) { } // 0x00
-LD_BC_d16_In::LD_BC_d16_Instruction() : Instruction(  "LD", "LD BC, d16", "----", 0x01, 3, 12, VERBOSE_FLAG) { } // 0x01
-LD_mBC_A_In::LD_mBC_A_Instruction()   : Instruction(  "LD", "LD (BC), A", "----", 0x02, 1,  8, VERBOSE_FLAG) { } // 0x02
+NOP_In::NOP_In()                      : Instruction( "NOP",        "NOP", "----", 0x00, 1,  4, VERBOSE_FLAG) { } // 0x00
+LD_BC_d16_In::LD_BC_d16_In()          : Instruction(  "LD", "LD BC, d16", "----", 0x01, 3, 12, VERBOSE_FLAG) { } // 0x01
+LD_mBC_A_In::LD_mBC_A_In()            : Instruction(  "LD", "LD (BC), A", "----", 0x02, 1,  8, VERBOSE_FLAG) { } // 0x02
 INC_BC_In::INC_BC_In()                : Instruction( "INC",     "INC BC", "----", 0x03, 1,  8, VERBOSE_FLAG) { } // 0x03
 INC_B_In::INC_B_In()                  : Instruction( "INC",      "INC B", "Z0H-", 0x04, 1,  4, VERBOSE_FLAG) { } // 0x04
 DEC_B_In::DEC_B_In()                  : Instruction( "DEC",      "DEC B", "Z1H-", 0x05, 1,  4, VERBOSE_FLAG) { } // 0x05
@@ -166,4 +166,5 @@ void      RRCA_In::op(LR35902& cpu, Memory& memory) { cpu.shift_right_reg_a();  
 // =================================================================================================
 // OpCodes 0xF0 - 0xFF
 // =================================================================================================
-#endif __INSTRUCTION_SET_HPP__
+
+#endif

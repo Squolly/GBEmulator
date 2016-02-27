@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "LR35902.hpp"
+#include "InstructionSet.hpp"
 
 int main() {
     Registers registers; 
