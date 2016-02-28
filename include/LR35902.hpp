@@ -14,6 +14,9 @@ struct LR35902 {
     LR35902(); 
     ~LR35902(); 
     
+    void halt();
+    
+    // ALU
     void inc_8bit_reg(uint8& reg); 
     void inc_16bit_reg(uint16& reg); 
     
@@ -26,10 +29,17 @@ struct LR35902 {
     void shift_right_reg_a();
     
     void add_16_16(const uint16& reg1, const uint16& reg2); 
+    void add_8_8(const uint8& reg1, const uint8& reg2);
+    void adc_8_8(const uint8& reg1, const uint8& reg2);
+    void sub_8(const uint8& reg);
+    void sbc_8(const uint8& reg);
+    void and_8(const uint8& reg);
+    void xor_8(const uint8& reg);
+    void or_8(const uint8& reg); 
+    void cp_8(const uint8& reg); 
     
     void dda(); // convert A from binary to BCD
     
-    void halt(); 
 }; 
 
 #endif

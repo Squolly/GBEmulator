@@ -479,31 +479,181 @@ void  LD_mHL_D_In::op(LR35902& cpu, Memory& memory) { memory.write_u8(cpu.regist
 void  LD_mHL_E_In::op(LR35902& cpu, Memory& memory) { memory.write_u8(cpu.registers.HL, cpu.registers.E);  }     // 0x73
 void  LD_mHL_H_In::op(LR35902& cpu, Memory& memory) { memory.write_u8(cpu.registers.HL, cpu.registers.H);  }     // 0x74
 void  LD_mHL_L_In::op(LR35902& cpu, Memory& memory) { memory.write_u8(cpu.registers.HL, cpu.registers.L);  }     // 0x75
-void  HALT_In::HALT_In::op(LR35902& cpu, Memory& memory) { cpu.halt(); }                                         // 0x76
+void      HALT_In::op(LR35902& cpu, Memory& memory) { cpu.halt(); }                                              // 0x76
 void  LD_mHL_A_In::op(LR35902& cpu, Memory& memory) { cpu.registers.H = cpu.registers.A;  }                      // 0x77
-void  LD_A_B_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = cpu.registers.B;  }                        // 0x78
-void  LD_A_C_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = cpu.registers.C;  }                        // 0x79
-void  LD_A_D_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = cpu.registers.D;  }                        // 0x7A
-void  LD_A_E_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = cpu.registers.E;  }                        // 0x7B
-void  LD_A_H_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = cpu.registers.H;  }                        // 0x7C
-void  LD_A_L_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = cpu.registers.L;  }                        // 0x7D
+void    LD_A_B_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = cpu.registers.B;  }                      // 0x78
+void    LD_A_C_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = cpu.registers.C;  }                      // 0x79
+void    LD_A_D_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = cpu.registers.D;  }                      // 0x7A
+void    LD_A_E_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = cpu.registers.E;  }                      // 0x7B
+void    LD_A_H_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = cpu.registers.H;  }                      // 0x7C
+void    LD_A_L_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = cpu.registers.L;  }                      // 0x7D
 void  LD_A_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = memory.read_u8(cpu.registers.HL); }      // 0x7E
-void  LD_A_A_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = cpu.registers.A;  }                        // 0x7F
+void    LD_A_A_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = cpu.registers.A;  }                      // 0x7F
 
 // =================================================================================================
 // OpCodes 0x80 - 0x8F
 // =================================================================================================
 
+struct ADD_A_B_In   : public Instruction {   ADD_A_B_In(); virtual void op(LR35902& cpu, Memory& memory); };       // 0x80 ADD A, B
+struct ADD_A_C_In   : public Instruction {   ADD_A_C_In(); virtual void op(LR35902& cpu, Memory& memory); };       // 0x81 ADD A, C
+struct ADD_A_D_In   : public Instruction {   ADD_A_D_In(); virtual void op(LR35902& cpu, Memory& memory); };       // 0x82 ADD A, D
+struct ADD_A_E_In   : public Instruction {   ADD_A_E_In(); virtual void op(LR35902& cpu, Memory& memory); };       // 0x83 ADD A, E
+struct ADD_A_H_In   : public Instruction {   ADD_A_H_In(); virtual void op(LR35902& cpu, Memory& memory); };       // 0x84 ADD A, H
+struct ADD_A_L_In   : public Instruction {   ADD_A_L_In(); virtual void op(LR35902& cpu, Memory& memory); };       // 0x85 ADD A, L
+struct ADD_A_mHL_In : public Instruction { ADD_A_mHL_In(); virtual void op(LR35902& cpu, Memory& memory); };       // 0x86 ADD A, (HL)
+struct ADD_A_A_In   : public Instruction {   ADD_A_A_In(); virtual void op(LR35902& cpu, Memory& memory); };       // 0x87 ADD A, A
+struct ADC_A_B_In   : public Instruction {   ADC_A_B_In(); virtual void op(LR35902& cpu, Memory& memory); };       // 0x88 ADC A, B
+struct ADC_A_C_In   : public Instruction {   ADC_A_C_In(); virtual void op(LR35902& cpu, Memory& memory); };       // 0x89 ADC A, C
+struct ADC_A_D_In   : public Instruction {   ADC_A_D_In(); virtual void op(LR35902& cpu, Memory& memory); };       // 0x8A ADC A, D
+struct ADC_A_E_In   : public Instruction {   ADC_A_E_In(); virtual void op(LR35902& cpu, Memory& memory); };       // 0x8B ADC A, E
+struct ADC_A_H_In   : public Instruction {   ADC_A_H_In(); virtual void op(LR35902& cpu, Memory& memory); };       // 0x8C ADC A, H
+struct ADC_A_L_In   : public Instruction {   ADC_A_L_In(); virtual void op(LR35902& cpu, Memory& memory); };       // 0x8D ADC A, L
+struct ADC_A_mHL_In : public Instruction { ADC_A_mHL_In(); virtual void op(LR35902& cpu, Memory& memory); };       // 0x8E ADC A, (HL)
+struct ADC_A_A_In   : public Instruction {   ADC_A_A_In(); virtual void op(LR35902& cpu, Memory& memory); };       // 0x8F ADC A, A
+                                                                                                                
+  ADD_A_B_In::ADD_A_B_In()            : Instruction( "ADD",   "ADD A, B", "Z0HC", 0x80, 1, 4, VERBOSE_FLAG) { }     // 0x80
+  ADD_A_C_In::ADD_A_C_In()            : Instruction( "ADD",   "ADD A, C", "Z0HC", 0x81, 1, 4, VERBOSE_FLAG) { }     // 0x81
+  ADD_A_D_In::ADD_A_D_In()            : Instruction( "ADD",   "ADD A, D", "Z0HC", 0x82, 1, 4, VERBOSE_FLAG) { }     // 0x82
+  ADD_A_E_In::ADD_A_E_In()            : Instruction( "ADD",   "ADD A, E", "Z0HC", 0x83, 1, 4, VERBOSE_FLAG) { }     // 0x83
+  ADD_A_H_In::ADD_A_H_In()            : Instruction( "ADD",   "ADD A, H", "Z0HC", 0x84, 1, 4, VERBOSE_FLAG) { }     // 0x84
+  ADD_A_L_In::ADD_A_L_In()            : Instruction( "ADD",   "ADD A, L", "Z0HC", 0x85, 1, 4, VERBOSE_FLAG) { }     // 0x85
+ADD_A_mHL_In::ADD_A_mHL_In()          : Instruction( "ADD","ADD A, (HL)", "Z0HC", 0x86, 1, 8, VERBOSE_FLAG) { }     // 0x86
+  ADD_A_A_In::ADD_A_A_In()            : Instruction( "ADD",   "ADD A, A", "Z0HC", 0x87, 1, 4, VERBOSE_FLAG) { }     // 0x87
+  ADC_A_B_In::ADC_A_B_In()            : Instruction( "ADC",   "ADC A, B", "Z0HC", 0x88, 1, 4, VERBOSE_FLAG) { }     // 0x88
+  ADC_A_C_In::ADC_A_C_In()            : Instruction( "ADC",   "ADC A, C", "Z0HC", 0x89, 1, 4, VERBOSE_FLAG) { }     // 0x89
+  ADC_A_D_In::ADC_A_D_In()            : Instruction( "ADC",   "ADC A, D", "Z0HC", 0x8A, 1, 4, VERBOSE_FLAG) { }     // 0x8A
+  ADC_A_E_In::ADC_A_E_In()            : Instruction( "ADC",   "ADC A, E", "Z0HC", 0x8B, 1, 4, VERBOSE_FLAG) { }     // 0x8B
+  ADC_A_H_In::ADC_A_H_In()            : Instruction( "ADC",   "ADC A, H", "Z0HC", 0x8C, 1, 4, VERBOSE_FLAG) { }     // 0x8C
+  ADC_A_L_In::ADC_A_L_In()            : Instruction( "ADC",   "ADC A, L", "Z0HC", 0x8D, 1, 4, VERBOSE_FLAG) { }     // 0x8D
+ADC_A_mHL_In::ADC_A_mHL_In()          : Instruction( "ADC","ADC A, (HL)", "Z0HC", 0x8E, 1, 8, VERBOSE_FLAG) { }     // 0x8E
+  ADC_A_A_In::ADC_A_A_In()            : Instruction( "ADC",   "ADC A, A", "Z0HC", 0x8F, 1, 4, VERBOSE_FLAG) { }     // 0x8F
+
+void   ADD_A_B_In::op(LR35902& cpu, Memory& memory) { cpu.add_8_8(cpu.registers.A, cpu.registers.B); }     // 0x80
+void   ADD_A_C_In::op(LR35902& cpu, Memory& memory) { cpu.add_8_8(cpu.registers.A, cpu.registers.C); }     // 0x81
+void   ADD_A_D_In::op(LR35902& cpu, Memory& memory) { cpu.add_8_8(cpu.registers.A, cpu.registers.D); }     // 0x82
+void   ADD_A_E_In::op(LR35902& cpu, Memory& memory) { cpu.add_8_8(cpu.registers.A, cpu.registers.E); }     // 0x83
+void   ADD_A_H_In::op(LR35902& cpu, Memory& memory) { cpu.add_8_8(cpu.registers.A, cpu.registers.H); }     // 0x84
+void   ADD_A_L_In::op(LR35902& cpu, Memory& memory) { cpu.add_8_8(cpu.registers.A, cpu.registers.L); }     // 0x85
+void ADD_A_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.add_8_8(cpu.registers.A, memory.read_u8(cpu.registers.HL)); } // 0x86
+void   ADD_A_A_In::op(LR35902& cpu, Memory& memory) { cpu.add_8_8(cpu.registers.A, cpu.registers.A); }     // 0x87
+void   ADC_A_B_In::op(LR35902& cpu, Memory& memory) { cpu.adc_8_8(cpu.registers.A, cpu.registers.B); }     // 0x88
+void   ADC_A_C_In::op(LR35902& cpu, Memory& memory) { cpu.adc_8_8(cpu.registers.A, cpu.registers.C); }     // 0x89
+void   ADC_A_D_In::op(LR35902& cpu, Memory& memory) { cpu.adc_8_8(cpu.registers.A, cpu.registers.D); }     // 0x8A
+void   ADC_A_E_In::op(LR35902& cpu, Memory& memory) { cpu.adc_8_8(cpu.registers.A, cpu.registers.E); }     // 0x8B
+void   ADC_A_H_In::op(LR35902& cpu, Memory& memory) { cpu.adc_8_8(cpu.registers.A, cpu.registers.H); }     // 0x8C
+void   ADC_A_L_In::op(LR35902& cpu, Memory& memory) { cpu.adc_8_8(cpu.registers.A, cpu.registers.L); }     // 0x8D
+void ADC_A_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.adc_8_8(cpu.registers.A, memory.read_u8(cpu.registers.HL));} // 0x8E
+void   ADC_A_A_In::op(LR35902& cpu, Memory& memory) { cpu.adc_8_8(cpu.registers.A, cpu.registers.A); }     // 0x8F
 
 // =================================================================================================
 // OpCodes 0x90 - 0x9F
 // =================================================================================================
 
+struct SUB_B_In     : public Instruction {   SUB_B_In(); virtual void op(LR35902& cpu, Memory& memory); };       // 0x90 SUB B
+struct SUB_C_In     : public Instruction {   SUB_C_In(); virtual void op(LR35902& cpu, Memory& memory); };       // 0x91 SUB C
+struct SUB_D_In     : public Instruction {   SUB_D_In(); virtual void op(LR35902& cpu, Memory& memory); };       // 0x92 SUB D
+struct SUB_E_In     : public Instruction {   SUB_E_In(); virtual void op(LR35902& cpu, Memory& memory); };       // 0x93 SUB E
+struct SUB_H_In     : public Instruction {   SUB_H_In(); virtual void op(LR35902& cpu, Memory& memory); };       // 0x94 SUB H
+struct SUB_L_In     : public Instruction {   SUB_L_In(); virtual void op(LR35902& cpu, Memory& memory); };       // 0x95 SUB L
+struct SUB_mHL_In   : public Instruction { SUB_mHL_In(); virtual void op(LR35902& cpu, Memory& memory); };       // 0x96 SUB (HL)
+struct SUB_A_In     : public Instruction {   SUB_A_In(); virtual void op(LR35902& cpu, Memory& memory); };       // 0x97 SUB A
+struct SBC_B_In     : public Instruction {   SBC_B_In(); virtual void op(LR35902& cpu, Memory& memory); };       // 0x98 SBC B
+struct SBC_C_In     : public Instruction {   SBC_C_In(); virtual void op(LR35902& cpu, Memory& memory); };       // 0x99 SBC C
+struct SBC_D_In     : public Instruction {   SBC_D_In(); virtual void op(LR35902& cpu, Memory& memory); };       // 0x9A SBC D
+struct SBC_E_In     : public Instruction {   SBC_E_In(); virtual void op(LR35902& cpu, Memory& memory); };       // 0x9B SBC E
+struct SBC_H_In     : public Instruction {   SBC_H_In(); virtual void op(LR35902& cpu, Memory& memory); };       // 0x9C SBC H
+struct SBC_L_In     : public Instruction {   SBC_L_In(); virtual void op(LR35902& cpu, Memory& memory); };       // 0x9D SBC L
+struct SBC_mHL_In   : public Instruction { SBC_mHL_In(); virtual void op(LR35902& cpu, Memory& memory); };       // 0x9E SBC (HL)
+struct SBC_A_In     : public Instruction {   SBC_A_In(); virtual void op(LR35902& cpu, Memory& memory); };       // 0x9F SBC A
+                                                                                                                
+   SUB_B_In::SUB_B_In()    : Instruction( "SUB",   "SUB B", "Z1HC", 0x90, 1, 4, VERBOSE_FLAG) { }     // 0x90
+   SUB_C_In::SUB_C_In()    : Instruction( "SUB",   "SUB C", "Z1HC", 0x91, 1, 4, VERBOSE_FLAG) { }     // 0x91
+   SUB_D_In::SUB_D_In()    : Instruction( "SUB",   "SUB D", "Z1HC", 0x92, 1, 4, VERBOSE_FLAG) { }     // 0x92
+   SUB_E_In::SUB_E_In()    : Instruction( "SUB",   "SUB E", "Z1HC", 0x93, 1, 4, VERBOSE_FLAG) { }     // 0x93
+   SUB_H_In::SUB_H_In()    : Instruction( "SUB",   "SUB H", "Z1HC", 0x94, 1, 4, VERBOSE_FLAG) { }     // 0x94
+   SUB_L_In::SUB_L_In()    : Instruction( "SUB",   "SUB L", "Z1HC", 0x95, 1, 4, VERBOSE_FLAG) { }     // 0x95
+ SUB_mHL_In::SUB_mHL_In()  : Instruction( "SUB","SUB (HL)", "Z1HC", 0x96, 1, 8, VERBOSE_FLAG) { }     // 0x96
+   SUB_A_In::SUB_A_In()    : Instruction( "SUB","SUB A, A", "Z1HC", 0x97, 1, 4, VERBOSE_FLAG) { }     // 0x97
+   SBC_B_In::SBC_B_In()    : Instruction( "SBC",   "SBC B", "Z1HC", 0x98, 1, 4, VERBOSE_FLAG) { }     // 0x98
+   SBC_C_In::SBC_C_In()    : Instruction( "SBC",   "SBC C", "Z1HC", 0x99, 1, 4, VERBOSE_FLAG) { }     // 0x99
+   SBC_D_In::SBC_D_In()    : Instruction( "SBC",   "SBC D", "Z1HC", 0x9A, 1, 4, VERBOSE_FLAG) { }     // 0x9A
+   SBC_E_In::SBC_E_In()    : Instruction( "SBC",   "SBC E", "Z1HC", 0x9B, 1, 4, VERBOSE_FLAG) { }     // 0x9B
+   SBC_H_In::SBC_H_In()    : Instruction( "SBC",   "SBC H", "Z1HC", 0x9C, 1, 4, VERBOSE_FLAG) { }     // 0x9C
+   SBC_L_In::SBC_L_In()    : Instruction( "SBC",   "SBC L", "Z1HC", 0x9D, 1, 4, VERBOSE_FLAG) { }     // 0x9D
+ SBC_mHL_In::SBC_mHL_In()  : Instruction( "SBC","SBC (HL)", "Z1HC", 0x9E, 1, 8, VERBOSE_FLAG) { }     // 0x9E
+   SBC_A_In::SBC_A_In()    : Instruction( "SBC",   "SBC A", "Z1HC", 0x9F, 1, 4, VERBOSE_FLAG) { }     // 0x9F
+
+void    SUB_B_In::op(LR35902& cpu, Memory& memory) { cpu.sub_8(cpu.registers.B); }                  // 0x90
+void    SUB_C_In::op(LR35902& cpu, Memory& memory) { cpu.sub_8(cpu.registers.C); }                  // 0x91
+void    SUB_D_In::op(LR35902& cpu, Memory& memory) { cpu.sub_8(cpu.registers.D); }                  // 0x92
+void    SUB_E_In::op(LR35902& cpu, Memory& memory) { cpu.sub_8(cpu.registers.E); }                  // 0x93
+void    SUB_H_In::op(LR35902& cpu, Memory& memory) { cpu.sub_8(cpu.registers.H); }                  // 0x94
+void    SUB_L_In::op(LR35902& cpu, Memory& memory) { cpu.sub_8(cpu.registers.L); }                  // 0x95
+void  SUB_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.sub_8(memory.read_u8(cpu.registers.HL)); } // 0x96
+void    SUB_A_In::op(LR35902& cpu, Memory& memory) { cpu.sub_8(cpu.registers.A); }                  // 0x97
+void    SBC_B_In::op(LR35902& cpu, Memory& memory) { cpu.sbc_8(cpu.registers.B); }                  // 0x98
+void    SBC_C_In::op(LR35902& cpu, Memory& memory) { cpu.sbc_8(cpu.registers.C); }                  // 0x99
+void    SBC_D_In::op(LR35902& cpu, Memory& memory) { cpu.sbc_8(cpu.registers.D); }                  // 0x9A
+void    SBC_E_In::op(LR35902& cpu, Memory& memory) { cpu.sbc_8(cpu.registers.E); }                  // 0x9B
+void    SBC_H_In::op(LR35902& cpu, Memory& memory) { cpu.sbc_8(cpu.registers.H); }                  // 0x9C
+void    SBC_L_In::op(LR35902& cpu, Memory& memory) { cpu.sbc_8(cpu.registers.L); }                  // 0x9D
+void  SBC_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.sbc_8(memory.read_u8(cpu.registers.HL));}  // 0x9E
+void    SBC_A_In::op(LR35902& cpu, Memory& memory) { cpu.sbc_8(cpu.registers.A); }                  // 0x9F
 
 // =================================================================================================
 // OpCodes 0xA0 - 0xAF
 // =================================================================================================
 
+struct AND_B_In     : public Instruction {   AND_B_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA0
+struct AND_C_In     : public Instruction {   AND_C_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA0
+struct AND_D_In     : public Instruction {   AND_D_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA0
+struct AND_E_In     : public Instruction {   AND_E_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA0
+struct AND_H_In     : public Instruction {   AND_H_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA0
+struct AND_L_In     : public Instruction {   AND_L_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA0
+struct AND_mHL_In   : public Instruction { AND_mHL_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA0
+struct AND_A_In     : public Instruction {   AND_A_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA0
+struct XOR_B_In     : public Instruction {   XOR_B_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA0
+struct XOR_C_In     : public Instruction {   XOR_C_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA0
+struct XOR_D_In     : public Instruction {   XOR_D_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA0
+struct XOR_E_In     : public Instruction {   XOR_E_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA0
+struct XOR_H_In     : public Instruction {   XOR_H_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA0
+struct XOR_L_In     : public Instruction {   XOR_L_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA0
+struct XOR_mHL_In   : public Instruction { XOR_mHL_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA0
+struct XOR_A_In     : public Instruction {   XOR_A_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA0
+                                                                                                              
+   AND_B_In::AND_B_In()    : Instruction( "AND",   "AND B", "Z010", 0xA0, 1, 4, VERBOSE_FLAG) { }     // 0xA0
+   AND_C_In::AND_C_In()    : Instruction( "AND",   "AND C", "Z010", 0xA1, 1, 4, VERBOSE_FLAG) { }     // 0xA1
+   AND_D_In::AND_D_In()    : Instruction( "AND",   "AND D", "Z010", 0xA2, 1, 4, VERBOSE_FLAG) { }     // 0xA2
+   AND_E_In::AND_E_In()    : Instruction( "AND",   "AND E", "Z010", 0xA3, 1, 4, VERBOSE_FLAG) { }     // 0xA3
+   AND_H_In::AND_H_In()    : Instruction( "AND",   "AND H", "Z010", 0xA4, 1, 4, VERBOSE_FLAG) { }     // 0xA4
+   AND_L_In::AND_L_In()    : Instruction( "AND",   "AND L", "Z010", 0xA5, 1, 4, VERBOSE_FLAG) { }     // 0xA5
+ AND_mHL_In::AND_mHL_In()  : Instruction( "AND","AND (HL)", "Z010", 0xA6, 1, 8, VERBOSE_FLAG) { }     // 0xA6
+   AND_A_In::AND_A_In()    : Instruction( "AND","AND A, A", "Z010", 0xA7, 1, 4, VERBOSE_FLAG) { }     // 0xA7
+   XOR_B_In::XOR_B_In()    : Instruction( "XOR",   "XOR B", "Z000", 0xA8, 1, 4, VERBOSE_FLAG) { }     // 0xA8
+   XOR_C_In::XOR_C_In()    : Instruction( "XOR",   "XOR C", "Z000", 0xA9, 1, 4, VERBOSE_FLAG) { }     // 0xA9
+   XOR_D_In::XOR_D_In()    : Instruction( "XOR",   "XOR D", "Z000", 0xAA, 1, 4, VERBOSE_FLAG) { }     // 0xAA
+   XOR_E_In::XOR_E_In()    : Instruction( "XOR",   "XOR E", "Z000", 0xAB, 1, 4, VERBOSE_FLAG) { }     // 0xAB
+   XOR_H_In::XOR_H_In()    : Instruction( "XOR",   "XOR H", "Z000", 0xAC, 1, 4, VERBOSE_FLAG) { }     // 0xAC
+   XOR_L_In::XOR_L_In()    : Instruction( "XOR",   "XOR L", "Z000", 0xAD, 1, 4, VERBOSE_FLAG) { }     // 0xAD
+ XOR_mHL_In::XOR_mHL_In()  : Instruction( "XOR","XOR (HL)", "Z000", 0xAE, 1, 8, VERBOSE_FLAG) { }     // 0xAE
+   XOR_A_In::XOR_A_In()    : Instruction( "XOR",   "XOR A", "Z000", 0xAF, 1, 4, VERBOSE_FLAG) { }     // 0xAF
+
+void    AND_B_In::op(LR35902& cpu, Memory& memory) { cpu.and_8(cpu.registers.B); }                  // 0xA0
+void    AND_C_In::op(LR35902& cpu, Memory& memory) { cpu.and_8(cpu.registers.C); }                  // 0xA1
+void    AND_D_In::op(LR35902& cpu, Memory& memory) { cpu.and_8(cpu.registers.D); }                  // 0xA2
+void    AND_E_In::op(LR35902& cpu, Memory& memory) { cpu.and_8(cpu.registers.E); }                  // 0xA3
+void    AND_H_In::op(LR35902& cpu, Memory& memory) { cpu.and_8(cpu.registers.H); }                  // 0xA4
+void    AND_L_In::op(LR35902& cpu, Memory& memory) { cpu.and_8(cpu.registers.L); }                  // 0xA5
+void  AND_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.and_8(memory.read_u8(cpu.registers.HL)); } // 0xA6
+void    AND_A_In::op(LR35902& cpu, Memory& memory) { cpu.and_8(cpu.registers.A); }                  // 0xA7
+void    XOR_B_In::op(LR35902& cpu, Memory& memory) { cpu.xor_8(cpu.registers.B); }                  // 0xA8
+void    XOR_C_In::op(LR35902& cpu, Memory& memory) { cpu.xor_8(cpu.registers.C); }                  // 0xA9
+void    XOR_D_In::op(LR35902& cpu, Memory& memory) { cpu.xor_8(cpu.registers.D); }                  // 0xAA
+void    XOR_E_In::op(LR35902& cpu, Memory& memory) { cpu.xor_8(cpu.registers.E); }                  // 0xAB
+void    XOR_H_In::op(LR35902& cpu, Memory& memory) { cpu.xor_8(cpu.registers.H); }                  // 0xAC
+void    XOR_L_In::op(LR35902& cpu, Memory& memory) { cpu.xor_8(cpu.registers.L); }                  // 0xAD
+void  XOR_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.xor_8(memory.read_u8(cpu.registers.HL));}  // 0xAE
+void    XOR_A_In::op(LR35902& cpu, Memory& memory) { cpu.xor_8(cpu.registers.A); }                  // 0xAF
 
 // =================================================================================================
 // OpCodes 0xB0 - 0xBF
