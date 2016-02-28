@@ -12,8 +12,8 @@ set(GAME_BOY_EMULATOR_SOURCE_FILES
 )
 
 set(GAME_BOY_EMULATOR_HEADER_FILES
-#   ${PROJECT_SOURCE_DIR}/include/Memory.hpp
-#   ${PROJECT_SOURCE_DIR}/include/Registers.hpp
+    ${PROJECT_SOURCE_DIR}/include/Memory.hpp
+    ${PROJECT_SOURCE_DIR}/include/Registers.hpp
     ${PROJECT_SOURCE_DIR}/include/types.hpp
     ${PROJECT_SOURCE_DIR}/include/Instruction.hpp
     ${PROJECT_SOURCE_DIR}/include/InstructionSet.hpp

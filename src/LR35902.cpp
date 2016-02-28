@@ -229,6 +229,7 @@ void LR35902::dda() { // convert A from binary to BCD
         registers.clear_z(); 
 }
 
+void LR35902::halt() {
+    bhalt = true; 
+}
 
-
-    
