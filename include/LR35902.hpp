@@ -16,6 +16,27 @@ struct LR35902 {
     
     void halt();
     
+    // control 
+    void retf(const uint8& flag);                        // TODO  // return if flag
+    void retf_n(const uint8& flag);                      // TODO  // return if !flag
+    void ret();                                          // TODO
+    void reti();                                         // TODO
+    void res(const uint16& addr);                        // TODO  // reset to address
+                                                         
+    void callf(const uint8& flag, const uint16& addr);   // TODO  // call address if flag set
+    void callf_n(const uint8& flag, const uint16& addr); // TODO  // fall address if flag not set
+    void call(const uint16& addr);                       // TODO  // call address
+                                                        
+    void jpf(const uint8& flag, const uint16& addr);     // TODO
+    void jpf_n(const uint8& flag, const uint16& addr);   // TODO
+    void jp(const uint16& addr);                         // TODO
+    
+    void ei();                                           // TODO 
+    void di();                                           // TODO 
+                                                        
+    void push(const uint16& reg);                        // TODO  // push register on stack 
+    void pop(uint16& reg);                               // TODO  // pop register from stack
+    
     // ALU
     void inc_8bit_reg(uint8& reg); 
     void inc_16bit_reg(uint16& reg); 
@@ -28,15 +49,16 @@ struct LR35902 {
     void shift_right_c_reg_a(); 
     void shift_right_reg_a();
     
-    void add_16_16(const uint16& reg1, const uint16& reg2); 
-    void add_8_8(const uint8& reg1, const uint8& reg2);
-    void adc_8_8(const uint8& reg1, const uint8& reg2);
-    void sub_8(const uint8& reg);
-    void sbc_8(const uint8& reg);
-    void and_8(const uint8& reg);
-    void xor_8(const uint8& reg);
-    void or_8(const uint8& reg); 
-    void cp_8(const uint8& reg); 
+    void add_16_16(uint16& reg1, const uint16& reg2); 
+    void add_8_8(const uint8& reg1, const uint8& reg2); // TODO 
+    void adc_8_8(const uint8& reg1, const uint8& reg2); // TODO 
+    
+    void sub_8(const uint8& reg);  // TODO
+    void sbc_8(const uint8& reg);  // TODO
+    void and_8(const uint8& reg);  // TODO
+    void xor_8(const uint8& reg);  // TODO
+    void or_8(const uint8& reg);   // TODO
+    void cp_8(const uint8& reg);   // TODO
     
     void dda(); // convert A from binary to BCD
     

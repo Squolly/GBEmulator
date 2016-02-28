@@ -140,7 +140,7 @@ void LR35902::shift_right_reg_a() {
 const uint16 BITMASK_11n = 0x0FFF; 
 const uint32 MASK_8 = 0xFF; 
 
-void LR35902::add_16_16(const uint16& reg1, const uint16& reg2) {
+void LR35902::add_16_16(uint16& reg1, const uint16& reg2) {
     uint32 r = reg1 + reg2; 
     if (r > 65535) {
 	registers.set_c();
@@ -159,7 +159,8 @@ void LR35902::add_16_16(const uint16& reg1, const uint16& reg2) {
 	registers.clear_h(); 
     }
     
-    registers.A = r & MASK_8; 
+    reg1 = r & 0xFFFF; 
+    // registers.A = r & MASK_8; 
 }
 
 /*
