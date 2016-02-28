@@ -13,7 +13,7 @@ const uint8 BITMASK_1 = 0x02;
 const uint8 BITMASK_0 = 0x01; 
 
 struct Registers {
-    Registers() {}; 
+    Registers() : AF(0), BC(0), DE(0), HL(0) {}; 
     ~Registers() {}; 
 
 

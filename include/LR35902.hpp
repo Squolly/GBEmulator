@@ -6,6 +6,7 @@
 
 struct LR35902 {
     Registers registers; 
+    bool running; 
     
     uint32 cycle_counter; 
     
@@ -18,10 +19,14 @@ struct LR35902 {
     void dec_8bit_reg(uint8& reg); 
     void dec_16bit_reg(uint16& reg); 
     
+    void shift_left_c_reg_a(); 
     void shift_left_reg_a(); 
-    void shift_right_reg_a(); 
+    void shift_right_c_reg_a(); 
+    void shift_right_reg_a();
     
     void add_16_16(const uint16& reg1, const uint16& reg2); 
+    
+    void dda(); // convert A from binary to BCD
 }; 
 
 #endif
