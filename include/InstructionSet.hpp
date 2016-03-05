@@ -605,21 +605,21 @@ void    SBC_A_In::op(LR35902& cpu, Memory& memory) { cpu.sbc_8(cpu.registers.A);
 // =================================================================================================
 
 struct AND_B_In     : public Instruction {   AND_B_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA0
-struct AND_C_In     : public Instruction {   AND_C_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA0
-struct AND_D_In     : public Instruction {   AND_D_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA0
-struct AND_E_In     : public Instruction {   AND_E_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA0
-struct AND_H_In     : public Instruction {   AND_H_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA0
-struct AND_L_In     : public Instruction {   AND_L_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA0
-struct AND_mHL_In   : public Instruction { AND_mHL_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA0
-struct AND_A_In     : public Instruction {   AND_A_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA0
-struct XOR_B_In     : public Instruction {   XOR_B_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA0
-struct XOR_C_In     : public Instruction {   XOR_C_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA0
-struct XOR_D_In     : public Instruction {   XOR_D_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA0
-struct XOR_E_In     : public Instruction {   XOR_E_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA0
-struct XOR_H_In     : public Instruction {   XOR_H_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA0
-struct XOR_L_In     : public Instruction {   XOR_L_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA0
-struct XOR_mHL_In   : public Instruction { XOR_mHL_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA0
-struct XOR_A_In     : public Instruction {   XOR_A_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA0
+struct AND_C_In     : public Instruction {   AND_C_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA1
+struct AND_D_In     : public Instruction {   AND_D_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA2
+struct AND_E_In     : public Instruction {   AND_E_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA3
+struct AND_H_In     : public Instruction {   AND_H_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA4
+struct AND_L_In     : public Instruction {   AND_L_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA5
+struct AND_mHL_In   : public Instruction { AND_mHL_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA6
+struct AND_A_In     : public Instruction {   AND_A_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA7
+struct XOR_B_In     : public Instruction {   XOR_B_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA8
+struct XOR_C_In     : public Instruction {   XOR_C_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xA9
+struct XOR_D_In     : public Instruction {   XOR_D_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xAA
+struct XOR_E_In     : public Instruction {   XOR_E_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xAB
+struct XOR_H_In     : public Instruction {   XOR_H_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xAC
+struct XOR_L_In     : public Instruction {   XOR_L_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xAD
+struct XOR_mHL_In   : public Instruction { XOR_mHL_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xAE
+struct XOR_A_In     : public Instruction {   XOR_A_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xAF
                                                                                                               
    AND_B_In::AND_B_In()    : Instruction( "AND",   "AND B", "Z010", 0xA0, 1, 4, VERBOSE_FLAG) { }     // 0xA0
    AND_C_In::AND_C_In()    : Instruction( "AND",   "AND C", "Z010", 0xA1, 1, 4, VERBOSE_FLAG) { }     // 0xA1
