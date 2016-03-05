@@ -38,6 +38,8 @@ struct LR35902 {
     void pop(uint16& reg);                               // TODO  // pop register from stack
     
     // ALU
+    uint16 sign_ext(uint8 value); 
+    
     void inc_8bit_reg(uint8& reg); 
     void inc_16bit_reg(uint16& reg); 
     
