@@ -4,8 +4,8 @@
 #include "Instruction.hpp"
 
 //   Instruction(const std::string& mnemonic, const std::string& alt_name, const std::string& flags, 
-//		  uint8 opcode, const uint8 bytes, const uint8 cycles, bool verbose = false); 
-	
+//          uint8 opcode, const uint8 bytes, const uint8 cycles, bool verbose = false); 
+    
 const bool VERBOSE_FLAG = false; 
 
 // =================================================================================================
