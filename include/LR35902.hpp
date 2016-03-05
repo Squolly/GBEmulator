@@ -54,9 +54,9 @@ struct LR35902 {
     void add_16_16(uint16& reg1, const uint16& reg2); 
     void add_8_8(uint8& reg1, const uint8& reg2);
     void adc_8_8(uint8& reg1, const uint8& reg2);
-    void sbc_8_8(uint8& reg1, const uint8& reg2); // TODO
+    void sbc_8_8(uint8& reg1, const uint8& reg2);
     
-    void sub_8(const uint8& reg);  // TODO
+    void sub_8(const uint8& reg);
     void and_8(const uint8& reg);
     void xor_8(const uint8& reg);
     void or_8(const uint8& reg); 
