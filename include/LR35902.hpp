@@ -6,10 +6,11 @@
 
 struct LR35902 {
     Registers registers; 
-    bool running; 
-    bool bhalt; 
+    Memory    memory; 
+    bool      running; 
+    bool      bhalt; 
     
-    uint32 cycle_counter; 
+    uint32    cycle_counter; 
     
     LR35902(); 
     ~LR35902(); 
@@ -17,25 +18,24 @@ struct LR35902 {
     void halt();
     
     // control 
-    bool retf(const uint8& flag);                        // TODO  // return if flag
-    bool retf_n(const uint8& flag);                      // TODO  // return if !flag
-    void ret();                                          // TODO
-    void reti();                                         // TODO
-    void res(const uint16& addr);                        // TODO  // reset to address
+    bool retf(const uint8& flag);                        // return if flag
+    bool retf_n(const uint8& flag);                      // return if !flag
+    void ret();                                          // return from subroutine 
+    void reti();                                         // uses ret currently 
                                                          
-    bool callf(const uint8& flag, const uint16& addr);   // TODO  // call address if flag set
-    bool callf_n(const uint8& flag, const uint16& addr); // TODO  // fall address if flag not set
-    void call(const uint16& addr);                       // TODO  // call address
+    bool callf(const uint8& flag, const uint16& addr);   // call address if flag set
+    bool callf_n(const uint8& flag, const uint16& addr); // call address if flag not set
+    void call(const uint16& addr);                       // call address
                                                         
-    bool jpf(const uint8& flag, const uint16& addr);     // TODO
-    bool jpf_n(const uint8& flag, const uint16& addr);   // TODO
-    void jp(const uint16& addr);                         // TODO
+    bool jpf(const uint8& flag, const uint16& addr);     // jump if flag is set 
+    bool jpf_n(const uint8& flag, const uint16& addr);   // jump if flag is not set
+    void jp(const uint16& addr);                         // jump
     
     void ei();                                           // TODO 
     void di();                                           // TODO 
                                                         
-    void push(const uint16& reg);                        // TODO  // push register on stack 
-    void pop(uint16& reg);                               // TODO  // pop register from stack
+    void push(const uint16& reg);                        // push register on stack 
+    void pop(uint16& reg);                               // pop register from stack
     
     // ALU
     uint16 sign_ext(uint8 value); 
@@ -52,15 +52,15 @@ struct LR35902 {
     void shift_right_reg_a();
     
     void add_16_16(uint16& reg1, const uint16& reg2); 
-    void add_8_8(uint8& reg1, const uint8& reg2); // TODO 
-    void adc_8_8(uint8& reg1, const uint8& reg2); // TODO 
+    void add_8_8(uint8& reg1, const uint8& reg2);
+    void adc_8_8(uint8& reg1, const uint8& reg2);
     void sbc_8_8(uint8& reg1, const uint8& reg2); // TODO
     
     void sub_8(const uint8& reg);  // TODO
-    void and_8(const uint8& reg);  // TODO
-    void xor_8(const uint8& reg);  // TODO
-    void or_8(const uint8& reg);   // TODO
-    void cp_8(const uint8& reg);   // TODO
+    void and_8(const uint8& reg);
+    void xor_8(const uint8& reg);
+    void or_8(const uint8& reg); 
+    void cp_8(const uint8& reg);
     
     void dda(); // convert A from binary to BCD
     

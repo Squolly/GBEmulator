@@ -8,6 +8,96 @@ LR35902::~LR35902() {
 
 }
 
+bool LR35902::retf(const uint8& flag) {
+    if(flag) {
+        ret();
+        return true; 
+    }
+    
+    return false; 
+}
+
+bool LR35902::retf_n(const uint8& flag) {
+    if(!flag) {
+        ret();
+        return true; 
+    }
+    
+    return false; 
+}
+
+void LR35902::ret() {
+    // push address from stack 
+    uint16 addr; 
+    pop(addr); 
+    registers.PC = addr; // Jump!
+}
+
+void LR35902::reti() {
+    ret(); 
+    ei(); 
+}
+
+bool LR35902::callf(const uint8& flag, const uint16& addr) {
+    if(flag) {
+        call(addr); 
+        return true; 
+    }
+    return false; 
+}
+
+bool LR35902::callf_n(const uint8& flag, const uint16& addr) {
+    if(!flag) {
+        call(addr); 
+        return true; 
+    }
+    return false; 
+}
+
+void LR35902::call(const uint16& addr) {
+    push(registers.PC); 
+    jp(addr); 
+}
+
+bool LR35902::jpf(const uint8& flag, const uint16& addr) {
+    if(flag) {
+        jp(addr); 
+        return true; 
+    }
+    return false; 
+}
+
+bool LR35902::jpf_n(const uint8& flag, const uint16& addr) {
+    if(!flag) {
+        jp(addr); 
+        return true; 
+    }
+    return false; 
+}
+
+void LR35902::jp(const uint16& addr) {
+    registers.PC = addr; 
+}
+    
+void LR35902::ei() {
+    // TODO 
+}
+    
+void LR35902::di() {
+    // TODO 
+}
+    
+void LR35902::push(const uint16& reg) {
+    registers.SP += 2; 
+    memory.write_16(registers.SP, reg); 
+}
+
+void LR35902::pop(uint16& reg) {
+    reg = memory.read_16(registers.SP); 
+    registers.SP -= 2; 
+}
+
+    
 void LR35902::inc_8bit_reg(uint8& reg) {
     reg += 1;                          
     if(registers.B == 0) {                     // Z - result == 0?
@@ -163,30 +253,115 @@ void LR35902::add_16_16(uint16& reg1, const uint16& reg2) {
     // registers.A = r & MASK_8; 
 }
 
+void LR35902::add_8_8(uint8& reg1, const uint8& reg2) {
+    uint8 nibble_reg1 = reg1 & 0x0F; 
+    uint8 nibble_reg2 = reg2 & 0x0F; 
+    
+    uint8 nibble_result = nibble_reg1 + nibble_reg2; 
+    uint16 result = reg1 + reg2; 
+    
+    registers.clear_n(); 
+    
+    if(nibble_result > 0x0F) 
+        registers.set_h(); 
+    else 
+        registers.clear_h(); 
+    
+    if(result > 255)
+        registers.set_c(); 
+    else
+        registers.clear_c(); 
+    
+    if(result == 0) 
+        registers.set_z(); 
+    else
+        registers.clear_z(); 
+    
+    reg1 = result & 0xFF; 
+}
+
+void LR35902::adc_8_8(uint8& reg1, const uint8& reg2) {
+    uint8 carry = (registers.c() ? 1 : 0); 
+    uint8 nibble_reg1 = reg1 & 0x0F; 
+    uint8 nibble_reg2 = reg2 & 0x0F; 
+    
+    uint8 nibble_result = nibble_reg1 + nibble_reg2 + carry; 
+    uint16 result = reg1 + reg2 + carry; 
+    
+    registers.clear_n(); 
+    
+    if(nibble_result > 0x0F) 
+        registers.set_h(); 
+    else 
+        registers.clear_h(); 
+    
+    if(result > 255)
+        registers.set_c(); 
+    else
+        registers.clear_c(); 
+    
+    if(result == 0) 
+        registers.set_z(); 
+    else
+        registers.clear_z(); 
+    
+    reg1 = result & 0xFF; 
+}
+
+void LR35902::sbc_8_8(uint8& reg1, const uint8& reg2) {
+    
+}// TODO
+
+void LR35902::sub_8(const uint8& reg) {
+    
+} // TODO
+
+void LR35902::and_8(const uint8& reg) {
+    registers.A = registers.A & reg; 
+    if(registers.A == 0) 
+        registers.set_z(); 
+    else 
+        registers.clear_z(); 
+    registers.clear_n(); 
+    registers.set_h(); 
+    registers.clear_c(); 
+}
+
+
+void LR35902::xor_8(const uint8& reg) {
+    registers.A = registers.A ^ reg; 
+    if(registers.A == 0) 
+        registers.set_z(); 
+    else 
+        registers.clear_z(); 
+    registers.clear_n(); 
+    registers.clear_h(); 
+    registers.clear_c(); 
+}
+
+
+void LR35902::or_8(const uint8& reg) {
+    registers.A = registers.A | reg; 
+    if(registers.A == 0) 
+        registers.set_z(); 
+    else 
+        registers.clear_z(); 
+    registers.clear_n(); 
+    registers.clear_h(); 
+    registers.clear_c(); 
+}
+
+
+void LR35902::cp_8(const uint8& reg) {
+    uint8 tmpA = registers.A; // store A 
+    sub_8(reg); // basically sets flags
+    registers.A = tmpA;       // restore A
+}
+
+
 uint16 LR35902::sign_ext(uint8 value) {
     return (0xF0 * ((value >> 7) & 0x1)) | value; // multiply sign of value (7. bit) with 0xF0 
 }
-
-    
-    
-/*
-N   C   Value of     H  Value of     Hex no   C flag after
-        high nibble     low nibble   added    execution
-
-0   0      0-9       0     0-9       00       0   DONE
-0   0      0-8       0     A-F       06       0   DONE
-0   0      0-9       1     0-3       06       0   DONE
-0   0      A-F       0     0-9       60       1   DONE
-0   0      9-F       0     A-F       66       1   DONE
-0   0      A-F       1     0-3       66       1   DONE
-0   1      0-2       0     0-9       60       1   DONE
-0   1      0-2       0     A-F       66       1   DONE
-0   1      0-3       1     0-3       66       1   DONE
-1   0      0-9       0     0-9       00       0   DONE
-1   0      0-8       1     6-F       FA       0   DONE
-1   1      7-F       0     0-9       A0       1   DONE
-1   1      6-F       1     6-F       9A       1   DONE
-*/
 
 #define LOW_NIBBLE(x) (x & 0xF)
 #define HIGH_NIBBLE(x) ((x >> 4)&0xF)
