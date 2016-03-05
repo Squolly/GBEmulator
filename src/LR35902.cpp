@@ -309,12 +309,59 @@ void LR35902::adc_8_8(uint8& reg1, const uint8& reg2) {
 }
 
 void LR35902::sbc_8_8(uint8& reg1, const uint8& reg2) {
+    uint8 carry = (registers.c() ? 1 : 0); 
+    uint8 nibble_reg1 = reg1 & 0x0F; 
+    uint8 nibble_reg2 = reg2 & 0x0F; 
     
-}// TODO
+    uint8 nibble_result = nibble_reg1 - nibble_reg2 - carry; 
+    uint16 result = reg1 - reg2 - carry; 
+    
+    registers.set_n(); 
+    
+    if(nibble_result > 0x0F) // borrow from bit 4
+        registers.clear_h(); 
+    else 
+        registers.set_h(); 
+    
+    if(result > 255) // borrow 
+        registers.clear_c(); 
+    else
+        registers.set_c(); 
+    
+    if(result == 0) 
+        registers.set_z(); 
+    else
+        registers.clear_z(); 
+    
+    reg1 = result & 0xFF; 
+}
 
 void LR35902::sub_8(const uint8& reg) {
+    uint8 nibble_reg1 = registers.A & 0x0F; 
+    uint8 nibble_reg2 = reg & 0x0F; 
     
-} // TODO
+    uint8 nibble_result = nibble_reg1 - nibble_reg2; 
+    uint16 result = registers.A - reg; 
+    
+    registers.set_n(); 
+    
+    if(nibble_result > 0x0F) // borrow from bit 4
+        registers.clear_h(); 
+    else 
+        registers.set_h(); 
+    
+    if(result > 255) // borrow 
+        registers.clear_c(); 
+    else
+        registers.set_c(); 
+    
+    if(result == 0) 
+        registers.set_z(); 
+    else
+        registers.clear_z(); 
+    
+    registers.A = result & 0xFF; 
+} 
 
 void LR35902::and_8(const uint8& reg) {
     registers.A = registers.A & reg; 

@@ -701,7 +701,7 @@ void     OR_D_In::op(LR35902& cpu, Memory& memory) { cpu.or_8(cpu.registers.D); 
 void     OR_E_In::op(LR35902& cpu, Memory& memory) { cpu.or_8(cpu.registers.E); }                  // 0xB3
 void     OR_H_In::op(LR35902& cpu, Memory& memory) { cpu.or_8(cpu.registers.H); }                  // 0xB4
 void     OR_L_In::op(LR35902& cpu, Memory& memory) { cpu.or_8(cpu.registers.L); }                  // 0xB5
-void   OR_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.or_8(memory.read_8(cpu.registers.HL)); } // 0xB6
+void   OR_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.or_8(memory.read_8(cpu.registers.HL)); }  // 0xB6
 void     OR_A_In::op(LR35902& cpu, Memory& memory) { cpu.or_8(cpu.registers.A); }                  // 0xB7
 void     CP_B_In::op(LR35902& cpu, Memory& memory) { cpu.cp_8(cpu.registers.B); }                  // 0xB8
 void     CP_C_In::op(LR35902& cpu, Memory& memory) { cpu.cp_8(cpu.registers.C); }                  // 0xB9
@@ -709,7 +709,7 @@ void     CP_D_In::op(LR35902& cpu, Memory& memory) { cpu.cp_8(cpu.registers.D); 
 void     CP_E_In::op(LR35902& cpu, Memory& memory) { cpu.cp_8(cpu.registers.E); }                  // 0xBB
 void     CP_H_In::op(LR35902& cpu, Memory& memory) { cpu.cp_8(cpu.registers.H); }                  // 0xBC
 void     CP_L_In::op(LR35902& cpu, Memory& memory) { cpu.cp_8(cpu.registers.L); }                  // 0xBD
-void   CP_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.cp_8(memory.read_8(cpu.registers.HL));}  // 0xBE
+void   CP_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.cp_8(memory.read_8(cpu.registers.HL));}   // 0xBE
 void     CP_A_In::op(LR35902& cpu, Memory& memory) { cpu.cp_8(cpu.registers.A); }                  // 0xBF
 
 // =================================================================================================
