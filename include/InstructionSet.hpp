@@ -52,21 +52,21 @@ RRCA_In::RRCA_In()                    : Instruction("RRCA",       "RRCA", "000C"
 
 // Instruction Implementation
 void       NOP_In::op(LR35902& cpu, Memory& memory) {  }                                                          // 0x00
-void LD_BC_d16_In::op(LR35902& cpu, Memory& memory) { cpu.registers.BC = memory.read_u16(cpu.registers.PC + 1); } // 0x01
-void  LD_mBC_A_In::op(LR35902& cpu, Memory& memory) { memory.write_u8(cpu.registers.BC, cpu.registers.A); }       // 0x02
+void LD_BC_d16_In::op(LR35902& cpu, Memory& memory) { cpu.registers.BC = memory.read_16(cpu.registers.PC + 1); } // 0x01
+void  LD_mBC_A_In::op(LR35902& cpu, Memory& memory) { memory.write_8(cpu.registers.BC, cpu.registers.A); }       // 0x02
 void    INC_BC_In::op(LR35902& cpu, Memory& memory) { cpu.inc_16bit_reg(cpu.registers.BC); }                      // 0x03
 void     INC_B_In::op(LR35902& cpu, Memory& memory) { cpu.inc_8bit_reg(cpu.registers.B); }                        // 0x04
 void     DEC_B_In::op(LR35902& cpu, Memory& memory) { cpu.dec_8bit_reg(cpu.registers.B); }                        // 0x05
-void   LD_B_d8_In::op(LR35902& cpu, Memory& memory) { cpu.registers.B = memory.read_u8(cpu.registers.PC + 1); }   // 0x06
+void   LD_B_d8_In::op(LR35902& cpu, Memory& memory) { cpu.registers.B = memory.read_8(cpu.registers.PC + 1); }   // 0x06
 void      RLCA_In::op(LR35902& cpu, Memory& memory) { cpu.shift_left_c_reg_a(); }                                 // 0x07
-void LD_a16_SP_In::op(LR35902& cpu, Memory& memory) { uint16 addr = memory.read_u16(cpu.registers.PC + 1);        // 0x08
-                                                      memory.write_u16(addr, cpu.registers.SP); }                 
+void LD_a16_SP_In::op(LR35902& cpu, Memory& memory) { uint16 addr = memory.read_16(cpu.registers.PC + 1);        // 0x08
+                                                      memory.write_16(addr, cpu.registers.SP); }                 
 void ADD_HL_BC_In::op(LR35902& cpu, Memory& memory) { cpu.add_16_16(cpu.registers.HL, cpu.registers.BC); }        // 0x09
-void  LD_A_mBC_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = memory.read_u8(cpu.registers.BC); }       // 0x0A
+void  LD_A_mBC_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = memory.read_8(cpu.registers.BC); }       // 0x0A
 void    DEC_BC_In::op(LR35902& cpu, Memory& memory) { cpu.dec_16bit_reg(cpu.registers.BC);  }                     // 0x0B
 void     INC_C_In::op(LR35902& cpu, Memory& memory) { cpu.inc_8bit_reg(cpu.registers.C);  }                       // 0x0C
 void     DEC_C_In::op(LR35902& cpu, Memory& memory) { cpu.dec_8bit_reg(cpu.registers.C);  }                       // 0x0D
-void   LD_C_d8_In::op(LR35902& cpu, Memory& memory) { cpu.registers.C = memory.read_u8(cpu.registers.PC + 1);  }  // 0x0E
+void   LD_C_d8_In::op(LR35902& cpu, Memory& memory) { cpu.registers.C = memory.read_8(cpu.registers.PC + 1);  }  // 0x0E
 void      RRCA_In::op(LR35902& cpu, Memory& memory) { cpu.shift_right_c_reg_a();  }                               // 0x0F
 
 
@@ -112,22 +112,22 @@ RRA_In::RRA_In()                      : Instruction( "RRA",        "RRA", "000C"
 
 // Instruction Implementation
 void      STOP_In::op(LR35902& cpu, Memory& memory) { cpu.running = false; }                                      // 0x10                                                       // 0x10
-void LD_DE_d16_In::op(LR35902& cpu, Memory& memory) { cpu.registers.DE = memory.read_u16(cpu.registers.PC + 1); } // 0x11
-void  LD_mDE_A_In::op(LR35902& cpu, Memory& memory) { memory.write_u8(cpu.registers.DE, cpu.registers.A);}        // 0x12
+void LD_DE_d16_In::op(LR35902& cpu, Memory& memory) { cpu.registers.DE = memory.read_16(cpu.registers.PC + 1); } // 0x11
+void  LD_mDE_A_In::op(LR35902& cpu, Memory& memory) { memory.write_8(cpu.registers.DE, cpu.registers.A);}        // 0x12
 void    INC_DE_In::op(LR35902& cpu, Memory& memory) { cpu.inc_16bit_reg(cpu.registers.DE); }                      // 0x13
 void     INC_D_In::op(LR35902& cpu, Memory& memory) { cpu.inc_8bit_reg(cpu.registers.D); }                        // 0x14
 void     DEC_D_In::op(LR35902& cpu, Memory& memory) { cpu.dec_8bit_reg(cpu.registers.D); }                        // 0x15
-void   LD_D_d8_In::op(LR35902& cpu, Memory& memory) { cpu.registers.D = memory.read_u8(cpu.registers.PC + 1); }   // 0x16
+void   LD_D_d8_In::op(LR35902& cpu, Memory& memory) { cpu.registers.D = memory.read_8(cpu.registers.PC + 1); }   // 0x16
 void       RLA_In::op(LR35902& cpu, Memory& memory) { cpu.shift_left_reg_a();  }                                  // 0x17
-void     JR_r8_In::op(LR35902& cpu, Memory& memory) { uint8 r8 = memory.read_u8(cpu.registers.PC + 1);            // 0x18
+void     JR_r8_In::op(LR35902& cpu, Memory& memory) { uint8 r8 = memory.read_8(cpu.registers.PC + 1);            // 0x18
                                                       if(r8 <= 0x7F) cpu.registers.PC += r8; 
                                                       else cpu.registers.PC -= (((~r8) + 1) & 0x7F); }
 void ADD_HL_DE_In::op(LR35902& cpu, Memory& memory) { cpu.add_16_16(cpu.registers.HL, cpu.registers.DE); }        // 0x19
-void  LD_A_mDE_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = memory.read_u8(cpu.registers.DE); }       // 0x1A
+void  LD_A_mDE_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = memory.read_8(cpu.registers.DE); }       // 0x1A
 void    DEC_DE_In::op(LR35902& cpu, Memory& memory) { cpu.dec_16bit_reg(cpu.registers.DE);  }                     // 0x1B
 void     INC_E_In::op(LR35902& cpu, Memory& memory) { cpu.inc_8bit_reg(cpu.registers.E);  }                       // 0x1C
 void     DEC_E_In::op(LR35902& cpu, Memory& memory) { cpu.dec_8bit_reg(cpu.registers.E);  }                       // 0x1D
-void   LD_E_d8_In::op(LR35902& cpu, Memory& memory) { cpu.registers.E = memory.read_u8(cpu.registers.PC + 1);  }  // 0x1E
+void   LD_E_d8_In::op(LR35902& cpu, Memory& memory) { cpu.registers.E = memory.read_8(cpu.registers.PC + 1);  }  // 0x1E
 void       RRA_In::op(LR35902& cpu, Memory& memory) { cpu.shift_right_reg_a();  }                                  // 0x1F
 
 // =================================================================================================
@@ -171,30 +171,30 @@ CPL_In::CPL_In()                      : Instruction( "CPL",        "CPL", "-11-"
 
 
 void  JR_NZ_r8_In::op(LR35902& cpu, Memory& memory) { if(!cpu.registers.z()) {                                    // 0x20
-                                                          uint8 off = memory.read_u8(cpu.registers.PC + 1); 
+                                                          uint8 off = memory.read_8(cpu.registers.PC + 1); 
                                                           if(off < 0x7f) cpu.registers.PC = cpu.registers.PC + off; 
                                                           else cpu.registers.PC = cpu.registers.PC - (((~off)+1)&0x7F); 
                                                           cpu.registers.PC -= bytes;  } } // bytes will be added after execution
-void LD_HL_d16_In::op(LR35902& cpu, Memory& memory) { cpu.registers.HL = memory.read_u16(cpu.registers.PC + 1); } // 0x21
-void LD_mHLp_A_In::op(LR35902& cpu, Memory& memory) { memory.write_u8(cpu.registers.HL, cpu.registers.A);         // 0x22
+void LD_HL_d16_In::op(LR35902& cpu, Memory& memory) { cpu.registers.HL = memory.read_16(cpu.registers.PC + 1); } // 0x21
+void LD_mHLp_A_In::op(LR35902& cpu, Memory& memory) { memory.write_8(cpu.registers.HL, cpu.registers.A);         // 0x22
                                                       cpu.inc_16bit_reg(cpu.registers.HL); } 
 void    INC_HL_In::op(LR35902& cpu, Memory& memory) { cpu.inc_16bit_reg(cpu.registers.HL); }                      // 0x23
 void     INC_H_In::op(LR35902& cpu, Memory& memory) { cpu.inc_8bit_reg(cpu.registers.H); }                        // 0x24
 void     DEC_H_In::op(LR35902& cpu, Memory& memory) { cpu.dec_8bit_reg(cpu.registers.H); }                        // 0x25
-void   LD_H_d8_In::op(LR35902& cpu, Memory& memory) { cpu.registers.H = memory.read_u8(cpu.registers.PC + 1); }   // 0x26
+void   LD_H_d8_In::op(LR35902& cpu, Memory& memory) { cpu.registers.H = memory.read_8(cpu.registers.PC + 1); }   // 0x26
 void       DAA_In::op(LR35902& cpu, Memory& memory) { cpu.dda(); }                                                // 0x27
 void   JR_Z_r8_In::op(LR35902& cpu, Memory& memory) { if(cpu.registers.z()) {                                     // 0x28
-                                                          uint8 off = memory.read_u8(cpu.registers.PC + 1); 
+                                                          uint8 off = memory.read_8(cpu.registers.PC + 1); 
                                                           if(off < 0x7f) cpu.registers.PC = cpu.registers.PC + off; 
                                                           else cpu.registers.PC = cpu.registers.PC - (((~off)+1)&0x7F); 
                                                           cpu.registers.PC -= bytes;  } } // bytes will be added after execution
 void ADD_HL_HL_In::op(LR35902& cpu, Memory& memory) { cpu.add_16_16(cpu.registers.HL, cpu.registers.HL); }        // 0x29
-void LD_A_mHLp_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = memory.read_u8(cpu.registers.HL);         // 0x2A
+void LD_A_mHLp_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = memory.read_8(cpu.registers.HL);         // 0x2A
                                                       cpu.inc_16bit_reg(cpu.registers.HL); }
 void    DEC_HL_In::op(LR35902& cpu, Memory& memory) { cpu.dec_16bit_reg(cpu.registers.HL);  }                     // 0x2B
 void     INC_L_In::op(LR35902& cpu, Memory& memory) { cpu.inc_8bit_reg(cpu.registers.L);  }                       // 0x2C
 void     DEC_L_In::op(LR35902& cpu, Memory& memory) { cpu.dec_8bit_reg(cpu.registers.L);  }                       // 0x2D
-void   LD_L_d8_In::op(LR35902& cpu, Memory& memory) { cpu.registers.L = memory.read_u8(cpu.registers.PC + 1);  }  // 0x2E
+void   LD_L_d8_In::op(LR35902& cpu, Memory& memory) { cpu.registers.L = memory.read_8(cpu.registers.PC + 1);  }  // 0x2E
 void       CPL_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = (~cpu.registers.A)&0xFF; 
                                                       cpu.registers.set_n(); cpu.registers.set_h(); }             // 0x2F
 
@@ -239,34 +239,34 @@ CCF_In::CCF_In()                      : Instruction( "CCF",        "CCF", "-00C"
 
 
 void  JR_NC_r8_In::op(LR35902& cpu, Memory& memory) { if(!cpu.registers.c()) {                                    // 0x30
-                                                          uint8 off = memory.read_u8(cpu.registers.PC + 1); 
+                                                          uint8 off = memory.read_8(cpu.registers.PC + 1); 
                                                           if(off < 0x7f) cpu.registers.PC = cpu.registers.PC + off; 
                                                           else cpu.registers.PC = cpu.registers.PC - (((~off)+1)&0x7F); 
                                                           cpu.registers.PC -= bytes;  } } // bytes will be added after execution
-void LD_SP_d16_In::op(LR35902& cpu, Memory& memory) { cpu.registers.SP = memory.read_u16(cpu.registers.PC + 1); } // 0x31
-void LD_mHLm_A_In::op(LR35902& cpu, Memory& memory) { memory.write_u8(cpu.registers.HL, cpu.registers.A);         // 0x32
+void LD_SP_d16_In::op(LR35902& cpu, Memory& memory) { cpu.registers.SP = memory.read_16(cpu.registers.PC + 1); } // 0x31
+void LD_mHLm_A_In::op(LR35902& cpu, Memory& memory) { memory.write_8(cpu.registers.HL, cpu.registers.A);         // 0x32
                                                       cpu.dec_16bit_reg(cpu.registers.HL); } 
 void    INC_SP_In::op(LR35902& cpu, Memory& memory) { cpu.inc_16bit_reg(cpu.registers.SP); }                      // 0x33
-void   INC_mHL_In::op(LR35902& cpu, Memory& memory) { uint8 value = memory.read_u8(cpu.registers.HL);             // 0x34
+void   INC_mHL_In::op(LR35902& cpu, Memory& memory) { uint8 value = memory.read_8(cpu.registers.HL);             // 0x34
                                                       cpu.inc_8bit_reg(value); 
-                                                      memory.write_u8(cpu.registers.HL, value); }                     
-void   DEC_mHL_In::op(LR35902& cpu, Memory& memory) { uint8 value = memory.read_u8(cpu.registers.HL);             // 0x35
+                                                      memory.write_8(cpu.registers.HL, value); }                     
+void   DEC_mHL_In::op(LR35902& cpu, Memory& memory) { uint8 value = memory.read_8(cpu.registers.HL);             // 0x35
                                                       cpu.dec_8bit_reg(value); 
-                                                      memory.write_u8(cpu.registers.HL, value); }
-void LD_mHL_d8_In::op(LR35902& cpu, Memory& memory) { memory.write_u8(cpu.registers.HL, memory.read_u8(cpu.registers.PC + 1)); }  // 0x36
+                                                      memory.write_8(cpu.registers.HL, value); }
+void LD_mHL_d8_In::op(LR35902& cpu, Memory& memory) { memory.write_8(cpu.registers.HL, memory.read_8(cpu.registers.PC + 1)); }  // 0x36
 void       SCF_In::op(LR35902& cpu, Memory& memory) { cpu.registers.clear_n(); cpu.registers.clear_h(); cpu.registers.set_c(); }  // 0x37
 void   JR_C_r8_In::op(LR35902& cpu, Memory& memory) { if(cpu.registers.c()) {                                    // 0x38
-                                                          uint8 off = memory.read_u8(cpu.registers.PC + 1); 
+                                                          uint8 off = memory.read_8(cpu.registers.PC + 1); 
                                                           if(off < 0x7f) cpu.registers.PC = cpu.registers.PC + off; 
                                                           else cpu.registers.PC = cpu.registers.PC - (((~off)+1)&0x7F); 
                                                           cpu.registers.PC -= bytes;  } } // bytes will be added after execution
 void ADD_HL_SP_In::op(LR35902& cpu, Memory& memory) { cpu.add_16_16(cpu.registers.HL, cpu.registers.SP); }       // 0x39
-void LD_A_mHLm_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = memory.read_u8(cpu.registers.HL);        // 0x3A
+void LD_A_mHLm_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = memory.read_8(cpu.registers.HL);        // 0x3A
                                                       cpu.dec_16bit_reg(cpu.registers.HL); }
 void    DEC_SP_In::op(LR35902& cpu, Memory& memory) { cpu.dec_16bit_reg(cpu.registers.SP);  }                    // 0x3B
 void     INC_A_In::op(LR35902& cpu, Memory& memory) { cpu.inc_8bit_reg(cpu.registers.A);  }                      // 0x3C
 void     DEC_A_In::op(LR35902& cpu, Memory& memory) { cpu.dec_8bit_reg(cpu.registers.A);  }                      // 0x3D
-void   LD_A_d8_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = memory.read_u8(cpu.registers.PC + 1);  } // 0x3E 
+void   LD_A_d8_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = memory.read_8(cpu.registers.PC + 1);  } // 0x3E 
 void       CCF_In::op(LR35902& cpu, Memory& memory) { cpu.registers.clear_n(); cpu.registers.clear_h();          // 0x3F complement carry
                                                       if(cpu.registers.c()) cpu.registers.clear_c(); 
                                                       else                  cpu.registers.set_c(); } 
@@ -315,7 +315,7 @@ void    LD_B_D_In::op(LR35902& cpu, Memory& memory) { cpu.registers.B = cpu.regi
 void    LD_B_E_In::op(LR35902& cpu, Memory& memory) { cpu.registers.B = cpu.registers.E;  }                     // 0x43
 void    LD_B_H_In::op(LR35902& cpu, Memory& memory) { cpu.registers.B = cpu.registers.H;  }                     // 0x44
 void    LD_B_L_In::op(LR35902& cpu, Memory& memory) { cpu.registers.B = cpu.registers.L;  }                     // 0x45
-void    LD_B_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.registers.B = memory.read_u8(cpu.registers.HL); }   // 0x46
+void    LD_B_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.registers.B = memory.read_8(cpu.registers.HL); }   // 0x46
 void    LD_B_A_In::op(LR35902& cpu, Memory& memory) { cpu.registers.B = cpu.registers.A;  }                     // 0x47
 void    LD_C_B_In::op(LR35902& cpu, Memory& memory) { cpu.registers.C = cpu.registers.B;  }                     // 0x48
 void    LD_C_C_In::op(LR35902& cpu, Memory& memory) { cpu.registers.C = cpu.registers.C;  }                     // 0x49
@@ -323,7 +323,7 @@ void    LD_C_D_In::op(LR35902& cpu, Memory& memory) { cpu.registers.C = cpu.regi
 void    LD_C_E_In::op(LR35902& cpu, Memory& memory) { cpu.registers.C = cpu.registers.E;  }                     // 0x4B
 void    LD_C_H_In::op(LR35902& cpu, Memory& memory) { cpu.registers.C = cpu.registers.H;  }                     // 0x4C
 void    LD_C_L_In::op(LR35902& cpu, Memory& memory) { cpu.registers.C = cpu.registers.L;  }                     // 0x4D
-void    LD_C_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.registers.C = memory.read_u8(cpu.registers.HL); }   // 0x4E
+void    LD_C_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.registers.C = memory.read_8(cpu.registers.HL); }   // 0x4E
 void    LD_C_A_In::op(LR35902& cpu, Memory& memory) { cpu.registers.C = cpu.registers.A;  }                     // 0x4F
 
 
@@ -371,7 +371,7 @@ void    LD_D_D_In::op(LR35902& cpu, Memory& memory) { cpu.registers.D = cpu.regi
 void    LD_D_E_In::op(LR35902& cpu, Memory& memory) { cpu.registers.D = cpu.registers.E;  }                     // 0x53
 void    LD_D_H_In::op(LR35902& cpu, Memory& memory) { cpu.registers.D = cpu.registers.H;  }                     // 0x54
 void    LD_D_L_In::op(LR35902& cpu, Memory& memory) { cpu.registers.D = cpu.registers.L;  }                     // 0x55
-void  LD_D_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.registers.D = memory.read_u8(cpu.registers.HL); }     // 0x56
+void  LD_D_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.registers.D = memory.read_8(cpu.registers.HL); }     // 0x56
 void    LD_D_A_In::op(LR35902& cpu, Memory& memory) { cpu.registers.D = cpu.registers.A;  }                     // 0x57
 void    LD_E_B_In::op(LR35902& cpu, Memory& memory) { cpu.registers.E = cpu.registers.B;  }                     // 0x58
 void    LD_E_C_In::op(LR35902& cpu, Memory& memory) { cpu.registers.E = cpu.registers.C;  }                     // 0x59
@@ -379,7 +379,7 @@ void    LD_E_D_In::op(LR35902& cpu, Memory& memory) { cpu.registers.E = cpu.regi
 void    LD_E_E_In::op(LR35902& cpu, Memory& memory) { cpu.registers.E = cpu.registers.E;  }                     // 0x5B
 void    LD_E_H_In::op(LR35902& cpu, Memory& memory) { cpu.registers.E = cpu.registers.H;  }                     // 0x5C
 void    LD_E_L_In::op(LR35902& cpu, Memory& memory) { cpu.registers.E = cpu.registers.L;  }                     // 0x5D
-void  LD_E_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.registers.E = memory.read_u8(cpu.registers.HL); }     // 0x5E
+void  LD_E_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.registers.E = memory.read_8(cpu.registers.HL); }     // 0x5E
 void    LD_E_A_In::op(LR35902& cpu, Memory& memory) { cpu.registers.E = cpu.registers.A;  }                     // 0x5F
 
 // =================================================================================================
@@ -426,7 +426,7 @@ void    LD_H_D_In::op(LR35902& cpu, Memory& memory) { cpu.registers.H = cpu.regi
 void    LD_H_E_In::op(LR35902& cpu, Memory& memory) { cpu.registers.H = cpu.registers.E;  }                     // 0x63
 void    LD_H_H_In::op(LR35902& cpu, Memory& memory) { cpu.registers.H = cpu.registers.H;  }                     // 0x64
 void    LD_H_L_In::op(LR35902& cpu, Memory& memory) { cpu.registers.H = cpu.registers.L;  }                     // 0x65
-void  LD_H_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.registers.H = memory.read_u8(cpu.registers.HL); }     // 0x66
+void  LD_H_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.registers.H = memory.read_8(cpu.registers.HL); }     // 0x66
 void    LD_H_A_In::op(LR35902& cpu, Memory& memory) { cpu.registers.H = cpu.registers.A;  }                     // 0x67
 void    LD_L_B_In::op(LR35902& cpu, Memory& memory) { cpu.registers.L = cpu.registers.B;  }                     // 0x68
 void    LD_L_C_In::op(LR35902& cpu, Memory& memory) { cpu.registers.L = cpu.registers.C;  }                     // 0x69
@@ -434,7 +434,7 @@ void    LD_L_D_In::op(LR35902& cpu, Memory& memory) { cpu.registers.L = cpu.regi
 void    LD_L_E_In::op(LR35902& cpu, Memory& memory) { cpu.registers.L = cpu.registers.E;  }                     // 0x6B
 void    LD_L_H_In::op(LR35902& cpu, Memory& memory) { cpu.registers.L = cpu.registers.H;  }                     // 0x6C
 void    LD_L_L_In::op(LR35902& cpu, Memory& memory) { cpu.registers.L = cpu.registers.L;  }                     // 0x6D
-void  LD_L_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.registers.L = memory.read_u8(cpu.registers.HL); }     // 0x6E
+void  LD_L_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.registers.L = memory.read_8(cpu.registers.HL); }     // 0x6E
 void    LD_L_A_In::op(LR35902& cpu, Memory& memory) { cpu.registers.L = cpu.registers.A;  }                     // 0x6F
 
 // =================================================================================================
@@ -475,12 +475,12 @@ LD_A_L_In::LD_A_L_In()            : Instruction( "LD",     "LD A, L", "----", 0x
 LD_A_mHL_In::LD_A_mHL_In()        : Instruction( "LD",  "LD A, (HL)", "----", 0x7E, 1, 8, VERBOSE_FLAG) { }      // 0x7E
 LD_A_A_In::LD_A_A_In()            : Instruction( "LD",     "LD A, A", "----", 0x7F, 1, 4, VERBOSE_FLAG) { }      // 0x7F
 
-void  LD_mHL_B_In::op(LR35902& cpu, Memory& memory) { memory.write_u8(cpu.registers.HL, cpu.registers.B);  }     // 0x70
-void  LD_mHL_C_In::op(LR35902& cpu, Memory& memory) { memory.write_u8(cpu.registers.HL, cpu.registers.C);  }     // 0x71
-void  LD_mHL_D_In::op(LR35902& cpu, Memory& memory) { memory.write_u8(cpu.registers.HL, cpu.registers.D);  }     // 0x72
-void  LD_mHL_E_In::op(LR35902& cpu, Memory& memory) { memory.write_u8(cpu.registers.HL, cpu.registers.E);  }     // 0x73
-void  LD_mHL_H_In::op(LR35902& cpu, Memory& memory) { memory.write_u8(cpu.registers.HL, cpu.registers.H);  }     // 0x74
-void  LD_mHL_L_In::op(LR35902& cpu, Memory& memory) { memory.write_u8(cpu.registers.HL, cpu.registers.L);  }     // 0x75
+void  LD_mHL_B_In::op(LR35902& cpu, Memory& memory) { memory.write_8(cpu.registers.HL, cpu.registers.B);  }     // 0x70
+void  LD_mHL_C_In::op(LR35902& cpu, Memory& memory) { memory.write_8(cpu.registers.HL, cpu.registers.C);  }     // 0x71
+void  LD_mHL_D_In::op(LR35902& cpu, Memory& memory) { memory.write_8(cpu.registers.HL, cpu.registers.D);  }     // 0x72
+void  LD_mHL_E_In::op(LR35902& cpu, Memory& memory) { memory.write_8(cpu.registers.HL, cpu.registers.E);  }     // 0x73
+void  LD_mHL_H_In::op(LR35902& cpu, Memory& memory) { memory.write_8(cpu.registers.HL, cpu.registers.H);  }     // 0x74
+void  LD_mHL_L_In::op(LR35902& cpu, Memory& memory) { memory.write_8(cpu.registers.HL, cpu.registers.L);  }     // 0x75
 void      HALT_In::op(LR35902& cpu, Memory& memory) { cpu.halt(); }                                              // 0x76
 void  LD_mHL_A_In::op(LR35902& cpu, Memory& memory) { cpu.registers.H = cpu.registers.A;  }                      // 0x77
 void    LD_A_B_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = cpu.registers.B;  }                      // 0x78
@@ -489,7 +489,7 @@ void    LD_A_D_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = cpu.regi
 void    LD_A_E_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = cpu.registers.E;  }                      // 0x7B
 void    LD_A_H_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = cpu.registers.H;  }                      // 0x7C
 void    LD_A_L_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = cpu.registers.L;  }                      // 0x7D
-void  LD_A_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = memory.read_u8(cpu.registers.HL); }      // 0x7E
+void  LD_A_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = memory.read_8(cpu.registers.HL); }      // 0x7E
 void    LD_A_A_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = cpu.registers.A;  }                      // 0x7F
 
 // =================================================================================================
@@ -536,7 +536,7 @@ void   ADD_A_D_In::op(LR35902& cpu, Memory& memory) { cpu.add_8_8(cpu.registers.
 void   ADD_A_E_In::op(LR35902& cpu, Memory& memory) { cpu.add_8_8(cpu.registers.A, cpu.registers.E); }     // 0x83
 void   ADD_A_H_In::op(LR35902& cpu, Memory& memory) { cpu.add_8_8(cpu.registers.A, cpu.registers.H); }     // 0x84
 void   ADD_A_L_In::op(LR35902& cpu, Memory& memory) { cpu.add_8_8(cpu.registers.A, cpu.registers.L); }     // 0x85
-void ADD_A_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.add_8_8(cpu.registers.A, memory.read_u8(cpu.registers.HL)); } // 0x86
+void ADD_A_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.add_8_8(cpu.registers.A, memory.read_8(cpu.registers.HL)); } // 0x86
 void   ADD_A_A_In::op(LR35902& cpu, Memory& memory) { cpu.add_8_8(cpu.registers.A, cpu.registers.A); }     // 0x87
 void   ADC_A_B_In::op(LR35902& cpu, Memory& memory) { cpu.adc_8_8(cpu.registers.A, cpu.registers.B); }     // 0x88
 void   ADC_A_C_In::op(LR35902& cpu, Memory& memory) { cpu.adc_8_8(cpu.registers.A, cpu.registers.C); }     // 0x89
@@ -544,7 +544,7 @@ void   ADC_A_D_In::op(LR35902& cpu, Memory& memory) { cpu.adc_8_8(cpu.registers.
 void   ADC_A_E_In::op(LR35902& cpu, Memory& memory) { cpu.adc_8_8(cpu.registers.A, cpu.registers.E); }     // 0x8B
 void   ADC_A_H_In::op(LR35902& cpu, Memory& memory) { cpu.adc_8_8(cpu.registers.A, cpu.registers.H); }     // 0x8C
 void   ADC_A_L_In::op(LR35902& cpu, Memory& memory) { cpu.adc_8_8(cpu.registers.A, cpu.registers.L); }     // 0x8D
-void ADC_A_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.adc_8_8(cpu.registers.A, memory.read_u8(cpu.registers.HL));} // 0x8E
+void ADC_A_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.adc_8_8(cpu.registers.A, memory.read_8(cpu.registers.HL));} // 0x8E
 void   ADC_A_A_In::op(LR35902& cpu, Memory& memory) { cpu.adc_8_8(cpu.registers.A, cpu.registers.A); }     // 0x8F
 
 // =================================================================================================
@@ -591,16 +591,16 @@ void    SUB_D_In::op(LR35902& cpu, Memory& memory) { cpu.sub_8(cpu.registers.D);
 void    SUB_E_In::op(LR35902& cpu, Memory& memory) { cpu.sub_8(cpu.registers.E); }                  // 0x93
 void    SUB_H_In::op(LR35902& cpu, Memory& memory) { cpu.sub_8(cpu.registers.H); }                  // 0x94
 void    SUB_L_In::op(LR35902& cpu, Memory& memory) { cpu.sub_8(cpu.registers.L); }                  // 0x95
-void  SUB_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.sub_8(memory.read_u8(cpu.registers.HL)); } // 0x96
+void  SUB_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.sub_8(memory.read_8(cpu.registers.HL)); } // 0x96
 void    SUB_A_In::op(LR35902& cpu, Memory& memory) { cpu.sub_8(cpu.registers.A); }                  // 0x97
-void    SBC_B_In::op(LR35902& cpu, Memory& memory) { cpu.sbc_8(cpu.registers.B); }                  // 0x98
-void    SBC_C_In::op(LR35902& cpu, Memory& memory) { cpu.sbc_8(cpu.registers.C); }                  // 0x99
-void    SBC_D_In::op(LR35902& cpu, Memory& memory) { cpu.sbc_8(cpu.registers.D); }                  // 0x9A
-void    SBC_E_In::op(LR35902& cpu, Memory& memory) { cpu.sbc_8(cpu.registers.E); }                  // 0x9B
-void    SBC_H_In::op(LR35902& cpu, Memory& memory) { cpu.sbc_8(cpu.registers.H); }                  // 0x9C
-void    SBC_L_In::op(LR35902& cpu, Memory& memory) { cpu.sbc_8(cpu.registers.L); }                  // 0x9D
-void  SBC_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.sbc_8(memory.read_u8(cpu.registers.HL));}  // 0x9E
-void    SBC_A_In::op(LR35902& cpu, Memory& memory) { cpu.sbc_8(cpu.registers.A); }                  // 0x9F
+void    SBC_B_In::op(LR35902& cpu, Memory& memory) { cpu.sbc_8_8(cpu.registers.A, cpu.registers.B); }                  // 0x98
+void    SBC_C_In::op(LR35902& cpu, Memory& memory) { cpu.sbc_8_8(cpu.registers.A, cpu.registers.C); }                  // 0x99
+void    SBC_D_In::op(LR35902& cpu, Memory& memory) { cpu.sbc_8_8(cpu.registers.A, cpu.registers.D); }                  // 0x9A
+void    SBC_E_In::op(LR35902& cpu, Memory& memory) { cpu.sbc_8_8(cpu.registers.A, cpu.registers.E); }                  // 0x9B
+void    SBC_H_In::op(LR35902& cpu, Memory& memory) { cpu.sbc_8_8(cpu.registers.A, cpu.registers.H); }                  // 0x9C
+void    SBC_L_In::op(LR35902& cpu, Memory& memory) { cpu.sbc_8_8(cpu.registers.A, cpu.registers.L); }                  // 0x9D
+void  SBC_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.sbc_8_8(cpu.registers.A, memory.read_8(cpu.registers.HL));}  // 0x9E
+void    SBC_A_In::op(LR35902& cpu, Memory& memory) { cpu.sbc_8_8(cpu.registers.A, cpu.registers.A); }                  // 0x9F
 
 // =================================================================================================
 // OpCodes 0xA0 - 0xAF
@@ -646,7 +646,7 @@ void    AND_D_In::op(LR35902& cpu, Memory& memory) { cpu.and_8(cpu.registers.D);
 void    AND_E_In::op(LR35902& cpu, Memory& memory) { cpu.and_8(cpu.registers.E); }                  // 0xA3
 void    AND_H_In::op(LR35902& cpu, Memory& memory) { cpu.and_8(cpu.registers.H); }                  // 0xA4
 void    AND_L_In::op(LR35902& cpu, Memory& memory) { cpu.and_8(cpu.registers.L); }                  // 0xA5
-void  AND_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.and_8(memory.read_u8(cpu.registers.HL)); } // 0xA6
+void  AND_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.and_8(memory.read_8(cpu.registers.HL)); } // 0xA6
 void    AND_A_In::op(LR35902& cpu, Memory& memory) { cpu.and_8(cpu.registers.A); }                  // 0xA7
 void    XOR_B_In::op(LR35902& cpu, Memory& memory) { cpu.xor_8(cpu.registers.B); }                  // 0xA8
 void    XOR_C_In::op(LR35902& cpu, Memory& memory) { cpu.xor_8(cpu.registers.C); }                  // 0xA9
@@ -654,7 +654,7 @@ void    XOR_D_In::op(LR35902& cpu, Memory& memory) { cpu.xor_8(cpu.registers.D);
 void    XOR_E_In::op(LR35902& cpu, Memory& memory) { cpu.xor_8(cpu.registers.E); }                  // 0xAB
 void    XOR_H_In::op(LR35902& cpu, Memory& memory) { cpu.xor_8(cpu.registers.H); }                  // 0xAC
 void    XOR_L_In::op(LR35902& cpu, Memory& memory) { cpu.xor_8(cpu.registers.L); }                  // 0xAD
-void  XOR_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.xor_8(memory.read_u8(cpu.registers.HL));}  // 0xAE
+void  XOR_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.xor_8(memory.read_8(cpu.registers.HL));}  // 0xAE
 void    XOR_A_In::op(LR35902& cpu, Memory& memory) { cpu.xor_8(cpu.registers.A); }                  // 0xAF
 
 // =================================================================================================
@@ -701,7 +701,7 @@ void     OR_D_In::op(LR35902& cpu, Memory& memory) { cpu.or_8(cpu.registers.D); 
 void     OR_E_In::op(LR35902& cpu, Memory& memory) { cpu.or_8(cpu.registers.E); }                  // 0xB3
 void     OR_H_In::op(LR35902& cpu, Memory& memory) { cpu.or_8(cpu.registers.H); }                  // 0xB4
 void     OR_L_In::op(LR35902& cpu, Memory& memory) { cpu.or_8(cpu.registers.L); }                  // 0xB5
-void   OR_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.or_8(memory.read_u8(cpu.registers.HL)); } // 0xB6
+void   OR_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.or_8(memory.read_8(cpu.registers.HL)); } // 0xB6
 void     OR_A_In::op(LR35902& cpu, Memory& memory) { cpu.or_8(cpu.registers.A); }                  // 0xB7
 void     CP_B_In::op(LR35902& cpu, Memory& memory) { cpu.cp_8(cpu.registers.B); }                  // 0xB8
 void     CP_C_In::op(LR35902& cpu, Memory& memory) { cpu.cp_8(cpu.registers.C); }                  // 0xB9
@@ -709,7 +709,7 @@ void     CP_D_In::op(LR35902& cpu, Memory& memory) { cpu.cp_8(cpu.registers.D); 
 void     CP_E_In::op(LR35902& cpu, Memory& memory) { cpu.cp_8(cpu.registers.E); }                  // 0xBB
 void     CP_H_In::op(LR35902& cpu, Memory& memory) { cpu.cp_8(cpu.registers.H); }                  // 0xBC
 void     CP_L_In::op(LR35902& cpu, Memory& memory) { cpu.cp_8(cpu.registers.L); }                  // 0xBD
-void   CP_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.cp_8(memory.read_u8(cpu.registers.HL));}  // 0xBE
+void   CP_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.cp_8(memory.read_8(cpu.registers.HL));}  // 0xBE
 void     CP_A_In::op(LR35902& cpu, Memory& memory) { cpu.cp_8(cpu.registers.A); }                  // 0xBF
 
 // =================================================================================================
@@ -752,19 +752,19 @@ struct RST_08H_In     : public Instruction {     RST_08H_In(); virtual void op(L
 
 void      RET_NZ_In::op(LR35902& cpu, Memory& memory) { cpu.retf_n(cpu.registers.z() ); }                                      // 0xC0
 void      POP_BC_In::op(LR35902& cpu, Memory& memory) { cpu.pop(cpu.registers.BC); }                                           // 0xC1
-void   JP_NZ_a16_In::op(LR35902& cpu, Memory& memory) { cpu.jpf_n(cpu.registers.z(), memory.read_u16(cpu.registers.PC + 1)); } // 0xC2
-void      JP_a16_In::op(LR35902& cpu, Memory& memory) { cpu.jp(memory.read_u16(cpu.registers.PC + 1)); }                       // 0xC3
-void CALL_NZ_a16_In::op(LR35902& cpu, Memory& memory) { cpu.callf_n(cpu.registers.z(), memory.read_u16(cpu.registers.PC + 1));  } // 0xC4
+void   JP_NZ_a16_In::op(LR35902& cpu, Memory& memory) { cpu.jpf_n(cpu.registers.z(), memory.read_16(cpu.registers.PC + 1)); } // 0xC2
+void      JP_a16_In::op(LR35902& cpu, Memory& memory) { cpu.jp(memory.read_16(cpu.registers.PC + 1)); }                       // 0xC3
+void CALL_NZ_a16_In::op(LR35902& cpu, Memory& memory) { cpu.callf_n(cpu.registers.z(), memory.read_16(cpu.registers.PC + 1));  } // 0xC4
 void     PUSH_BC_In::op(LR35902& cpu, Memory& memory) { cpu.push(cpu.registers.BC); }                                          // 0xC5
-void    ADD_A_d8_In::op(LR35902& cpu, Memory& memory) { cpu.add_8_8(cpu.registers.A, memory.read_u8(cpu.registers.PC + 1)); }  // 0xC6
+void    ADD_A_d8_In::op(LR35902& cpu, Memory& memory) { cpu.add_8_8(cpu.registers.A, memory.read_8(cpu.registers.PC + 1)); }  // 0xC6
 void     RST_00H_In::op(LR35902& cpu, Memory& memory) { cpu.push(cpu.registers.PC); cpu.jp(0x0000);  }                         // 0xC7
 void       RET_Z_In::op(LR35902& cpu, Memory& memory) { cpu.retf(cpu.registers.z());  }                                        // 0xC8
 void         RET_In::op(LR35902& cpu, Memory& memory) { cpu.ret();  }                                                          // 0xC9
-void    JP_Z_a16_In::op(LR35902& cpu, Memory& memory) { cpu.jpf(cpu.registers.z(), memory.read_u16(cpu.registers.PC + 1)); }   // 0xCA
+void    JP_Z_a16_In::op(LR35902& cpu, Memory& memory) { cpu.jpf(cpu.registers.z(), memory.read_16(cpu.registers.PC + 1)); }   // 0xCA
 void   PREFIX_CB_In::op(LR35902& cpu, Memory& memory) { /* TODO: Add Prefix CB Instruction Calls */ }                          // 0xCB
-void  CALL_Z_a16_In::op(LR35902& cpu, Memory& memory) { cpu.callf(cpu.registers.z(), memory.read_u16(cpu.registers.PC + 1));  }// 0xCC
-void    CALL_a16_In::op(LR35902& cpu, Memory& memory) { cpu.call(memory.read_u16(cpu.registers.PC + 1));  }                    // 0xCD
-void    ADC_A_d8_In::op(LR35902& cpu, Memory& memory) { cpu.adc_8_8(cpu.registers.A, memory.read_u8(cpu.registers.PC + 1));}   // 0xCE
+void  CALL_Z_a16_In::op(LR35902& cpu, Memory& memory) { cpu.callf(cpu.registers.z(), memory.read_16(cpu.registers.PC + 1));  }// 0xCC
+void    CALL_a16_In::op(LR35902& cpu, Memory& memory) { cpu.call(memory.read_16(cpu.registers.PC + 1));  }                    // 0xCD
+void    ADC_A_d8_In::op(LR35902& cpu, Memory& memory) { cpu.adc_8_8(cpu.registers.A, memory.read_8(cpu.registers.PC + 1));}   // 0xCE
 void     RST_08H_In::op(LR35902& cpu, Memory& memory) { cpu.push(cpu.registers.PC); cpu.jp(0x0008);  }                         // 0xCF
 
 // =================================================================================================
@@ -807,19 +807,19 @@ CALL_NC_a16_In::CALL_NC_a16_In() : Instruction("CALL","CALL NC, a16", "----", 0x
 
 void     RET_NC_In::op(LR35902& cpu, Memory& memory) { cpu.retf_n(cpu.registers.c() ); }                          // 0xD0
 void     POP_DE_In::op(LR35902& cpu, Memory& memory) { cpu.pop(cpu.registers.DE); }                               // 0xD1
-void  JP_NC_a16_In::op(LR35902& cpu, Memory& memory) { cpu.jpf_n(cpu.registers.c(), memory.read_u16(cpu.registers.PC + 1)); } // 0xD2
+void  JP_NC_a16_In::op(LR35902& cpu, Memory& memory) { cpu.jpf_n(cpu.registers.c(), memory.read_16(cpu.registers.PC + 1)); } // 0xD2
 // 0xD3: no operation for this opcode in LR35902
-void CALL_NC_a16_In::op(LR35902& cpu, Memory& memory) { cpu.callf_n(cpu.registers.c(), memory.read_u16(cpu.registers.PC + 1));  } // 0xD4
+void CALL_NC_a16_In::op(LR35902& cpu, Memory& memory) { cpu.callf_n(cpu.registers.c(), memory.read_16(cpu.registers.PC + 1));  } // 0xD4
 void     PUSH_DE_In::op(LR35902& cpu, Memory& memory) { cpu.push(cpu.registers.DE); }                             // 0xD5
-void      SUB_d8_In::op(LR35902& cpu, Memory& memory) { cpu.sub_8(memory.read_u8(cpu.registers.PC + 1)); }        // 0xD6
+void      SUB_d8_In::op(LR35902& cpu, Memory& memory) { cpu.sub_8(memory.read_8(cpu.registers.PC + 1)); }        // 0xD6
 void     RST_10H_In::op(LR35902& cpu, Memory& memory) { cpu.push(cpu.registers.PC); cpu.jp(0x0010);  }            // 0xD7
 void       RET_C_In::op(LR35902& cpu, Memory& memory) { cpu.retf(cpu.registers.c());  }                           // 0xD8
 void        RETI_In::op(LR35902& cpu, Memory& memory) { cpu.reti();  }                                            // 0xD9
-void    JP_C_a16_In::op(LR35902& cpu, Memory& memory) { cpu.jpf(cpu.registers.c(), memory.read_u16(cpu.registers.PC + 1)); } // 0xDA
+void    JP_C_a16_In::op(LR35902& cpu, Memory& memory) { cpu.jpf(cpu.registers.c(), memory.read_16(cpu.registers.PC + 1)); } // 0xDA
 // 0xDB: no operation for this opcode in LR35902
-void  CALL_C_a16_In::op(LR35902& cpu, Memory& memory) { cpu.callf(cpu.registers.c(), memory.read_u16(cpu.registers.PC + 1));  } // 0xD4
+void  CALL_C_a16_In::op(LR35902& cpu, Memory& memory) { cpu.callf(cpu.registers.c(), memory.read_16(cpu.registers.PC + 1));  } // 0xD4
 // 0xDD: no operation for this opcode in LR35902
-void    SBC_A_d8_In::op(LR35902& cpu, Memory& memory) { cpu.sbc_8_8(cpu.registers.A, memory.read_u8(cpu.registers.PC + 1));}   // 0xDE
+void    SBC_A_d8_In::op(LR35902& cpu, Memory& memory) { cpu.sbc_8_8(cpu.registers.A, memory.read_8(cpu.registers.PC + 1));}   // 0xDE
 void     RST_18H_In::op(LR35902& cpu, Memory& memory) { cpu.push(cpu.registers.PC); cpu.jp(0x0018);  }            // 0xDF
 
 // =================================================================================================
@@ -860,23 +860,23 @@ struct  RST_28H_In : public Instruction {  RST_28H_In(); virtual void op(LR35902
    XOR_d8_In::XOR_d8_In()      : Instruction( "XOR",      "XOR d8", "Z000", 0xEE, 2,  8, VERBOSE_FLAG) { }       // 0xEE
   RST_28H_In::RST_28H_In()     : Instruction( "RST",     "RST 28H", "----", 0xEF, 1, 16, VERBOSE_FLAG) { }       // 0xEF
 
-void   LDH_a8_A_In::op(LR35902& cpu, Memory& memory) { memory.write_u8((0xFF00 | memory.read_u8(cpu.registers.PC + 1)), cpu.registers.A);  } // 0xE0
+void   LDH_a8_A_In::op(LR35902& cpu, Memory& memory) { memory.write_8((0xFF00 | memory.read_8(cpu.registers.PC + 1)), cpu.registers.A);  } // 0xE0
 void     POP_HL_In::op(LR35902& cpu, Memory& memory) { cpu.pop(cpu.registers.HL); }                           // 0xE1
-void    LD_mC_A_In::op(LR35902& cpu, Memory& memory) { memory.write_u8((0xFF00 | cpu.registers.C), cpu.registers.A);  } // 0xE2
+void    LD_mC_A_In::op(LR35902& cpu, Memory& memory) { memory.write_8((0xFF00 | cpu.registers.C), cpu.registers.A);  } // 0xE2
 // 0xE3: no operation for this opcode in LR35902
 // 0xE4: no operation for this opcode in LR35902
 void    PUSH_HL_In::op(LR35902& cpu, Memory& memory) { cpu.push(cpu.registers.HL); }                          // 0xE5
-void     AND_d8_In::op(LR35902& cpu, Memory& memory) { cpu.and_8(memory.read_u8(cpu.registers.PC + 1)); }     // 0xE6
+void     AND_d8_In::op(LR35902& cpu, Memory& memory) { cpu.and_8(memory.read_8(cpu.registers.PC + 1)); }     // 0xE6
 void    RST_20H_In::op(LR35902& cpu, Memory& memory) { cpu.push(cpu.registers.PC); cpu.jp(0x0020);  }         // 0xE7
 void  ADD_SP_r8_In::op(LR35902& cpu, Memory& memory) { cpu.add_16_16(cpu.registers.SP,                        // 0xE8
-                                                                     cpu.sign_ext(memory.read_u8(cpu.registers.PC + 1))); 
+                                                                     cpu.sign_ext(memory.read_8(cpu.registers.PC + 1))); 
                                                        cpu.registers.clear_z(); } // always cleared
-void    JP_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.jp(memory.read_u16(cpu.registers.HL));  }           // 0xE9
-void  LD_a16_A_In::op(LR35902& cpu, Memory& memory) { memory.write_u8(memory.read_u16(cpu.registers.PC + 1), cpu.registers.A);  } // 0xEA
+void    JP_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.jp(memory.read_16(cpu.registers.HL));  }           // 0xE9
+void  LD_a16_A_In::op(LR35902& cpu, Memory& memory) { memory.write_8(memory.read_16(cpu.registers.PC + 1), cpu.registers.A);  } // 0xEA
 // 0xEB: no operation for this opcode in LR35902
 // 0xEC: no operation for this opcode in LR35902
 // 0xED: no operation for this opcode in LR35902
-void    XOR_d8_In::op(LR35902& cpu, Memory& memory) { cpu.xor_8(memory.read_u8(cpu.registers.PC + 1));}       // 0xEE
+void    XOR_d8_In::op(LR35902& cpu, Memory& memory) { cpu.xor_8(memory.read_8(cpu.registers.PC + 1));}       // 0xEE
 void   RST_28H_In::op(LR35902& cpu, Memory& memory) { cpu.push(cpu.registers.PC); cpu.jp(0x0028);  }          // 0xEF
 
 // =================================================================================================
@@ -917,24 +917,24 @@ LD_HL_SP_r8_In::LD_HL_SP_r8_In() : Instruction("LD","LD HL, SP+r8", "00HC", 0xF8
     CP_d8_In::CP_d8_In()   : Instruction(  "CP",       "CP d8", "Z1HC", 0xFE, 1,  8, VERBOSE_FLAG) { }    // 0xFE
   RST_38H_In::RST_38H_In() : Instruction( "RST",     "RST 38H", "----", 0xFF, 1, 16, VERBOSE_FLAG) { }    // 0xFF
 
-void    LDH_A_a8_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = memory.read_u8(0xFF00 | memory.read_u8(cpu.registers.PC + 1));  } // 0xF0
+void    LDH_A_a8_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = memory.read_8(0xFF00 | memory.read_8(cpu.registers.PC + 1));  } // 0xF0
 void      POP_AF_In::op(LR35902& cpu, Memory& memory) { cpu.pop(cpu.registers.AF); }                     // 0xF1
-void     LD_A_mC_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = memory.read_u8(0xFF00 | cpu.registers.C);  } // 0xF2
+void     LD_A_mC_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = memory.read_8(0xFF00 | cpu.registers.C);  } // 0xF2
 void          DI_In::op(LR35902& cpu, Memory& memory) { cpu.di(); }                                      // 0xF3
 // 0xF4: no operation for this opcode in LR35902
 void     PUSH_AF_In::op(LR35902& cpu, Memory& memory) { cpu.push(cpu.registers.AF); }                    // 0xF5
-void       OR_d8_In::op(LR35902& cpu, Memory& memory) { cpu.or_8(memory.read_u8(cpu.registers.PC + 1)); }// 0xF6
+void       OR_d8_In::op(LR35902& cpu, Memory& memory) { cpu.or_8(memory.read_8(cpu.registers.PC + 1)); }// 0xF6
 void     RST_30H_In::op(LR35902& cpu, Memory& memory) { cpu.push(cpu.registers.PC); cpu.jp(0x0030);  }   // 0xF7
 void LD_HL_SP_r8_In::op(LR35902& cpu, Memory& memory) { cpu.registers.HL = cpu.registers.SP;             // 0xF8
                                                         cpu.add_16_16(cpu.registers.HL, 
-                                                        cpu.sign_ext(memory.read_u8(cpu.registers.PC + 1))); 
+                                                        cpu.sign_ext(memory.read_8(cpu.registers.PC + 1))); 
                                                         cpu.registers.clear_z(); }
 void    LD_SP_HL_In::op(LR35902& cpu, Memory& memory) { cpu.registers.SP = cpu.registers.HL;  }          // 0xF9
-void    LD_A_a16_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = memory.read_u8(memory.read_u16(cpu.registers.PC + 1)); } // 0xFA
+void    LD_A_a16_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = memory.read_8(memory.read_16(cpu.registers.PC + 1)); } // 0xFA
 void          EI_In::op(LR35902& cpu, Memory& memory) { cpu.ei(); }                                      // 0xFB
 // 0xFC: no operation for this opcode in LR35902
 // 0xFD: no operation for this opcode in LR35902
-void       CP_d8_In::op(LR35902& cpu, Memory& memory) { cpu.cp_8(memory.read_u8(cpu.registers.PC + 1));} // 0xFE
+void       CP_d8_In::op(LR35902& cpu, Memory& memory) { cpu.cp_8(memory.read_8(cpu.registers.PC + 1));} // 0xFE
 void     RST_38H_In::op(LR35902& cpu, Memory& memory) { cpu.push(cpu.registers.PC); cpu.jp(0x0038);  }   // 0xFF
 
 #endif

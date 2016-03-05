@@ -57,7 +57,6 @@ struct LR35902 {
     void sbc_8_8(uint8& reg1, const uint8& reg2); // TODO
     
     void sub_8(const uint8& reg);  // TODO
-    void sbc_8(const uint8& reg);  // TODO MAYBE OBSOLETE
     void and_8(const uint8& reg);  // TODO
     void xor_8(const uint8& reg);  // TODO
     void or_8(const uint8& reg);   // TODO
