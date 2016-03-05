@@ -17,18 +17,18 @@ struct LR35902 {
     void halt();
     
     // control 
-    void retf(const uint8& flag);                        // TODO  // return if flag
-    void retf_n(const uint8& flag);                      // TODO  // return if !flag
+    bool retf(const uint8& flag);                        // TODO  // return if flag
+    bool retf_n(const uint8& flag);                      // TODO  // return if !flag
     void ret();                                          // TODO
     void reti();                                         // TODO
     void res(const uint16& addr);                        // TODO  // reset to address
                                                          
-    void callf(const uint8& flag, const uint16& addr);   // TODO  // call address if flag set
-    void callf_n(const uint8& flag, const uint16& addr); // TODO  // fall address if flag not set
+    bool callf(const uint8& flag, const uint16& addr);   // TODO  // call address if flag set
+    bool callf_n(const uint8& flag, const uint16& addr); // TODO  // fall address if flag not set
     void call(const uint16& addr);                       // TODO  // call address
                                                         
-    void jpf(const uint8& flag, const uint16& addr);     // TODO
-    void jpf_n(const uint8& flag, const uint16& addr);   // TODO
+    bool jpf(const uint8& flag, const uint16& addr);     // TODO
+    bool jpf_n(const uint8& flag, const uint16& addr);   // TODO
     void jp(const uint16& addr);                         // TODO
     
     void ei();                                           // TODO 
