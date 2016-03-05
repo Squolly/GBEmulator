@@ -8,6 +8,8 @@
     
 const bool VERBOSE_FLAG = false; 
 
+// consider to remove LR35902 and Memory from Parameters and add them as members of Instruction class 
+
 // =================================================================================================
 // OpCodes 0x00 - 0x0F
 // =================================================================================================
