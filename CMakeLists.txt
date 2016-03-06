@@ -5,6 +5,8 @@ include_directories(
 )
 
 set(GAME_BOY_EMULATOR_SOURCE_FILES
+    ${PROJECT_SOURCE_DIR}/src/Instruction.cpp
+    ${PROJECT_SOURCE_DIR}/src/InstructionSet.cpp
     ${PROJECT_SOURCE_DIR}/src/main.cpp
     ${PROJECT_SOURCE_DIR}/src/LR35902.cpp
     ${PROJECT_SOURCE_DIR}/src/Memory.cpp
@@ -22,6 +24,7 @@ set(GAME_BOY_EMULATOR_HEADER_FILES
     ${PROJECT_SOURCE_DIR}/include/Module.hpp
     ${PROJECT_SOURCE_DIR}/include/MemoryMappedModule.hpp
     ${PROJECT_SOURCE_DIR}/include/Memory.hpp
+    ${PROJECT_SOURCE_DIR}/include/LR35902.hpp
     ${PROJECT_SOURCE_DIR}/include/Registers.hpp
     ${PROJECT_SOURCE_DIR}/include/types.hpp
 )

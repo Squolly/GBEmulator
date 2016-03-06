@@ -21,7 +21,7 @@ class MemoryMappedModule : public Module {
         
         bool  check_bounds(uint16 address) { return (address >= _start_address && address < _end_address); }
         
-    private:
+    protected:
         uint32 _start_address; // beginning of memory mapped area
         uint32 _end_address;   // end of memory mapped area
         uint32 _size;          // size of memory mapped area

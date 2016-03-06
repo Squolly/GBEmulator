@@ -1,14 +1,19 @@
 #ifndef __LR35902_HPP__
 #define __LR35902_HPP__
 
+#include "types.hpp"
+
 #include "Memory.hpp"
 #include "Registers.hpp"
+
+class Instruction;  
 
 struct LR35902 {
     Registers registers; 
     Memory    memory; 
     bool      running; 
     bool      bhalt; 
+    std::vector<Instruction*> instructions; 
     
     uint32    cycle_counter; 
     
@@ -33,7 +38,7 @@ struct LR35902 {
     
     void ei();                                           // TODO 
     void di();                                           // TODO 
-                                                        
+
     void push(const uint16& reg);                        // push register on stack 
     void pop(uint16& reg);                               // pop register from stack
     
@@ -63,6 +68,8 @@ struct LR35902 {
     void cp_8(const uint8& reg);
     
     void dda(); // convert A from binary to BCD
+    
+    void disassemble(MemoryMappedModule* module, uint16 start_address, uint16 end_address); 
     
 }; 
 
