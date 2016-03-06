@@ -698,6 +698,191 @@ uint16 LR35902::sign_ext(uint8 value) {
     return (0xF0 * ((value >> 7) & 0x1)) | value; // multiply sign of value (7. bit) with 0xF0 
 }
 
+// rotate left, old bit 7 in carry
+void LR35902::rlc(uint8& reg) {
+    uint8 bit0 = ((reg & 0x80) >> 7); 
+    reg = ((reg << 1) & 0xFF) | bit0; 
+    
+    // flags
+    if(!reg) {
+        registers.set_z();
+    }
+    else {
+        registers.clear_z(); 
+    }
+    
+    registers.clear_n(); 
+    registers.clear_h(); 
+    
+    if(bit0) {
+        registers.set_c(); 
+    }
+    else {
+        registers.clear_c(); 
+    }
+}
+
+// rotate right, old bit 0 in carry
+void LR35902::rrc(uint8& reg) {
+    uint8 bit7 = ((reg & 0x01) << 7); 
+    reg = ((reg >> 1) & 0xFF) | bit7; 
+    
+    // flags
+    if(!reg) {
+        registers.set_z();
+    }
+    else {
+        registers.clear_z(); 
+    }
+    
+    registers.clear_n(); 
+    registers.clear_h(); 
+    
+    if(bit7) {
+        registers.set_c(); 
+    }
+    else {
+        registers.clear_c(); 
+    }
+}
+
+// rotate left through carry
+void LR35902::rl(uint8& reg) {
+    uint8 carry = (registers.c() ? 1 : 0); 
+    uint16 result = reg << 1; 
+    reg = (result & 0xFF) | carry; 
+    
+    // flags
+    if(!reg) {
+        registers.set_z();
+    }
+    else {
+        registers.clear_z(); 
+    }
+    
+    registers.clear_n(); 
+    registers.clear_h(); 
+    
+    if(result & 0xFF00) {
+        registers.set_c(); 
+    }
+    else {
+        registers.clear_c(); 
+    }
+}
+
+// rotate right through carry
+void LR35902::rr(uint8& reg) {
+    uint8 carry     = (registers.c() ? 0x80 : 0x00); 
+    uint8 new_carry = reg & 0x01; 
+    uint16 result   = reg >> 1; 
+    reg = (result & 0xFF) | carry; 
+    
+    // flags
+    if(!reg) {
+        registers.set_z();
+    }
+    else {
+        registers.clear_z(); 
+    }
+    
+    registers.clear_n(); 
+    registers.clear_h(); 
+    
+    if(new_carry) {
+        registers.set_c(); 
+    }
+    else {
+        registers.clear_c(); 
+    }
+}
+
+void LR35902::sla(uint8& reg) {
+    uint16 result = reg << 1; 
+    reg = result & 0xFF; 
+    
+    if(!reg) {
+        registers.set_z(); 
+    }
+    else {
+        registers.clear_z(); 
+    }
+    
+    registers.clear_n(); 
+    registers.clear_h(); 
+    
+    if(result & 0xFF00) {
+        registers.set_c(); 
+    }
+    else {
+        registers.clear_c(); 
+    }
+}
+
+void LR35902::sra(uint8& reg) {
+    uint8 bit0 = reg & 0x01; 
+    reg = (reg >> 1) & 0xFF; 
+    
+    // old MSB = new MSB (sign does not change) 
+    reg = reg | ((reg & 0x40) << 1); 
+    
+    if(!reg) {
+        registers.set_z(); 
+    }
+    else {
+        registers.clear_z(); 
+    }
+    
+    registers.clear_n(); 
+    registers.clear_h(); 
+    
+    if(bit0) {
+        registers.set_c(); 
+    }
+    else {
+        registers.clear_c(); 
+    }
+}
+
+// swap upper and lower nubbles of reg
+void LR35902::swap(uint8& reg) {
+    uint8 high = (reg & 0xF0) >> 4; 
+    reg = ((reg << 4) | high) & 0xFF;
+    
+    if(!reg) {
+        registers.set_z(); 
+    }
+    else {
+        registers.clear_z(); 
+    }
+    
+    registers.clear_n(); 
+    registers.clear_h(); 
+    registers.clear_c(); 
+}
+
+void LR35902::srl(uint8& reg) {
+    uint8 bit0 = reg & 0x01; 
+    reg = (reg >> 1) & 0xFF; 
+    
+    if(!reg) {
+        registers.set_z(); 
+    }
+    else {
+        registers.clear_z(); 
+    }
+    
+    registers.clear_n(); 
+    registers.clear_h(); 
+    
+    if(bit0) {
+        registers.set_c(); 
+    }
+    else {
+        registers.clear_c(); 
+    }
+}
+    
 #define LOW_NIBBLE(x) (x & 0xF)
 #define HIGH_NIBBLE(x) ((x >> 4)&0xF)
 void LR35902::dda() { // convert A from binary to BCD

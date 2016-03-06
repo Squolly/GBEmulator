@@ -67,6 +67,17 @@ struct LR35902 {
     void or_8(const uint8& reg); 
     void cp_8(const uint8& reg);
     
+    // ALU extended instructions
+    void rlc(uint8& reg); 
+    void rrc(uint8& reg);
+    void rl(uint8& reg); 
+    void rr(uint8& reg);
+    void sla(uint8& reg); 
+    void sra(uint8& reg); 
+    void swap(uint8& reg); 
+    void srl(uint8& reg); 
+    
+    
     void dda(); // convert A from binary to BCD
     
     void disassemble(MemoryMappedModule* module, uint16 start_address, uint16 end_address); 
