@@ -77,6 +77,9 @@ struct LR35902 {
     void swap(uint8& reg); 
     void srl(uint8& reg); 
     
+    void bit(uint8 b, const uint8& reg); 
+    void res(uint8 b, uint8& reg); 
+    void set(uint8 b, uint8& reg); 
     
     void dda(); // convert A from binary to BCD
     

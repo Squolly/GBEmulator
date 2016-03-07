@@ -931,6 +931,35 @@ void LR35902::dda() { // convert A from binary to BCD
         registers.clear_z(); 
 }
 
+// Z is 1 if bit b of reg is 0, else it is 0
+void LR35902::bit(uint8 b, const uint8& reg) {
+    if((1 << b) & reg) { // if bit is set (0-7)
+        registers.clear_z(); 
+    }
+    else {
+        registers.set_z(); 
+    }
+    
+    registers.clear_n(); 
+    registers.set_h();
+    // flag C unaffected
+}
+
+// reset bit b of reg (flags unaffected)
+void LR35902::res(uint8 b, uint8& reg) {
+    uint8 mask = (1 << b); 
+    mask = ~mask; 
+    reg = mask & reg; 
+}
+
+// set bit b of reg (flags uneffected)
+void LR35902::set(uint8 b, uint8& reg) {
+    uint8 bit_b = (1 << b); 
+    reg = reg | bit_b; 
+}
+
+    
+
 void LR35902::halt() {
     bhalt = true; 
 }
