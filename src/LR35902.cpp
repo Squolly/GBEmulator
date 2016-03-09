@@ -9,7 +9,6 @@ struct InstructionDeleter {
   void operator() (const Instruction *instrPtr) const {
       if(instrPtr)
         delete instrPtr;
-      instrPtr = 0; 
   }
 };
 
@@ -296,7 +295,7 @@ LR35902::~LR35902() {
     instructions.clear();
 }
 
-bool LR35902::retf(const uint8& flag) {
+bool LR35902::retf(uint8 flag) {
     if(flag) {
         ret();
         return true; 
@@ -305,7 +304,7 @@ bool LR35902::retf(const uint8& flag) {
     return false; 
 }
 
-bool LR35902::retf_n(const uint8& flag) {
+bool LR35902::retf_n(uint8 flag) {
     if(!flag) {
         ret();
         return true; 
@@ -326,7 +325,7 @@ void LR35902::reti() {
     ei(); 
 }
 
-bool LR35902::callf(const uint8& flag, const uint16& addr) {
+bool LR35902::callf(uint8 flag, uint16 addr) {
     if(flag) {
         call(addr); 
         return true; 
@@ -334,7 +333,7 @@ bool LR35902::callf(const uint8& flag, const uint16& addr) {
     return false; 
 }
 
-bool LR35902::callf_n(const uint8& flag, const uint16& addr) {
+bool LR35902::callf_n(uint8 flag, uint16 addr) {
     if(!flag) {
         call(addr); 
         return true; 
@@ -342,12 +341,12 @@ bool LR35902::callf_n(const uint8& flag, const uint16& addr) {
     return false; 
 }
 
-void LR35902::call(const uint16& addr) {
+void LR35902::call(uint16 addr) {
     push(registers.PC); 
     jp(addr); 
 }
 
-bool LR35902::jpf(const uint8& flag, const uint16& addr) {
+bool LR35902::jpf(uint8 flag, uint16 addr) {
     if(flag) {
         jp(addr); 
         return true; 
@@ -355,7 +354,7 @@ bool LR35902::jpf(const uint8& flag, const uint16& addr) {
     return false; 
 }
 
-bool LR35902::jpf_n(const uint8& flag, const uint16& addr) {
+bool LR35902::jpf_n(uint8 flag, uint16 addr) {
     if(!flag) {
         jp(addr); 
         return true; 
@@ -363,7 +362,7 @@ bool LR35902::jpf_n(const uint8& flag, const uint16& addr) {
     return false; 
 }
 
-void LR35902::jp(const uint16& addr) {
+void LR35902::jp(uint16 addr) {
     registers.PC = addr; 
 }
     
@@ -375,7 +374,7 @@ void LR35902::di() {
     // TODO 
 }
     
-void LR35902::push(const uint16& reg) {
+void LR35902::push(uint16 reg) {
     registers.SP += 2; 
     memory.write_16(registers.SP, reg); 
 }
@@ -518,7 +517,7 @@ void LR35902::shift_right_reg_a() {
 const uint16 BITMASK_11n = 0x0FFF; 
 const uint32 MASK_8 = 0xFF; 
 
-void LR35902::add_16_16(uint16& reg1, const uint16& reg2) {
+void LR35902::add_16_16(uint16& reg1, uint16 reg2) {
     uint32 r = reg1 + reg2; 
     if (r > 65535) {
         registers.set_c();
@@ -541,7 +540,7 @@ void LR35902::add_16_16(uint16& reg1, const uint16& reg2) {
     // registers.A = r & MASK_8; 
 }
 
-void LR35902::add_8_8(uint8& reg1, const uint8& reg2) {
+void LR35902::add_8_8(uint8& reg1, uint8 reg2) {
     uint8 nibble_reg1 = reg1 & 0x0F; 
     uint8 nibble_reg2 = reg2 & 0x0F; 
     
@@ -568,7 +567,7 @@ void LR35902::add_8_8(uint8& reg1, const uint8& reg2) {
     reg1 = result & 0xFF; 
 }
 
-void LR35902::adc_8_8(uint8& reg1, const uint8& reg2) {
+void LR35902::adc_8_8(uint8& reg1, uint8 reg2) {
     uint8 carry = (registers.c() ? 1 : 0); 
     uint8 nibble_reg1 = reg1 & 0x0F; 
     uint8 nibble_reg2 = reg2 & 0x0F; 
@@ -596,7 +595,7 @@ void LR35902::adc_8_8(uint8& reg1, const uint8& reg2) {
     reg1 = result & 0xFF; 
 }
 
-void LR35902::sbc_8_8(uint8& reg1, const uint8& reg2) {
+void LR35902::sbc_8_8(uint8& reg1, uint8 reg2) {
     uint8 carry = (registers.c() ? 1 : 0); 
     uint8 nibble_reg1 = reg1 & 0x0F; 
     uint8 nibble_reg2 = reg2 & 0x0F; 
@@ -624,7 +623,7 @@ void LR35902::sbc_8_8(uint8& reg1, const uint8& reg2) {
     reg1 = result & 0xFF; 
 }
 
-void LR35902::sub_8(const uint8& reg) {
+void LR35902::sub_8(uint8 reg) {
     uint8 nibble_reg1 = registers.A & 0x0F; 
     uint8 nibble_reg2 = reg & 0x0F; 
     
@@ -651,7 +650,7 @@ void LR35902::sub_8(const uint8& reg) {
     registers.A = result & 0xFF; 
 } 
 
-void LR35902::and_8(const uint8& reg) {
+void LR35902::and_8(uint8 reg) {
     registers.A = registers.A & reg; 
     if(registers.A == 0) 
         registers.set_z(); 
@@ -663,7 +662,7 @@ void LR35902::and_8(const uint8& reg) {
 }
 
 
-void LR35902::xor_8(const uint8& reg) {
+void LR35902::xor_8(uint8 reg) {
     registers.A = registers.A ^ reg; 
     if(registers.A == 0) 
         registers.set_z(); 
@@ -675,7 +674,7 @@ void LR35902::xor_8(const uint8& reg) {
 }
 
 
-void LR35902::or_8(const uint8& reg) {
+void LR35902::or_8(uint8 reg) {
     registers.A = registers.A | reg; 
     if(registers.A == 0) 
         registers.set_z(); 
@@ -687,7 +686,7 @@ void LR35902::or_8(const uint8& reg) {
 }
 
 
-void LR35902::cp_8(const uint8& reg) {
+void LR35902::cp_8(uint8 reg) {
     uint8 tmpA = registers.A; // store A 
     sub_8(reg); // basically sets flags
     registers.A = tmpA;       // restore A
@@ -932,7 +931,7 @@ void LR35902::dda() { // convert A from binary to BCD
 }
 
 // Z is 1 if bit b of reg is 0, else it is 0
-void LR35902::bit(uint8 b, const uint8& reg) {
+void LR35902::bit(uint8 b, uint8 reg) {
     if((1 << b) & reg) { // if bit is set (0-7)
         registers.clear_z(); 
     }

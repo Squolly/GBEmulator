@@ -5,7 +5,7 @@
 
 class GBSound : public MemoryMappedModule {
     public:
-        GBSound(const uint32 start_address, const uint32 end_address, 
+        GBSound(uint32 start_address, uint32 end_address, 
                 const std::string& name = std::string("First Sound Module"), 
                 const std::string& description = std::string("This Sound Module should be used for testing.")) : 
                 MemoryMappedModule(name, description, start_address, end_address) { }

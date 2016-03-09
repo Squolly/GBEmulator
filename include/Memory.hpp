@@ -14,12 +14,12 @@ struct Memory {
     Memory(int size = MEMORY_SIZE); 
     
     // read calls to memory mapped modules
-    uint8  read_8(const uint16 address); 
-    uint16 read_16(const uint16 address); // (endianess!)
+    uint8  read_8(uint16 address); 
+    uint16 read_16(uint16 address); // (endianess!)
     
     // write calls to memory mapped modules 
-    bool   write_8(const uint16 address, const uint8 value); 
-    bool   write_16(const uint16 address, const uint16 value); // (think of endianess!)
+    bool   write_8(uint16 address, uint8 value); 
+    bool   write_16(uint16 address, uint16 value); // (think of endianess!)
     
     void connect(MemoryMappedModule* mmm); 
 }; 

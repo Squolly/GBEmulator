@@ -13,7 +13,7 @@ the correct region
 */
 class GBCartridge : public MemoryMappedModule {
     public:
-        GBCartridge(const uint32 start_address, const uint32 end_address, 
+        GBCartridge(uint32 start_address, uint32 end_address, 
                 const std::string& name = std::string("Game Boy (Standard Cartridge)"), 
                 const std::string& description = std::string("Initial Cartridge Module. Should be exchanged with more specific ones.")) : 
                 MemoryMappedModule(name, description, start_address, end_address) { }

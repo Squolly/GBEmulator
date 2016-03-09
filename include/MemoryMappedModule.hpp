@@ -9,7 +9,7 @@
 class MemoryMappedModule : public Module {
     public:
         MemoryMappedModule(const std::string& name, const std::string& description, 
-                           const uint32 start_address, const uint32 end_address) : 
+                           uint32 start_address, uint32 end_address) : 
                            _start_address(start_address), _end_address(end_address), _size(end_address-start_address), Module(name, description) { }
             
         uint32 start_address() { return _start_address; }

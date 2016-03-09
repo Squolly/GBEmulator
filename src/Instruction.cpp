@@ -2,7 +2,7 @@
 #include "LR35902.hpp"
 
 Instruction::Instruction(const std::string& mnemonic, const std::string& alt_name, const std::string& flags, 
-            const uint8 opcode, const uint8 bytes, const uint8 cycles, bool verbose /* = false */) 
+            uint8 opcode, uint8 bytes, uint8 cycles, bool verbose /* = false */) 
             : mnemonic(mnemonic), alt_name(alt_name), flags(flags), opcode(opcode), 
               bytes(bytes), cycles(cycles), verbose(verbose) { 
 }

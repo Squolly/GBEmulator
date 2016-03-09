@@ -22,7 +22,7 @@ struct Instruction {
     bool verbose; // verbose for debug
     
     Instruction(const std::string& mnemonic, const std::string& alt_name, const std::string& flags, 
-                const uint8 opcode, const uint8 bytes, const uint8 cycles, bool verbose = false);
+                uint8 opcode, uint8 bytes, uint8 cycles, bool verbose = false);
     
     virtual void execute(LR35902& cpu, Memory& memory);
     virtual void op(LR35902& cpu, Memory& memory) = 0; 
