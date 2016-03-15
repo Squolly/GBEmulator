@@ -83,7 +83,10 @@ struct LR35902 {
     
     void dda(); // convert A from binary to BCD
     
-    void disassemble(MemoryMappedModule* module, uint16 start_address, uint16 end_address); 
+    void init(); 
+    void disassemble(); 
+    void single_step();
+    void print_state(); 
     
 }; 
 

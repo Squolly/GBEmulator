@@ -1,9 +1,302 @@
 #include "InstructionSet.hpp"
+#include "InstructionSet_PrefixCB.hpp"
 
 #include "LR35902.hpp"
 #include "Memory.hpp"
 
+#include <iostream> 
+
 // Constructors
+
+ PREFIX_CB_In::PREFIX_CB_In()   : Instruction( "CB",    "PREFIX CB", "----", 0xCB, 1,  4, VERBOSE_FLAG) { 
+     _cb_instructions = std::vector<Instruction*>(0x100, static_cast<Instruction*>(0)); 
+     _cb_instructions[0x00] = new   CB_RLC_B_In();
+     _cb_instructions[0x01] = new   CB_RLC_C_In();
+     _cb_instructions[0x02] = new   CB_RLC_D_In();
+     _cb_instructions[0x03] = new   CB_RLC_E_In();
+     _cb_instructions[0x04] = new   CB_RLC_H_In();
+     _cb_instructions[0x05] = new   CB_RLC_L_In();
+     _cb_instructions[0x06] = new CB_RLC_mHL_In();
+     _cb_instructions[0x07] = new   CB_RLC_A_In();
+     _cb_instructions[0x08] = new   CB_RRC_B_In();
+     _cb_instructions[0x09] = new   CB_RRC_C_In();
+     _cb_instructions[0x0A] = new   CB_RRC_D_In();
+     _cb_instructions[0x0B] = new   CB_RRC_E_In();
+     _cb_instructions[0x0C] = new   CB_RRC_H_In();
+     _cb_instructions[0x0D] = new   CB_RRC_L_In();
+     _cb_instructions[0x0E] = new CB_RRC_mHL_In();
+     _cb_instructions[0x0F] = new   CB_RRC_A_In();
+     
+     _cb_instructions[0x10] = new   CB_RL_B_In();
+     _cb_instructions[0x11] = new   CB_RL_C_In();
+     _cb_instructions[0x12] = new   CB_RL_D_In();
+     _cb_instructions[0x13] = new   CB_RL_E_In();
+     _cb_instructions[0x14] = new   CB_RL_H_In();
+     _cb_instructions[0x15] = new   CB_RL_L_In();
+     _cb_instructions[0x16] = new CB_RL_mHL_In();
+     _cb_instructions[0x17] = new   CB_RL_A_In();
+     _cb_instructions[0x18] = new   CB_RR_B_In();
+     _cb_instructions[0x19] = new   CB_RR_C_In();
+     _cb_instructions[0x1A] = new   CB_RR_D_In();
+     _cb_instructions[0x1B] = new   CB_RR_E_In();
+     _cb_instructions[0x1C] = new   CB_RR_H_In();
+     _cb_instructions[0x1D] = new   CB_RR_L_In();
+     _cb_instructions[0x1E] = new CB_RR_mHL_In();
+     _cb_instructions[0x1F] = new   CB_RR_A_In();
+     
+     _cb_instructions[0x20] = new   CB_SLA_B_In();
+     _cb_instructions[0x21] = new   CB_SLA_C_In();
+     _cb_instructions[0x22] = new   CB_SLA_D_In();
+     _cb_instructions[0x23] = new   CB_SLA_E_In();
+     _cb_instructions[0x24] = new   CB_SLA_H_In();
+     _cb_instructions[0x25] = new   CB_SLA_L_In();
+     _cb_instructions[0x26] = new CB_SLA_mHL_In();
+     _cb_instructions[0x27] = new   CB_SLA_A_In();
+     _cb_instructions[0x28] = new   CB_SRA_B_In();
+     _cb_instructions[0x29] = new   CB_SRA_C_In();
+     _cb_instructions[0x2A] = new   CB_SRA_D_In();
+     _cb_instructions[0x2B] = new   CB_SRA_E_In();
+     _cb_instructions[0x2C] = new   CB_SRA_H_In();
+     _cb_instructions[0x2D] = new   CB_SRA_L_In();
+     _cb_instructions[0x2E] = new CB_SRA_mHL_In();
+     _cb_instructions[0x2F] = new   CB_SRA_A_In();
+     
+     _cb_instructions[0x30] = new   CB_SWAP_B_In();
+     _cb_instructions[0x31] = new   CB_SWAP_C_In();
+     _cb_instructions[0x32] = new   CB_SWAP_D_In();
+     _cb_instructions[0x33] = new   CB_SWAP_E_In();
+     _cb_instructions[0x34] = new   CB_SWAP_H_In();
+     _cb_instructions[0x35] = new   CB_SWAP_L_In();
+     _cb_instructions[0x36] = new CB_SWAP_mHL_In();
+     _cb_instructions[0x37] = new   CB_SWAP_A_In();
+     _cb_instructions[0x38] = new    CB_SRL_B_In();
+     _cb_instructions[0x39] = new    CB_SRL_C_In();
+     _cb_instructions[0x3A] = new    CB_SRL_D_In();
+     _cb_instructions[0x3B] = new    CB_SRL_E_In();
+     _cb_instructions[0x3C] = new    CB_SRL_H_In();
+     _cb_instructions[0x3D] = new    CB_SRL_L_In();
+     _cb_instructions[0x3E] = new  CB_SRL_mHL_In();
+     _cb_instructions[0x3F] = new    CB_SRL_A_In();
+     
+     _cb_instructions[0x40] = new   BIT_0_B_In();
+     _cb_instructions[0x41] = new   BIT_0_C_In();
+     _cb_instructions[0x42] = new   BIT_0_D_In();
+     _cb_instructions[0x43] = new   BIT_0_E_In();
+     _cb_instructions[0x44] = new   BIT_0_H_In();
+     _cb_instructions[0x45] = new   BIT_0_L_In();
+     _cb_instructions[0x46] = new BIT_0_mHL_In();
+     _cb_instructions[0x47] = new   BIT_0_A_In();
+     _cb_instructions[0x48] = new   BIT_1_B_In();
+     _cb_instructions[0x49] = new   BIT_1_C_In();
+     _cb_instructions[0x4A] = new   BIT_1_D_In();
+     _cb_instructions[0x4B] = new   BIT_1_E_In();
+     _cb_instructions[0x4C] = new   BIT_1_H_In();
+     _cb_instructions[0x4D] = new   BIT_1_L_In();
+     _cb_instructions[0x4E] = new BIT_1_mHL_In();
+     _cb_instructions[0x4F] = new   BIT_1_A_In();
+     
+     _cb_instructions[0x50] = new   BIT_2_B_In();
+     _cb_instructions[0x51] = new   BIT_2_C_In();
+     _cb_instructions[0x52] = new   BIT_2_D_In();
+     _cb_instructions[0x53] = new   BIT_2_E_In();
+     _cb_instructions[0x54] = new   BIT_2_H_In();
+     _cb_instructions[0x55] = new   BIT_2_L_In();
+     _cb_instructions[0x56] = new BIT_2_mHL_In();
+     _cb_instructions[0x57] = new   BIT_2_A_In();
+     _cb_instructions[0x58] = new   BIT_3_B_In();
+     _cb_instructions[0x59] = new   BIT_3_C_In();
+     _cb_instructions[0x5A] = new   BIT_3_D_In();
+     _cb_instructions[0x5B] = new   BIT_3_E_In();
+     _cb_instructions[0x5C] = new   BIT_3_H_In();
+     _cb_instructions[0x5D] = new   BIT_3_L_In();
+     _cb_instructions[0x5E] = new BIT_3_mHL_In();
+     _cb_instructions[0x5F] = new   BIT_3_A_In();
+     
+     _cb_instructions[0x60] = new   BIT_4_B_In();
+     _cb_instructions[0x61] = new   BIT_4_C_In();
+     _cb_instructions[0x62] = new   BIT_4_D_In();
+     _cb_instructions[0x63] = new   BIT_4_E_In();
+     _cb_instructions[0x64] = new   BIT_4_H_In();
+     _cb_instructions[0x65] = new   BIT_4_L_In();
+     _cb_instructions[0x66] = new BIT_4_mHL_In();
+     _cb_instructions[0x67] = new   BIT_4_A_In();
+     _cb_instructions[0x68] = new   BIT_5_B_In();
+     _cb_instructions[0x69] = new   BIT_5_C_In();
+     _cb_instructions[0x6A] = new   BIT_5_D_In();
+     _cb_instructions[0x6B] = new   BIT_5_E_In();
+     _cb_instructions[0x6C] = new   BIT_5_H_In();
+     _cb_instructions[0x6D] = new   BIT_5_L_In();
+     _cb_instructions[0x6E] = new BIT_5_mHL_In();
+     _cb_instructions[0x6F] = new   BIT_5_A_In();
+     
+     _cb_instructions[0x70] = new   BIT_6_B_In();
+     _cb_instructions[0x71] = new   BIT_6_C_In();
+     _cb_instructions[0x72] = new   BIT_6_D_In();
+     _cb_instructions[0x73] = new   BIT_6_E_In();
+     _cb_instructions[0x74] = new   BIT_6_H_In();
+     _cb_instructions[0x75] = new   BIT_6_L_In();
+     _cb_instructions[0x76] = new BIT_6_mHL_In();
+     _cb_instructions[0x77] = new   BIT_6_A_In();
+     _cb_instructions[0x78] = new   BIT_7_B_In();
+     _cb_instructions[0x79] = new   BIT_7_C_In();
+     _cb_instructions[0x7A] = new   BIT_7_D_In();
+     _cb_instructions[0x7B] = new   BIT_7_E_In();
+     _cb_instructions[0x7C] = new   BIT_7_H_In();
+     _cb_instructions[0x7D] = new   BIT_7_L_In();
+     _cb_instructions[0x7E] = new BIT_7_mHL_In();
+     _cb_instructions[0x7F] = new   BIT_7_A_In();
+     
+     _cb_instructions[0x80] = new   RES_0_B_In();
+     _cb_instructions[0x81] = new   RES_0_C_In();
+     _cb_instructions[0x82] = new   RES_0_D_In();
+     _cb_instructions[0x83] = new   RES_0_E_In();
+     _cb_instructions[0x84] = new   RES_0_H_In();
+     _cb_instructions[0x85] = new   RES_0_L_In();
+     _cb_instructions[0x86] = new RES_0_mHL_In();
+     _cb_instructions[0x87] = new   RES_0_A_In();
+     _cb_instructions[0x88] = new   RES_1_B_In();
+     _cb_instructions[0x89] = new   RES_1_C_In();
+     _cb_instructions[0x8A] = new   RES_1_D_In();
+     _cb_instructions[0x8B] = new   RES_1_E_In();
+     _cb_instructions[0x8C] = new   RES_1_H_In();
+     _cb_instructions[0x8D] = new   RES_1_L_In();
+     _cb_instructions[0x8E] = new RES_1_mHL_In();
+     _cb_instructions[0x8F] = new   RES_1_A_In();
+     
+     _cb_instructions[0x90] = new   RES_2_B_In(); 
+     _cb_instructions[0x91] = new   RES_2_C_In(); 
+     _cb_instructions[0x92] = new   RES_2_D_In(); 
+     _cb_instructions[0x93] = new   RES_2_E_In(); 
+     _cb_instructions[0x94] = new   RES_2_H_In(); 
+     _cb_instructions[0x95] = new   RES_2_L_In(); 
+     _cb_instructions[0x96] = new RES_2_mHL_In(); 
+     _cb_instructions[0x97] = new   RES_2_A_In(); 
+     _cb_instructions[0x98] = new   RES_3_B_In(); 
+     _cb_instructions[0x99] = new   RES_3_C_In(); 
+     _cb_instructions[0x9A] = new   RES_3_D_In(); 
+     _cb_instructions[0x9B] = new   RES_3_E_In(); 
+     _cb_instructions[0x9C] = new   RES_3_H_In(); 
+     _cb_instructions[0x9D] = new   RES_3_L_In(); 
+     _cb_instructions[0x9E] = new RES_3_mHL_In(); 
+     _cb_instructions[0x9F] = new   RES_3_A_In(); 
+     
+     _cb_instructions[0xA0] = new   RES_4_B_In();
+     _cb_instructions[0xA1] = new   RES_4_C_In();
+     _cb_instructions[0xA2] = new   RES_4_D_In();
+     _cb_instructions[0xA3] = new   RES_4_E_In();
+     _cb_instructions[0xA4] = new   RES_4_H_In();
+     _cb_instructions[0xA5] = new   RES_4_L_In();
+     _cb_instructions[0xA6] = new RES_4_mHL_In();
+     _cb_instructions[0xA7] = new   RES_4_A_In();
+     _cb_instructions[0xA8] = new   RES_5_B_In();
+     _cb_instructions[0xA9] = new   RES_5_C_In();
+     _cb_instructions[0xAA] = new   RES_5_D_In();
+     _cb_instructions[0xAB] = new   RES_5_E_In();
+     _cb_instructions[0xAC] = new   RES_5_H_In();
+     _cb_instructions[0xAD] = new   RES_5_L_In();
+     _cb_instructions[0xAE] = new RES_5_mHL_In();
+     _cb_instructions[0xAF] = new   RES_5_A_In();
+     
+     _cb_instructions[0xB0] = new   RES_6_B_In();
+     _cb_instructions[0xB1] = new   RES_6_C_In();
+     _cb_instructions[0xB2] = new   RES_6_D_In();
+     _cb_instructions[0xB3] = new   RES_6_E_In();
+     _cb_instructions[0xB4] = new   RES_6_H_In();
+     _cb_instructions[0xB5] = new   RES_6_L_In();
+     _cb_instructions[0xB6] = new RES_6_mHL_In();
+     _cb_instructions[0xB7] = new   RES_6_A_In();
+     _cb_instructions[0xB8] = new   RES_7_B_In();
+     _cb_instructions[0xB9] = new   RES_7_C_In();
+     _cb_instructions[0xBA] = new   RES_7_D_In();
+     _cb_instructions[0xBB] = new   RES_7_E_In();
+     _cb_instructions[0xBC] = new   RES_7_H_In();
+     _cb_instructions[0xBD] = new   RES_7_L_In();
+     _cb_instructions[0xBE] = new RES_7_mHL_In();
+     _cb_instructions[0xBF] = new   RES_7_A_In();
+     
+     _cb_instructions[0xC0] = new   SET_0_B_In();
+     _cb_instructions[0xC1] = new   SET_0_C_In();
+     _cb_instructions[0xC2] = new   SET_0_D_In();
+     _cb_instructions[0xC3] = new   SET_0_E_In();
+     _cb_instructions[0xC4] = new   SET_0_H_In();
+     _cb_instructions[0xC5] = new   SET_0_L_In();
+     _cb_instructions[0xC6] = new SET_0_mHL_In();
+     _cb_instructions[0xC7] = new   SET_0_A_In();
+     _cb_instructions[0xC8] = new   SET_1_B_In();
+     _cb_instructions[0xC9] = new   SET_1_C_In();
+     _cb_instructions[0xCA] = new   SET_1_D_In();
+     _cb_instructions[0xCB] = new   SET_1_E_In();
+     _cb_instructions[0xCC] = new   SET_1_H_In();
+     _cb_instructions[0xCD] = new   SET_1_L_In();
+     _cb_instructions[0xCE] = new SET_1_mHL_In();
+     _cb_instructions[0xCF] = new   SET_1_A_In();
+     
+     _cb_instructions[0xD0] = new   SET_2_B_In();
+     _cb_instructions[0xD1] = new   SET_2_C_In();
+     _cb_instructions[0xD2] = new   SET_2_D_In();
+     _cb_instructions[0xD3] = new   SET_2_E_In();
+     _cb_instructions[0xD4] = new   SET_2_H_In();
+     _cb_instructions[0xD5] = new   SET_2_L_In();
+     _cb_instructions[0xD6] = new SET_2_mHL_In();
+     _cb_instructions[0xD7] = new   SET_2_A_In();
+     _cb_instructions[0xD8] = new   SET_3_B_In();
+     _cb_instructions[0xD9] = new   SET_3_C_In();
+     _cb_instructions[0xDA] = new   SET_3_D_In();
+     _cb_instructions[0xDB] = new   SET_3_E_In();
+     _cb_instructions[0xDC] = new   SET_3_H_In();
+     _cb_instructions[0xDD] = new   SET_3_L_In();
+     _cb_instructions[0xDE] = new SET_3_mHL_In();
+     _cb_instructions[0xDF] = new   SET_3_A_In();
+     
+     _cb_instructions[0xE0] = new   SET_4_B_In();
+     _cb_instructions[0xE1] = new   SET_4_C_In();
+     _cb_instructions[0xE2] = new   SET_4_D_In();
+     _cb_instructions[0xE3] = new   SET_4_E_In();
+     _cb_instructions[0xE4] = new   SET_4_H_In();
+     _cb_instructions[0xE5] = new   SET_4_L_In();
+     _cb_instructions[0xE6] = new SET_4_mHL_In();
+     _cb_instructions[0xE7] = new   SET_4_A_In();
+     _cb_instructions[0xE8] = new   SET_5_B_In();
+     _cb_instructions[0xE9] = new   SET_5_C_In();
+     _cb_instructions[0xEA] = new   SET_5_D_In();
+     _cb_instructions[0xEB] = new   SET_5_E_In();
+     _cb_instructions[0xEC] = new   SET_5_H_In();
+     _cb_instructions[0xED] = new   SET_5_L_In();
+     _cb_instructions[0xEE] = new SET_5_mHL_In();
+     _cb_instructions[0xEF] = new   SET_5_A_In();
+     
+     _cb_instructions[0xF0] = new   SET_6_B_In();
+     _cb_instructions[0xF1] = new   SET_6_C_In();
+     _cb_instructions[0xF2] = new   SET_6_D_In();
+     _cb_instructions[0xF3] = new   SET_6_E_In();
+     _cb_instructions[0xF4] = new   SET_6_H_In();
+     _cb_instructions[0xF5] = new   SET_6_L_In();
+     _cb_instructions[0xF6] = new SET_6_mHL_In();
+     _cb_instructions[0xF7] = new   SET_6_A_In();
+     _cb_instructions[0xF8] = new   SET_7_B_In();
+     _cb_instructions[0xF9] = new   SET_7_C_In();
+     _cb_instructions[0xFA] = new   SET_7_D_In();
+     _cb_instructions[0xFB] = new   SET_7_E_In();
+     _cb_instructions[0xFC] = new   SET_7_H_In();
+     _cb_instructions[0xFD] = new   SET_7_L_In();
+     _cb_instructions[0xFE] = new SET_7_mHL_In();
+     _cb_instructions[0xFF] = new   SET_7_A_In();
+}           // 0xCB
+
+ PREFIX_CB_In::~PREFIX_CB_In() {
+     for(int i=0; i<0x100; ++i) 
+         delete _cb_instructions[i]; 
+     _cb_instructions.clear(); 
+ }
+ 
+ void PREFIX_CB_In::execute(LR35902& cpu, Memory& memory) { 
+    op(cpu, memory); 
+    // cpu.registers.PC--; 
+    cpu.cycle_counter += cycles + addedCycles; 
+    addedCycles = 0; 
+    // cpu.registers.PC  += bytes + addedBytes; 
+    addedBytes  = 0; 
+}
 
 // =================================================================================================
 // OpCodes 0x00 - 0x0F
@@ -272,7 +565,7 @@ ADC_A_mHL_In::ADC_A_mHL_In()          : Instruction( "ADC","ADC A, (HL)", "Z0HC"
        RET_Z_In::RET_Z_In()       : Instruction("RET",        "RET Z", "----", 0xC8, 1, 8 /* 20 */, VERBOSE_FLAG) { }   // 0xC8
          RET_In::RET_In()         : Instruction("RET",          "RET", "----", 0xC9, 1, 16, VERBOSE_FLAG) { }           // 0xC9
     JP_Z_a16_In::JP_Z_a16_In()    : Instruction(  "JP",   "JP Z, a16", "----", 0xCA, 3, 12 /* 16 */, VERBOSE_FLAG) { }  // 0xCA
-   PREFIX_CB_In::PREFIX_CB_In()   : Instruction( "CB",    "PREFIX CB", "----", 0xCB, 1,  4, VERBOSE_FLAG) { }           // 0xCB
+
   CALL_Z_a16_In::CALL_Z_a16_In()  : Instruction("CALL", "CALL Z, a16", "----", 0xCC, 3, 12 /* 24 */, VERBOSE_FLAG) { }  // 0xCC
     CALL_a16_In::CALL_a16_In()    : Instruction("CALL",    "CALL a16", "----", 0xCD, 3, 24, VERBOSE_FLAG) { }           // 0xCD
     ADC_A_d8_In::ADC_A_d8_In()    : Instruction( "ADC",   "ADC A, d8", "Z0HC", 0xCE, 2,  8, VERBOSE_FLAG) { }           // 0xCE
@@ -392,11 +685,12 @@ void       RRA_In::op(LR35902& cpu, Memory& memory) { cpu.shift_right_reg_a();  
 // OpCodes 0x20 - 0x2F
 // =================================================================================================
 
-void  JR_NZ_r8_In::op(LR35902& cpu, Memory& memory) { if(!cpu.registers.z()) {                                    // 0x20
+void  JR_NZ_r8_In::op(LR35902& cpu, Memory& memory) { if(!cpu.registers.z()) { // 0x20
                                                           uint8 off = memory.read_8(cpu.registers.PC + 1); 
+                                                          std::cout << "off: " << (int)off << std::endl; 
                                                           if(off < 0x7f) cpu.registers.PC = cpu.registers.PC + off; 
-                                                          else cpu.registers.PC = cpu.registers.PC - (((~off)+1)&0x7F); 
-                                                          cpu.registers.PC -= bytes; addedCycles = 4; } } // bytes will be added after execution
+                                                          else cpu.registers.PC = cpu.registers.PC + (0xFF00 | off); 
+                                                          addedCycles = 4; } } // bytes will be added after execution
 void LD_HL_d16_In::op(LR35902& cpu, Memory& memory) { cpu.registers.HL = memory.read_16(cpu.registers.PC + 1); }  // 0x21
 void LD_mHLp_A_In::op(LR35902& cpu, Memory& memory) { memory.write_8(cpu.registers.HL, cpu.registers.A);          // 0x22
                                                       cpu.inc_16bit_reg(cpu.registers.HL); } 
@@ -409,7 +703,7 @@ void   JR_Z_r8_In::op(LR35902& cpu, Memory& memory) { if(cpu.registers.z()) {   
                                                           uint8 off = memory.read_8(cpu.registers.PC + 1); 
                                                           if(off < 0x7f) cpu.registers.PC = cpu.registers.PC + off; 
                                                           else cpu.registers.PC = cpu.registers.PC - (((~off)+1)&0x7F); 
-                                                          cpu.registers.PC -= bytes; addedCycles = 4; } } // bytes will be added after execution
+                                                          addedCycles = 4; } } // bytes will be added after execution
 void ADD_HL_HL_In::op(LR35902& cpu, Memory& memory) { cpu.add_16_16(cpu.registers.HL, cpu.registers.HL); }        // 0x29
 void LD_A_mHLp_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = memory.read_8(cpu.registers.HL);          // 0x2A
                                                       cpu.inc_16bit_reg(cpu.registers.HL); }
@@ -428,7 +722,7 @@ void       CPL_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = (~cpu.re
                                                             uint8 off = memory.read_8(cpu.registers.PC + 1); 
                                                             if(off < 0x7f) cpu.registers.PC = cpu.registers.PC + off; 
                                                             else cpu.registers.PC = cpu.registers.PC - (((~off)+1)&0x7F); 
-                                                            cpu.registers.PC -= bytes; addedCycles = 4; } } // bytes will be added after execution
+                                                            addedCycles = 4; } } // bytes will be added after execution
   void LD_SP_d16_In::op(LR35902& cpu, Memory& memory) { cpu.registers.SP = memory.read_16(cpu.registers.PC + 1); }// 0x31
   void LD_mHLm_A_In::op(LR35902& cpu, Memory& memory) { memory.write_8(cpu.registers.HL, cpu.registers.A);        // 0x32
                                                         cpu.dec_16bit_reg(cpu.registers.HL); } 
@@ -445,7 +739,7 @@ void       CPL_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = (~cpu.re
                                                             uint8 off = memory.read_8(cpu.registers.PC + 1); 
                                                             if(off < 0x7f) cpu.registers.PC = cpu.registers.PC + off; 
                                                             else cpu.registers.PC = cpu.registers.PC - (((~off)+1)&0x7F); 
-                                                            cpu.registers.PC -= bytes; addedCycles = 4; } } // bytes will be added after execution
+                                                            addedCycles = 4; } } // bytes will be added after execution
   void ADD_HL_SP_In::op(LR35902& cpu, Memory& memory) { cpu.add_16_16(cpu.registers.HL, cpu.registers.SP); }       // 0x39
   void LD_A_mHLm_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = memory.read_8(cpu.registers.HL);         // 0x3A
                                                         cpu.dec_16bit_reg(cpu.registers.HL); }
@@ -640,7 +934,7 @@ void     RST_00H_In::op(LR35902& cpu, Memory& memory) { cpu.push(cpu.registers.P
 void       RET_Z_In::op(LR35902& cpu, Memory& memory) { if(cpu.retf(cpu.registers.z())) addedCycles = 12;  }       // 0xC8
 void         RET_In::op(LR35902& cpu, Memory& memory) { cpu.ret();  }                                              // 0xC9
 void    JP_Z_a16_In::op(LR35902& cpu, Memory& memory) { if(cpu.jpf(cpu.registers.z(), memory.read_16(cpu.registers.PC + 1))) addedCycles = 4; }   // 0xCA
-void   PREFIX_CB_In::op(LR35902& cpu, Memory& memory) { /* TODO: Add Prefix CB Instruction Calls */ addedBytes = 2; } // 0xCB
+void   PREFIX_CB_In::op(LR35902& cpu, Memory& memory) { uint8 cb_op = memory.read_8(cpu.registers.PC + 1); _cb_instructions[cb_op]->execute(cpu, memory); addedBytes = 1; } // 0xCB
 void  CALL_Z_a16_In::op(LR35902& cpu, Memory& memory) { if(cpu.callf(cpu.registers.z(), memory.read_16(cpu.registers.PC + 1))) addedCycles = 12;  }// 0xCC
 void    CALL_a16_In::op(LR35902& cpu, Memory& memory) { cpu.call(memory.read_16(cpu.registers.PC + 1));  }         // 0xCD
 void    ADC_A_d8_In::op(LR35902& cpu, Memory& memory) { cpu.adc_8_8(cpu.registers.A, memory.read_8(cpu.registers.PC + 1));} // 0xCE

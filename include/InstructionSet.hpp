@@ -2,7 +2,8 @@
 #define __INSTRUCTION_SET_HPP__
 
 #include "Instruction.hpp"
-    
+#include <vector> 
+
 const bool VERBOSE_FLAG = false; 
 
 // consider to remove LR35902 and Memory from Parameters and add them as members of Instruction class 
@@ -274,7 +275,7 @@ struct RST_00H_In     : public Instruction {     RST_00H_In(); virtual void op(L
 struct RET_Z_In       : public Instruction {       RET_Z_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xC8
 struct RET_In         : public Instruction {         RET_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xC9
 struct JP_Z_a16_In    : public Instruction {    JP_Z_a16_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xCA
-struct PREFIX_CB_In   : public Instruction {   PREFIX_CB_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xCB
+struct PREFIX_CB_In   : public Instruction {   PREFIX_CB_In(); ~PREFIX_CB_In(); virtual void execute(LR35902& cpu, Memory& memory); virtual void op(LR35902& cpu, Memory& memory); std::vector<Instruction*> _cb_instructions; };  // 0xCB
 struct CALL_Z_a16_In  : public Instruction {  CALL_Z_a16_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xCC
 struct CALL_a16_In    : public Instruction {    CALL_a16_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xCD
 struct ADC_A_d8_In    : public Instruction {    ADC_A_d8_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xCE

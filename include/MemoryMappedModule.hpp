@@ -13,11 +13,12 @@ class MemoryMappedModule : public Module {
                            _start_address(start_address), _end_address(end_address), _size(end_address-start_address), Module(name, description) { }
             
         uint32 start_address() { return _start_address; }
+        uint32 relative_address(uint32 address) { return address - _start_address; }
         uint32 end_address() { return _end_address; }
         uint32 size() { return _size; }
         
-        virtual uint8 read_8(uint16 address) { if(!check_bounds(address)) return -1; return _data[address]; }
-        virtual void  write_8(uint16 address, uint8 value) { if(!check_bounds(address)) return; _data[address] = value; }
+        virtual uint8 read_8(uint16 address) { return _data[address]; }
+        virtual void  write_8(uint16 address, uint8 value) { return; _data[address] = value; }
         
         bool  check_bounds(uint16 address) { return (address >= _start_address && address < _end_address); }
         

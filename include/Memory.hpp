@@ -8,9 +8,8 @@
 
 const int MEMORY_SIZE = 65536; 
 
-struct Memory {
-    std::vector<uint8> data; // TODO: remove this and only provide access to connected modules 
-    
+class Memory {
+public: 
     Memory(int size = MEMORY_SIZE); 
     
     // read calls to memory mapped modules
@@ -18,10 +17,14 @@ struct Memory {
     uint16 read_16(uint16 address); // (endianess!)
     
     // write calls to memory mapped modules 
-    bool   write_8(uint16 address, uint8 value); 
-    bool   write_16(uint16 address, uint16 value); // (think of endianess!)
+    bool write_8(uint16 address, uint8 value); 
+    bool write_16(uint16 address, uint16 value); // (think of endianess!)
     
     void connect(MemoryMappedModule* mmm); 
+    
+private: 
+    std::vector<MemoryMappedModule*> _mmms; 
+    std::vector<uint8> _data; // TODO: remove this and only provide access to connected modules 
 }; 
 
 #endif

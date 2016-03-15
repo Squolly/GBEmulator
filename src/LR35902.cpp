@@ -12,7 +12,7 @@ struct InstructionDeleter {
   }
 };
 
-LR35902::LR35902() : running(true) {
+LR35902::LR35902() : running(true), memory(MEMORY_SIZE) {
     instructions = std::vector<Instruction*>(0x100, static_cast<Instruction*>(0)); 
     instructions[0x00] = new         NOP_In();
     instructions[0x01] = new   LD_BC_d16_In();
@@ -375,13 +375,13 @@ void LR35902::di() {
 }
     
 void LR35902::push(uint16 reg) {
-    registers.SP += 2; 
+    registers.SP -= 2; 
     memory.write_16(registers.SP, reg); 
 }
 
 void LR35902::pop(uint16& reg) {
     reg = memory.read_16(registers.SP); 
-    registers.SP -= 2; 
+    registers.SP += 2; 
 }
 
     
@@ -963,14 +963,18 @@ void LR35902::halt() {
     bhalt = true; 
 }
 
-void LR35902::disassemble(MemoryMappedModule* module, uint16 start_address, uint16 end_address) {
-    registers.PC = start_address; 
+void LR35902::init() {
+    registers.PC = 0; 
+}
+
+void LR35902::disassemble() {
+    registers.PC = 0x000; 
     
-    while(registers.PC < end_address) {
+    while(registers.PC < 0x100) {
         if(registers.PC == 0x00A8) // skip Logo and other Data
             registers.PC = 0x00E0; 
         uint8 opcode = 0; 
-        Instruction* inst = instructions[opcode = module->read_8(registers.PC)];
+        Instruction* inst = instructions[opcode = memory.read_8(registers.PC)];
         if(inst == NULL) {
             std::cout << "Invalid instruction: " << (int)opcode << std::endl;
             std::cout << "PC: " << registers.PC << std::endl; 
@@ -987,6 +991,34 @@ void LR35902::disassemble(MemoryMappedModule* module, uint16 start_address, uint
             registers.PC += inst->addedBytes;
         }
     }
+}
+
+void LR35902::single_step() {
+    uint8 opcode; 
+    Instruction* inst = instructions[opcode = memory.read_8(registers.PC)];
+    if(inst == NULL) {
+        std::cout << "Invalid instruction: " << (int)opcode << std::endl;
+        std::cout << "PC: " << registers.PC << std::endl; 
+    }
+    else {
+        std::cout << std::hex << std::setw(2) << std::setfill('0') << registers.PC << " - "; 
+        std::cout << std::setw(2) << (int)opcode << ": " << inst->alt_name << std::endl; 
+ 
+        std::cout << "State before instruction: " << std::endl; 
+        print_state(); 
+        inst->execute(*this, memory); 
+        // registers.PC += inst->bytes;
+       //  registers.PC += inst->addedBytes;
+        std::cout << "State after instruction: " << std::endl; 
+        print_state(); 
+    }
+}
+
+void LR35902::print_state() {
+    // print registers
+    std::cout << std::setfill(' '); 
+    std::cout << std::setw(7) << "PC" << std::setw(7) << "AF" << std::setw(7) << "BC" << std::setw(7) << "DE" << std::setw(7) << "HL" << std::setw(7) << "SP" << std::endl; 
+    std::cout << std::setw(7) << registers.PC << std::setw(7) << registers.AF << std::setw(7) << registers.BC << std::setw(7) << registers.DE << std::setw(7) << registers.HL << std::setw(7) << registers.SP << std::endl; 
 }
     
 

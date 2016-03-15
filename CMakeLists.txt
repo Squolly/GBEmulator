@@ -5,6 +5,9 @@ include_directories(
 )
 
 set(GAME_BOY_EMULATOR_SOURCE_FILES
+    ${PROJECT_SOURCE_DIR}/src/GBCartridge.cpp
+    ${PROJECT_SOURCE_DIR}/src/GBRAM.cpp
+    ${PROJECT_SOURCE_DIR}/src/GBROM.cpp
     ${PROJECT_SOURCE_DIR}/src/Instruction.cpp
     ${PROJECT_SOURCE_DIR}/src/InstructionSet.cpp
     ${PROJECT_SOURCE_DIR}/src/InstructionSet_PrefixCB.cpp
