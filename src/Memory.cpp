@@ -44,6 +44,12 @@
  void Memory::connect(MemoryMappedModule* mmm) {
      assert(mmm != 0); 
 
+     std::cout << std::hex; 
+     std::cout << "["; 
+     std::cout << (int)mmm->start_address() << " - "; 
+     std::cout << (int)mmm->end_address(); 
+     std::cout << "]: connecting " << mmm->name() << std::endl; 
+     
      for(uint32 i = mmm->start_address(); i < mmm->end_address(); ++i) {
          _mmms[i] = mmm; 
      }
@@ -53,13 +59,21 @@
 void Memory::connect(MemoryMappedModule* mmm, uint16 address) {
      assert(mmm != 0); 
      
+     std::cout << "[" << (int)address << "]: connecting " << mmm->name() << std::endl; 
+     
      _mmms[address] = mmm; 
 }
     
 // map module into memory in given area (helpful for Modules with several memory areas like GPU)
 void Memory::connect(MemoryMappedModule* mmm, uint16 start_address, uint16 end_address) {
      assert(mmm != 0); 
-
+     
+     std::cout << std::hex; 
+     std::cout << "["; 
+     std::cout << (int)start_address << " - "; 
+     std::cout << (int)end_address; 
+     std::cout << "]: connecting " << mmm->name() << std::endl; 
+     
      for(uint32 i = start_address; i < end_address; ++i) {
          _mmms[i] = mmm; 
      }

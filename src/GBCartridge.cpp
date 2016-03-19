@@ -28,8 +28,10 @@ void  GBCartridge::write_8(uint16 address, uint8 value) {
 void GBCartridge::read_file(const std::string& filename) {
     std::ifstream in(filename.c_str()); 
     
-    if(!in.is_open())
+    if(!in.is_open()) {
+        std::cout << "Unable to open plain ROM Data file " << filename << std::endl; 
         return; 
+    }
    
     in.seekg(0, std::ios_base::end); 
     int file_size = in.tellg(); 

@@ -24,7 +24,8 @@ int main() {
     GBRAM  switchable_ram(0xA000, 0xC000);   switchable_ram.init(switchable_ram.size());  
  
     GBVideo video(0x8000, 0xA000); 
-    
+    video.init(); 
+    video.connect_to_memory(cpu.memory); 
     cpu.memory.connect(&zero_page_ram); 
     cpu.memory.connect(&sprite_ram); 
     cpu.memory.connect(&internal_ram); 
@@ -58,6 +59,7 @@ int main() {
     cpu.disassemble(); 
     cpu.init(); 
     
+    /* 
     int a  = 0; 
     bool once = false; 
     for(int i=0; i<100000000; ++i) {
@@ -69,4 +71,5 @@ int main() {
         if(once)
             std::cin >> a; 
     }
+    */
 }
