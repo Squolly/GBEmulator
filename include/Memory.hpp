@@ -19,6 +19,8 @@ public:
     // write calls to memory mapped modules 
     bool write_8(uint16 address, uint8 value); 
     bool write_16(uint16 address, uint16 value); // (think of endianess!)
+    bool set_verbose(bool verbose); 
+    bool is_verbose(); 
     
     // map module into memory (using addresses stored in MemoryMappedModule) 
     void connect(MemoryMappedModule* mmm); 
@@ -32,6 +34,7 @@ public:
 private: 
     std::vector<MemoryMappedModule*> _mmms; 
     std::vector<uint8> _data; // TODO: remove this and only provide access to connected modules 
+    bool _verbose; 
 }; 
 
 #endif

@@ -13,7 +13,7 @@ void Instruction::execute(LR35902& cpu, Memory& memory) {
     op(cpu, memory); 
     cpu.cycle_counter += cycles + addedCycles; 
     addedCycles = 0; 
-    std::cout << (int)cpu.registers.PC << " += " << (int)bytes << " + " << (int)addedBytes << std::endl; 
+    // std::cout << (int)cpu.registers.PC << " += " << (int)bytes << " + " << (int)addedBytes << std::endl; 
     cpu.registers.PC  += bytes + addedBytes; 
     addedBytes  = 0; 
 }

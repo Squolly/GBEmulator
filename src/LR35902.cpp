@@ -624,19 +624,11 @@ void LR35902::sbc_8_8(uint8& reg1, uint8 reg2) {
 }
 
 void LR35902::sub_8(uint8 reg) {
-    std::cout << "A: "  << (int)registers.A << std::endl;
-    std::cout << "B: "  << (int)reg << std::endl; 
     uint8 nibble_reg1 = registers.A & (uint8)0xF; 
     uint8 nibble_reg2 = reg & (uint8)0xF; 
-    std::cout << "nibble1: "  << (int)nibble_reg1 << std::endl;
-    std::cout << "nibble2: "  << (int)nibble_reg2 << std::endl; 
-    std::cout << "sub_8: " << (int)registers.A << ",    " << (int)reg << std::endl; 
     
     uint8 nibble_result = nibble_reg1 - nibble_reg2; 
     uint16 result = registers.A - reg; 
-    
-    std::cout << "nibble res: " << (int)nibble_result << ", " << (int)nibble_reg1 << ", " << (int)nibble_reg2 << std::endl; 
-    std::cout << "result: " << (int)result << std::endl; 
     registers.set_n(); 
     
     if(nibble_result > 0x0F) // borrow from bit 4
@@ -1000,24 +992,31 @@ void LR35902::disassemble() {
     }
 }
 
-void LR35902::single_step() {
+void LR35902::single_step(bool verbose) {
     uint8 opcode; 
     Instruction* inst = instructions[opcode = memory.read_8(registers.PC)];
     if(inst == NULL) {
-        std::cout << "Invalid instruction: " << (int)opcode << std::endl;
-        std::cout << "PC: " << registers.PC << std::endl; 
+        if(verbose) {
+            std::cout << "Invalid instruction: " << (int)opcode << std::endl;
+            std::cout << "PC: " << registers.PC << std::endl; 
+        }
     }
     else {
-        std::cout << std::hex << std::setw(2) << std::setfill('0') << registers.PC << " - "; 
-        std::cout << std::setw(2) << (int)opcode << ": " << inst->alt_name << std::endl; 
- 
-        std::cout << "State before instruction: " << std::endl; 
-        print_state(); 
+        if(verbose) {
+            std::cout << std::hex << std::setw(2) << std::setfill('0') << registers.PC << " - "; 
+            std::cout << std::setw(2) << (int)opcode << ": " << inst->alt_name << std::endl; 
+    
+            std::cout << "State before instruction: " << std::endl; 
+            print_state(); 
+        }
         inst->execute(*this, memory); 
         // registers.PC += inst->bytes;
        //  registers.PC += inst->addedBytes;
-        std::cout << "State after instruction: " << std::endl; 
-        print_state(); 
+        
+        if(verbose) {
+            std::cout << "State after instruction: " << std::endl; 
+            print_state(); 
+        }
     }
 }
 

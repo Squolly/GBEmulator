@@ -687,7 +687,6 @@ void       RRA_In::op(LR35902& cpu, Memory& memory) { cpu.shift_right_reg_a();  
 
 void  JR_NZ_r8_In::op(LR35902& cpu, Memory& memory) { if(!cpu.registers.z()) { // 0x20
                                                           uint8 off = memory.read_8(cpu.registers.PC + 1); 
-                                                          std::cout << "off: " << (int)off << std::endl; 
                                                           if(off < 0x7f) cpu.registers.PC = cpu.registers.PC + off; 
                                                           else cpu.registers.PC = cpu.registers.PC + (0xFF00 | off); 
                                                           addedCycles = 4; } } // bytes will be added after execution

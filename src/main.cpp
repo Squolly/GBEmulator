@@ -19,18 +19,15 @@ int main() {
     LR35902 cpu; 
     GBROM  rom(0x0000, 0x0100);             rom.init(rom.size()); 
     GBRAM  zero_page_ram(0xFF80, 0xFFFF);   zero_page_ram.init(zero_page_ram.size()); 
-    GBRAM  sprite_ram(0xFE00, 0xFFA0);      sprite_ram.init(sprite_ram.size()); 
     GBRAM  internal_ram(0xC000, 0xE000);    internal_ram.init(internal_ram.size()); 
     GBRAM  switchable_ram(0xA000, 0xC000);   switchable_ram.init(switchable_ram.size());  
  
     GBVideo video(0x8000, 0xA000); 
-    video.init(); 
-    video.connect_to_memory(cpu.memory); 
     cpu.memory.connect(&zero_page_ram); 
-    cpu.memory.connect(&sprite_ram); 
     cpu.memory.connect(&internal_ram); 
     cpu.memory.connect(&switchable_ram); 
-
+    video.init(); 
+    video.connect_to_memory(cpu.memory); 
     
     // fill rom with boot info
     std::fstream in("data/DMG_ROM.bin", std::ios::in | std::ios::binary);
@@ -59,17 +56,23 @@ int main() {
     cpu.disassemble(); 
     cpu.init(); 
     
-    /* 
+    
     int a  = 0; 
     bool once = false; 
+    bool use_breakpoint = false; 
+    bool verbose_instruction = false; 
+    cpu.memory.set_verbose(false); 
+    
     for(int i=0; i<100000000; ++i) {
-        cpu.single_step();  
+        cpu.single_step(verbose_instruction);  
 
         // system("sleep 0.0001");
-        if(cpu.registers.PC == 0x55)
-            once = true; 
-        if(once)
-            std::cin >> a; 
+        if(use_breakpoint) {
+            if(cpu.registers.PC == 0x55)
+                once = true; 
+            if(once)
+                std::cin >> a; 
+        }
     }
-    */
+    
 }

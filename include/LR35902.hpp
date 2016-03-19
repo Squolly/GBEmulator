@@ -85,7 +85,7 @@ struct LR35902 {
     
     void init(); 
     void disassemble(); 
-    void single_step();
+    void single_step(bool verbose);
     void print_state(); 
     
 }; 
