@@ -12,11 +12,13 @@ void GBRAM::operate() {
 }
 
 uint8 GBRAM::read_8(uint16 address) { 
-    return _data[address]; 
+    const uint16 relative = relative_address(address); 
+    return _data[relative]; 
 }
 
 void GBRAM::write_8(uint16 address, uint8 value) { 
-    _data[address] = value; 
+    const uint16 relative = relative_address(address); 
+    _data[relative] = value; 
 } // won't write in ROM
 
 void GBRAM::init(int size) {

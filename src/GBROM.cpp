@@ -12,7 +12,8 @@ void GBROM::operate() {
 }
 
 uint8 GBROM::read_8(uint16 address) { 
-    return _data[address]; 
+    const uint16 relative = relative_address(address); 
+    return _data[relative]; 
 }
 
 void GBROM::write_8(uint16 address, uint8 value) { 
@@ -24,5 +25,6 @@ void GBROM::init(int size) {
 }
 
 void GBROM::write_8_rom(uint16 address, uint8 value) {
-    _data[address] = value; 
+    const uint16 relative = relative_address(address); 
+    _data[relative] = value; 
 }

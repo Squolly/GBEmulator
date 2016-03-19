@@ -23,6 +23,9 @@ public:
     // map module into memory (using addresses stored in MemoryMappedModule) 
     void connect(MemoryMappedModule* mmm); 
     
+    // map module into memory to given address (IO Ports e.g.) 
+    void connect(MemoryMappedModule* mmm, uint16 address); 
+    
     // map module into memory in given area (helpful for Modules with several memory areas like GPU)
     void connect(MemoryMappedModule* mmm, uint16 start_address, uint16 end_address); 
     

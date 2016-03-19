@@ -48,3 +48,19 @@
          _mmms[i] = mmm; 
      }
  }
+ 
+// map module into memory to given address (IO Ports e.g.) 
+void Memory::connect(MemoryMappedModule* mmm, uint16 address) {
+     assert(mmm != 0); 
+     
+     _mmms[address] = mmm; 
+}
+    
+// map module into memory in given area (helpful for Modules with several memory areas like GPU)
+void Memory::connect(MemoryMappedModule* mmm, uint16 start_address, uint16 end_address) {
+     assert(mmm != 0); 
+
+     for(uint32 i = start_address; i < end_address; ++i) {
+         _mmms[i] = mmm; 
+     }
+}

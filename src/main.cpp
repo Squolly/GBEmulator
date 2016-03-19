@@ -4,6 +4,7 @@
 #include "LR35902.hpp"
 #include "GBROM.hpp" 
 #include "GBCartridge.hpp"
+#include "GBVideo.hpp"
 
 #include <fstream>
 #include <cstdlib> 
@@ -21,12 +22,14 @@ int main() {
     GBRAM  sprite_ram(0xFE00, 0xFFA0);      sprite_ram.init(sprite_ram.size()); 
     GBRAM  internal_ram(0xC000, 0xE000);    internal_ram.init(internal_ram.size()); 
     GBRAM  switchable_ram(0xA000, 0xC000);   switchable_ram.init(switchable_ram.size());  
-    GBRAM  video_ram(0x8000, 0xA000);       video_ram.init(video_ram.size()); 
+ 
+    GBVideo video(0x8000, 0xA000); 
+    
     cpu.memory.connect(&zero_page_ram); 
     cpu.memory.connect(&sprite_ram); 
     cpu.memory.connect(&internal_ram); 
     cpu.memory.connect(&switchable_ram); 
-    cpu.memory.connect(&video_ram); 
+
     
     // fill rom with boot info
     std::fstream in("data/DMG_ROM.bin", std::ios::in | std::ios::binary);
@@ -44,8 +47,6 @@ int main() {
         addr++; 
     }
     std::cout << "Read " << addr << " bytes." << std::endl; 
-
-    
 
     // read cartridge
     GBCartridge gbc(0x0000, 0x8000); 
