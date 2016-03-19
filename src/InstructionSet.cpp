@@ -598,7 +598,7 @@ CALL_NC_a16_In::CALL_NC_a16_In() : Instruction("CALL","CALL NC, a16", "----", 0x
 
  LDH_a8_A_In::LDH_a8_A_In()    : Instruction( "LDH", "LDH (a8), A", "----", 0xE0, 2, 12, VERBOSE_FLAG) { }       // 0xE0
    POP_HL_In::POP_HL_In()      : Instruction( "POP",      "POP HL", "----", 0xE1, 1, 12, VERBOSE_FLAG) { }       // 0xE1
- LD_mC_A_In::LD_mC_A_In()      : Instruction(  "LD",   "LD (C), A", "----", 0xE2, 2,  8, VERBOSE_FLAG) { }       // 0xE2
+ LD_mC_A_In::LD_mC_A_In()      : Instruction(  "LD",   "LD (C), A", "----", 0xE2, 1,  8, VERBOSE_FLAG) { }       // 0xE2 (bugfix: was 2 bytes, now 1 byte [table says 2 though])
 // 0xE3: no operation for this opcode in LR35902
 // 0xE4: no operation for this opcode in LR35902
   PUSH_HL_In::PUSH_HL_In()     : Instruction("PUSH",     "PUSH HL", "----", 0xE5, 1, 16, VERBOSE_FLAG) { }       // 0xE5
@@ -619,7 +619,7 @@ ADD_SP_r8_In::ADD_SP_r8_In() : Instruction("ADD",   "ADD SP, r8", "00HC",   0xE8
 
  LDH_A_a8_In::LDH_A_a8_In(): Instruction( "LDH", "LDH A, (a8)", "----", 0xF0, 2, 12, VERBOSE_FLAG) { }    // 0xF0
    POP_AF_In::POP_AF_In()  : Instruction( "POP",      "POP AF", "----", 0xF1, 1, 12, VERBOSE_FLAG) { }    // 0xF1
-  LD_A_mC_In::LD_A_mC_In() : Instruction(  "LD",  "LDH A, (C)", "----", 0xF2, 2,  8, VERBOSE_FLAG) { }    // 0xF2
+  LD_A_mC_In::LD_A_mC_In() : Instruction(  "LD",  "LDH A, (C)", "----", 0xF2, 1,  8, VERBOSE_FLAG) { }    // 0xF2 (bugfix: was 2 bytes, now 1 byte [table says 2 though])
        DI_In::DI_In()      : Instruction(  "DI",          "DI", "----", 0xF3, 1,  4, VERBOSE_FLAG) { }    // 0xF3
 // 0xF4: no operation for this opcode in LR35902
   PUSH_AF_In::PUSH_AF_In() : Instruction("PUSH",     "PUSH AF", "----", 0xF5, 1, 16, VERBOSE_FLAG) { }    // 0xF5
@@ -825,7 +825,7 @@ void  LD_mHL_E_In::op(LR35902& cpu, Memory& memory) { memory.write_8(cpu.registe
 void  LD_mHL_H_In::op(LR35902& cpu, Memory& memory) { memory.write_8(cpu.registers.HL, cpu.registers.H);  }        // 0x74
 void  LD_mHL_L_In::op(LR35902& cpu, Memory& memory) { memory.write_8(cpu.registers.HL, cpu.registers.L);  }        // 0x75
 void      HALT_In::op(LR35902& cpu, Memory& memory) { cpu.halt(); }                                                // 0x76
-void  LD_mHL_A_In::op(LR35902& cpu, Memory& memory) { cpu.registers.H = cpu.registers.A;  }                        // 0x77
+void  LD_mHL_A_In::op(LR35902& cpu, Memory& memory) { memory.write_8(cpu.registers.HL, cpu.registers.A);  }                        // 0x77
 void    LD_A_B_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = cpu.registers.B;  }                        // 0x78
 void    LD_A_C_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = cpu.registers.C;  }                        // 0x79
 void    LD_A_D_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = cpu.registers.D;  }                        // 0x7A
@@ -923,20 +923,20 @@ void     CP_A_In::op(LR35902& cpu, Memory& memory) { cpu.cp_8(cpu.registers.A); 
 // OpCodes 0xC0 - 0xCF
 // =================================================================================================
 
-void      RET_NZ_In::op(LR35902& cpu, Memory& memory) { if(cpu.retf_n(cpu.registers.z())) addedCycles = 12; }      // 0xC0
+void      RET_NZ_In::op(LR35902& cpu, Memory& memory) { if(cpu.retf_n(cpu.registers.z())) { cpu.registers.PC -= bytes; addedCycles = 12; } }      // 0xC0
 void      POP_BC_In::op(LR35902& cpu, Memory& memory) { cpu.pop(cpu.registers.BC); }                               // 0xC1
 void   JP_NZ_a16_In::op(LR35902& cpu, Memory& memory) { if(cpu.jpf_n(cpu.registers.z(), memory.read_16(cpu.registers.PC + 1))) addedCycles = 4; } // 0xC2
 void      JP_a16_In::op(LR35902& cpu, Memory& memory) { cpu.jp(memory.read_16(cpu.registers.PC + 1)); }            // 0xC3
-void CALL_NZ_a16_In::op(LR35902& cpu, Memory& memory) { if(cpu.callf_n(cpu.registers.z(), memory.read_16(cpu.registers.PC + 1))) addedCycles = 12;  } // 0xC4
+void CALL_NZ_a16_In::op(LR35902& cpu, Memory& memory) { if(cpu.callf_n(cpu.registers.z(), memory.read_16(cpu.registers.PC + 1), cpu.registers.PC + bytes)) { addedCycles = 12; cpu.registers.PC -= bytes; }  } // 0xC4
 void     PUSH_BC_In::op(LR35902& cpu, Memory& memory) { cpu.push(cpu.registers.BC); }                              // 0xC5
 void    ADD_A_d8_In::op(LR35902& cpu, Memory& memory) { cpu.add_8_8(cpu.registers.A, memory.read_8(cpu.registers.PC + 1)); } // 0xC6
 void     RST_00H_In::op(LR35902& cpu, Memory& memory) { cpu.push(cpu.registers.PC); cpu.jp(0x0000);  }             // 0xC7
-void       RET_Z_In::op(LR35902& cpu, Memory& memory) { if(cpu.retf(cpu.registers.z())) addedCycles = 12;  }       // 0xC8
-void         RET_In::op(LR35902& cpu, Memory& memory) { cpu.ret();  }                                              // 0xC9
+void       RET_Z_In::op(LR35902& cpu, Memory& memory) { if(cpu.retf(cpu.registers.z())) { cpu.registers.PC -= bytes; addedCycles = 12;}   }       // 0xC8
+void         RET_In::op(LR35902& cpu, Memory& memory) { cpu.ret(); /* prevent PC increasing */ cpu.registers.PC -= bytes;  }                                              // 0xC9
 void    JP_Z_a16_In::op(LR35902& cpu, Memory& memory) { if(cpu.jpf(cpu.registers.z(), memory.read_16(cpu.registers.PC + 1))) addedCycles = 4; }   // 0xCA
 void   PREFIX_CB_In::op(LR35902& cpu, Memory& memory) { uint8 cb_op = memory.read_8(cpu.registers.PC + 1); _cb_instructions[cb_op]->execute(cpu, memory); addedBytes = 1; } // 0xCB
-void  CALL_Z_a16_In::op(LR35902& cpu, Memory& memory) { if(cpu.callf(cpu.registers.z(), memory.read_16(cpu.registers.PC + 1))) addedCycles = 12;  }// 0xCC
-void    CALL_a16_In::op(LR35902& cpu, Memory& memory) { cpu.call(memory.read_16(cpu.registers.PC + 1));  }         // 0xCD
+void  CALL_Z_a16_In::op(LR35902& cpu, Memory& memory) { if(cpu.callf(cpu.registers.z(), memory.read_16(cpu.registers.PC + 1), cpu.registers.PC + bytes)) { addedCycles = 12; cpu.registers.PC -= bytes; }  }// 0xCC
+void    CALL_a16_In::op(LR35902& cpu, Memory& memory) { cpu.call(memory.read_16(cpu.registers.PC + 1), cpu.registers.PC + bytes); cpu.registers.PC -= bytes;  }         // 0xCD
 void    ADC_A_d8_In::op(LR35902& cpu, Memory& memory) { cpu.adc_8_8(cpu.registers.A, memory.read_8(cpu.registers.PC + 1));} // 0xCE
 void     RST_08H_In::op(LR35902& cpu, Memory& memory) { cpu.push(cpu.registers.PC); cpu.jp(0x0008);  }             // 0xCF
 
@@ -944,19 +944,19 @@ void     RST_08H_In::op(LR35902& cpu, Memory& memory) { cpu.push(cpu.registers.P
 // OpCodes 0xD0 - 0xDF
 // =================================================================================================
 
-void     RET_NC_In::op(LR35902& cpu, Memory& memory) { if(cpu.retf_n(cpu.registers.c())) addedCycles = 12; }       // 0xD0
+void     RET_NC_In::op(LR35902& cpu, Memory& memory) { if(cpu.retf_n(cpu.registers.c())) { cpu.registers.PC -= bytes; addedCycles = 12;}  }       // 0xD0
 void     POP_DE_In::op(LR35902& cpu, Memory& memory) { cpu.pop(cpu.registers.DE); }                                // 0xD1
 void  JP_NC_a16_In::op(LR35902& cpu, Memory& memory) { if(cpu.jpf_n(cpu.registers.c(), memory.read_16(cpu.registers.PC + 1))) addedCycles = 4; } // 0xD2
 // 0xD3: no operation for this opcode in LR35902
-void CALL_NC_a16_In::op(LR35902& cpu, Memory& memory) { if(cpu.callf_n(cpu.registers.c(), memory.read_16(cpu.registers.PC + 1))) addedCycles = 12;  } // 0xD4
+void CALL_NC_a16_In::op(LR35902& cpu, Memory& memory) { if(cpu.callf_n(cpu.registers.c(), memory.read_16(cpu.registers.PC + 1), cpu.registers.PC + bytes)) { addedCycles = 12; cpu.registers.PC -= bytes; }   } // 0xD4
 void     PUSH_DE_In::op(LR35902& cpu, Memory& memory) { cpu.push(cpu.registers.DE); }                              // 0xD5
 void      SUB_d8_In::op(LR35902& cpu, Memory& memory) { cpu.sub_8(memory.read_8(cpu.registers.PC + 1)); }          // 0xD6
 void     RST_10H_In::op(LR35902& cpu, Memory& memory) { cpu.push(cpu.registers.PC); cpu.jp(0x0010);  }             // 0xD7
-void       RET_C_In::op(LR35902& cpu, Memory& memory) { if(cpu.retf(cpu.registers.c())) addedCycles = 12;  }       // 0xD8
-void        RETI_In::op(LR35902& cpu, Memory& memory) { cpu.reti();  }                                             // 0xD9
+void       RET_C_In::op(LR35902& cpu, Memory& memory) { if(cpu.retf(cpu.registers.c())) { cpu.registers.PC -= bytes; addedCycles = 12; } }       // 0xD8
+void        RETI_In::op(LR35902& cpu, Memory& memory) { cpu.reti(); cpu.registers.PC -= bytes;  }                                             // 0xD9
 void    JP_C_a16_In::op(LR35902& cpu, Memory& memory) { if(cpu.jpf(cpu.registers.c(), memory.read_16(cpu.registers.PC + 1))) addedCycles = 4; } // 0xDA
 // 0xDB: no operation for this opcode in LR35902
-void  CALL_C_a16_In::op(LR35902& cpu, Memory& memory) { if(cpu.callf(cpu.registers.c(), memory.read_16(cpu.registers.PC + 1))) addedCycles = 12;  } // 0xD4
+void  CALL_C_a16_In::op(LR35902& cpu, Memory& memory) { if(cpu.callf(cpu.registers.c(), memory.read_16(cpu.registers.PC + 1), cpu.registers.PC + bytes)) { addedCycles = 12; cpu.registers.PC -= bytes; }  } // 0xD4
 // 0xDD: no operation for this opcode in LR35902
 void    SBC_A_d8_In::op(LR35902& cpu, Memory& memory) { cpu.sbc_8_8(cpu.registers.A, memory.read_8(cpu.registers.PC + 1));} // 0xDE
 void     RST_18H_In::op(LR35902& cpu, Memory& memory) { cpu.push(cpu.registers.PC); cpu.jp(0x0018);  }             // 0xDF

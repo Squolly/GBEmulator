@@ -20,7 +20,11 @@ public:
     bool write_8(uint16 address, uint8 value); 
     bool write_16(uint16 address, uint16 value); // (think of endianess!)
     
+    // map module into memory (using addresses stored in MemoryMappedModule) 
     void connect(MemoryMappedModule* mmm); 
+    
+    // map module into memory in given area (helpful for Modules with several memory areas like GPU)
+    void connect(MemoryMappedModule* mmm, uint16 start_address, uint16 end_address); 
     
 private: 
     std::vector<MemoryMappedModule*> _mmms; 

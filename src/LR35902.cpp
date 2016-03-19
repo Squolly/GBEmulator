@@ -325,24 +325,24 @@ void LR35902::reti() {
     ei(); 
 }
 
-bool LR35902::callf(uint8 flag, uint16 addr) {
+bool LR35902::callf(uint8 flag, uint16 addr, uint16 next_pc) {
     if(flag) {
-        call(addr); 
+        call(addr, next_pc); 
         return true; 
     }
     return false; 
 }
 
-bool LR35902::callf_n(uint8 flag, uint16 addr) {
+bool LR35902::callf_n(uint8 flag, uint16 addr, uint16 next_pc) {
     if(!flag) {
-        call(addr); 
+        call(addr, next_pc); 
         return true; 
     }
     return false; 
 }
 
-void LR35902::call(uint16 addr) {
-    push(registers.PC); 
+void LR35902::call(uint16 addr, uint16 next_pc) {
+    push(next_pc); 
     jp(addr); 
 }
 
@@ -387,14 +387,14 @@ void LR35902::pop(uint16& reg) {
     
 void LR35902::inc_8bit_reg(uint8& reg) {
     reg += 1;                          
-    if(registers.B == 0) {                     // Z - result == 0?
+    if(reg == 0) {                     // Z - result == 0?
         registers.set_z();
     }
     else {
         registers.clear_z(); 
     }
-    registers.clear_n();                       // N - 0
-    if(registers.B == 0x10) {                  // H - carry from bit 3 to 4 (15 to 16 or 0x0F to 0x10)
+    registers.clear_n();                // N - 0
+    if(reg == 0x10) {                  // H - carry from bit 3 to 4 (15 to 16 or 0x0F to 0x10)
         registers.set_h();
     }
     else {
@@ -414,20 +414,20 @@ void LR35902::inc_16bit_reg(uint16& reg) {
     
 void LR35902::dec_8bit_reg(uint8& reg) {
     reg -= 1;                          
-    if(registers.B == 0)  {                    // Z - result == 0? 
+    if(reg == 0)  {                    // Z - result == 0? 
         registers.set_z();
     }
     else {
         registers.clear_z(); 
     }
-    registers.set_n();                         // N - 1 a substraction was done
-    if(registers.B == 0x0F) {                  // H - carry from bit 3 to 4 (15 to 16 or 0x0F to 0x10)
+    registers.set_n();                 // N - 1 a substraction was done
+    if(reg == 0x0F) {                  // H - carry from bit 3 to 4 (15 to 16 or 0x0F to 0x10)
         registers.set_h();
     }
     else {
         registers.clear_h(); 
     }
-                                           // C - not affected
+                                       // C - not affected
 }
 
 void LR35902::dec_16bit_reg(uint16& reg) {
@@ -606,14 +606,14 @@ void LR35902::sbc_8_8(uint8& reg1, uint8 reg2) {
     registers.set_n(); 
     
     if(nibble_result > 0x0F) // borrow from bit 4
-        registers.clear_h(); 
-    else 
         registers.set_h(); 
+    else 
+        registers.clear_h(); 
     
     if(result > 255) // borrow 
-        registers.clear_c(); 
-    else
         registers.set_c(); 
+    else
+        registers.clear_c(); 
     
     if(result == 0) 
         registers.set_z(); 
@@ -624,23 +624,30 @@ void LR35902::sbc_8_8(uint8& reg1, uint8 reg2) {
 }
 
 void LR35902::sub_8(uint8 reg) {
-    uint8 nibble_reg1 = registers.A & 0x0F; 
-    uint8 nibble_reg2 = reg & 0x0F; 
+    std::cout << "A: "  << (int)registers.A << std::endl;
+    std::cout << "B: "  << (int)reg << std::endl; 
+    uint8 nibble_reg1 = registers.A & (uint8)0xF; 
+    uint8 nibble_reg2 = reg & (uint8)0xF; 
+    std::cout << "nibble1: "  << (int)nibble_reg1 << std::endl;
+    std::cout << "nibble2: "  << (int)nibble_reg2 << std::endl; 
+    std::cout << "sub_8: " << (int)registers.A << ",    " << (int)reg << std::endl; 
     
     uint8 nibble_result = nibble_reg1 - nibble_reg2; 
     uint16 result = registers.A - reg; 
     
+    std::cout << "nibble res: " << (int)nibble_result << ", " << (int)nibble_reg1 << ", " << (int)nibble_reg2 << std::endl; 
+    std::cout << "result: " << (int)result << std::endl; 
     registers.set_n(); 
     
     if(nibble_result > 0x0F) // borrow from bit 4
-        registers.clear_h(); 
-    else 
         registers.set_h(); 
+    else 
+        registers.clear_h(); 
     
-    if(result > 255) // borrow 
-        registers.clear_c(); 
-    else
+    if(result > 255) // borrow (wrong description in documentation) 
         registers.set_c(); 
+    else
+        registers.clear_c(); 
     
     if(result == 0) 
         registers.set_z(); 

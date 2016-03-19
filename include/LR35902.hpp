@@ -28,9 +28,9 @@ struct LR35902 {
     void ret();                                          // return from subroutine 
     void reti();                                         // uses ret currently 
                                                          
-    bool callf(uint8 flag, uint16 addr);   // call address if flag set
-    bool callf_n(uint8 flag, uint16 addr); // call address if flag not set
-    void call(uint16 addr);                       // call address
+    bool callf(uint8 flag, uint16 addr, uint16 next_pc);   // call address if flag set
+    bool callf_n(uint8 flag, uint16 addr, uint16 next_pc); // call address if flag not set
+    void call(uint16 addr, uint16 next_pc);                       // call address
                                                         
     bool jpf(uint8 flag, uint16 addr);     // jump if flag is set 
     bool jpf_n(uint8 flag, uint16 addr);   // jump if flag is not set

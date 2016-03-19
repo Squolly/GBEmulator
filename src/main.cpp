@@ -16,7 +16,7 @@ std::string show_bcd(uint8 v) {
 
 int main() {
     LR35902 cpu; 
-    GBROM* rom = new GBROM(0x0000, 0x0100); 
+    GBROM  rom(0x0000, 0x0100);             rom.init(rom.size()); 
     GBRAM  zero_page_ram(0xFF80, 0xFFFF);   zero_page_ram.init(zero_page_ram.size()); 
     GBRAM  sprite_ram(0xFE00, 0xFFA0);      sprite_ram.init(sprite_ram.size()); 
     GBRAM  internal_ram(0xC000, 0xE000);    internal_ram.init(internal_ram.size()); 
@@ -27,8 +27,6 @@ int main() {
     cpu.memory.connect(&internal_ram); 
     cpu.memory.connect(&switchable_ram); 
     cpu.memory.connect(&video_ram); 
-    
-    rom->init(0x100); 
     
     // fill rom with boot info
     std::fstream in("data/DMG_ROM.bin", std::ios::in | std::ios::binary);
@@ -42,7 +40,7 @@ int main() {
     while(!in.eof()) {
         uint8 value;
         in.get((char&)value); 
-        rom->write_8_rom(addr, value&0xFF); 
+        rom.write_8_rom(addr, value&0xFF); 
         addr++; 
     }
     std::cout << "Read " << addr << " bytes." << std::endl; 
@@ -55,23 +53,19 @@ int main() {
     cpu.memory.connect(&gbc); 
     // map cartridge to memory
     // now printing dissassembly // rom will overwrite gbc entries
-    cpu.memory.connect(rom); 
+    cpu.memory.connect(&rom); 
     cpu.disassemble(); 
     cpu.init(); 
     
     int a  = 0; 
-    for(int i=0; i<100000; ++i) {
+    bool once = false; 
+    for(int i=0; i<100000000; ++i) {
         cpu.single_step();  
-        
-        // ugly thigns follow
-        if(cpu.registers.PC >= 0xc)
-#ifdef  _WIN32
-            system("pause")
-#else
-            system("sleep 0.01"); 
-#endif
+
+        // system("sleep 0.0001");
+        if(cpu.registers.PC == 0x55)
+            once = true; 
+        if(once)
+            std::cin >> a; 
     }
-    
-    delete rom; 
-    
 }
