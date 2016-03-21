@@ -31,6 +31,8 @@ public:
     // map module into memory in given area (helpful for Modules with several memory areas like GPU)
     void connect(MemoryMappedModule* mmm, uint16 start_address, uint16 end_address); 
     
+    void dump(); 
+    
 private: 
     std::vector<MemoryMappedModule*> _mmms; 
     std::vector<uint8> _data; // TODO: remove this and only provide access to connected modules 

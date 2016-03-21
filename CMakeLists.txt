@@ -1,7 +1,18 @@
+cmake_minimum_required(VERSION 2.8)
 project(GameBoyEmulator) 
+
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+if(EXISTS "${CMAKE_SOURCE_DIR}/cmake/FindSFML.cmake")
+    find_package(SFML 2 COMPONENTS system window graphics) 
+else()
+
+endif()
 
 include_directories(
     ${PROJECT_SOURCE_DIR}/include
+    
+    # SFML (optional) 
+    ${SFML_INCLUDE_DIR}
 )
 
 set(GAME_BOY_EMULATOR_SOURCE_FILES
@@ -35,5 +46,19 @@ set(GAME_BOY_EMULATOR_HEADER_FILES
     ${PROJECT_SOURCE_DIR}/include/types.hpp
 )
 
+if(SFML_FOUND)
+    set(GAME_BOY_EMULATOR_SOURCE_FILES 
+        ${GAME_BOY_EMULATOR_SOURCE_FILES}
+        ${PROJECT_SOURCE_DIR}/src/SFML_GBVideo.cpp
+    )
+    set(GAME_BOY_EMULATOR_HEADER_FILES
+        ${GAME_BOY_EMULATOR_HEADER_FILES}
+        ${PROJECT_SOURCE_DIR}/include/SFML_GBVideo.hpp
+    )
+    
+else(SFML_FOUND) 
+
+endif(SFML_FOUND)
+
 add_executable(game_boy_emulator ${GAME_BOY_EMULATOR_SOURCE_FILES} ${GAME_BOY_EMULATOR_HEADER_FILES})
-target_link_libraries(game_boy_emulator )
+target_link_libraries(game_boy_emulator ${SFML_LIBRARIES})

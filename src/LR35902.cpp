@@ -559,12 +559,12 @@ void LR35902::add_8_8(uint8& reg1, uint8 reg2) {
     else
         registers.clear_c(); 
     
-    if(result == 0) 
+    reg1 = result & 0xFF; 
+    
+    if(reg1 == 0) 
         registers.set_z(); 
     else
         registers.clear_z(); 
-    
-    reg1 = result & 0xFF; 
 }
 
 void LR35902::adc_8_8(uint8& reg1, uint8 reg2) {
@@ -587,12 +587,12 @@ void LR35902::adc_8_8(uint8& reg1, uint8 reg2) {
     else
         registers.clear_c(); 
     
-    if(result == 0) 
+    reg1 = result & 0xFF; 
+    
+    if(reg1 == 0) 
         registers.set_z(); 
     else
         registers.clear_z(); 
-    
-    reg1 = result & 0xFF; 
 }
 
 void LR35902::sbc_8_8(uint8& reg1, uint8 reg2) {
@@ -641,12 +641,12 @@ void LR35902::sub_8(uint8 reg) {
     else
         registers.clear_c(); 
     
-    if(result == 0) 
+    registers.A = result & 0xFF; 
+    
+    if(registers.A == 0) 
         registers.set_z(); 
     else
         registers.clear_z(); 
-    
-    registers.A = result & 0xFF; 
 } 
 
 void LR35902::and_8(uint8 reg) {

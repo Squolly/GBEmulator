@@ -1,14 +1,24 @@
 #include "GBVideo.hpp"
 
 #include <iostream>
+#include <cassert>
 
 GBVideo::GBVideo(uint32 start_address, uint32 end_address, const std::string& name, const std::string& description) : 
          _character_ram(0x8000, 0x9800), _background_map_1_ram(0x9800, 0x9C00), _background_map_2_ram(0x9C00, 0xA000),
          _oam_ram(0xFE00, 0xFEA0), 
          _lcd_control(0), _lcd_status(0), _background_vertical_scrolling(0), _background_horizontal_scrolling(0), 
-         _current_scanine(0), _scanline_comparison(0), _background_palette(0), _sprite_palette_0(0), _sprite_palette_1(0), 
+         _current_scanline(0), _scanline_comparison(0), _background_palette(0), _sprite_palette_0(0), _sprite_palette_1(0), 
          _window_y_position(0), _window_x_position(0), _dma_transfer_control(0), 
+         _screen_buffer(new uint8[256 * 256]), _display(new uint8[160*144]), 
+         _current_pixel_x(0), _current_pixel_y(0),
          MemoryMappedModule(name, description, start_address, end_address) { }
+
+GBVideo::~GBVideo() {
+    if(_screen_buffer)
+        delete[] _screen_buffer; 
+    if(_display)
+        delete[] _display; 
+}
 
 void GBVideo::connect_to_memory(Memory& memory) {
     // connect video 
@@ -41,6 +51,10 @@ void  GBVideo::init() {
 
 void GBVideo::operate() {
     // handle operation stuff (draw something, increase counters and so on) 
+    static int counter = 0; 
+   //  if(counter % 1 == 0) 
+        next_render_step(); 
+    counter++; 
 }
 
 // note: access to video RAM will happen transparent to this module currently
@@ -49,6 +63,7 @@ uint8 GBVideo::read_8(uint16 address) {
     // TODO: consider exchanging switch-statement
     switch(address) {
     case 0xFF40: 
+        return _lcd_control; 
         break; // LCDCONT [RW] LCD Control
         
     case 0xFF41: 
@@ -56,15 +71,15 @@ uint8 GBVideo::read_8(uint16 address) {
         break; // LCDSTAT [RW] LCD Status
         
     case 0xFF42: 
-        
+        return _background_vertical_scrolling; 
         break; // SCROLLY [RW] Background Vertical Scrolling
         
     case 0xFF43: 
-        
+        return _background_horizontal_scrolling; 
         break; // SCROLLX [RW] Background Horizontal Scrolling
         
     case 0xFF44:
-        
+        return _current_scanline; 
         break; // CURLINE [RW] Current Scanline
         
     case 0xFF45: 
@@ -87,12 +102,12 @@ uint8 GBVideo::read_8(uint16 address) {
         
         break; // OBJ1PAL [W]  Sprite Palette #1
         
-    case 0xFF4A: 
-        
+    case 0xFF4A:
+        return _window_y_position; 
         break; // WNDPOSY [RW] Window Y Position
         
     case 0xFF4B: 
-        
+        return _window_x_position; 
         break; // WNDPOSX [RW] Window X Position  
         
     default: 
@@ -101,6 +116,89 @@ uint8 GBVideo::read_8(uint16 address) {
     }
 }
 
+void GBVideo::next_render_step() {
+    const uint8 pos_x = _current_pixel_x; 
+    const uint8 pos_y = _current_pixel_y; 
+    
+    // check if background is turned on 
+    if(_lcd_control & 0x01) {
+        // check witch bg set 
+        const uint8 background_map_switch = _lcd_control & 0x08; 
+        uint16 map_offset = (background_map_switch) ? 0x9C00 : 0x9800; 
+        // size of tiles? 8x8 or 8x16
+        const uint8 bg_tile_x = _current_pixel_x >> 3; 
+        const uint8 bg_tile_y = _current_pixel_y >> 3;
+        map_offset += (bg_tile_y * 32 + bg_tile_x); 
+        
+        // map_offset now point to the current tile of the background we want to draw
+        GBRAM *background_map; 
+        
+        if(!background_map_switch) 
+            background_map = &_background_map_1_ram; 
+        else 
+            background_map = &_background_map_2_ram;  
+        
+        const uint8 tile_id = background_map->read_8(map_offset); 
+        
+        const uint8 tile_table_switch = (_lcd_control & 0x10); 
+        const uint16 tile_table_offset = (tile_table_switch ? 0x8000 : 0x8800); 
+        const uint8 tile_id_mod = tile_id + (!tile_table_switch ? 128 : 0); 
+        
+        // tile_table_offset = 0x8000; 
+        //assert(tile_table_offset == 0x8000); 
+
+        // get tile information (16 bytes per tile) (8 bit * 8 lines * 2)
+        const uint8 tile_y = _current_pixel_y % 8; 
+        const uint8 tile_x = _current_pixel_x % 8; 
+        
+        const uint16 data_byte_address = tile_table_offset + tile_id_mod * 16 + tile_y * 2;
+        
+        const uint8 data_byte_0 = _character_ram.read_8(data_byte_address); 
+        const uint8 data_byte_1 = _character_ram.read_8(data_byte_address + 1); 
+
+        const uint8 color = (((data_byte_0 >> (7 - tile_x)) & 0x1) << 1) | // higher bit
+                            ((data_byte_1 >> (7 - tile_x)) & 0x1);       // lower bit
+        assert(color >= 0 && color <= 3); 
+        
+        put_pixel(_current_pixel_x, _current_pixel_y, color); 
+        
+    }
+    
+    // check if sprites are turned on
+    bool sprites = true; 
+    if(sprites) {
+        // check all 40 sprites
+        
+    }
+    
+    if(_current_pixel_x == 255) {
+        _current_pixel_y++; 
+        _current_scanline = _current_pixel_y; 
+    }
+    _current_pixel_x++; 
+}
+
+void GBVideo::put_pixel(uint8 x, uint8 y, uint8 color) {
+    _screen_buffer[y * 256 + x] = color; 
+    
+    // check if in window
+    
+    const uint8 winx = _background_horizontal_scrolling; 
+    const uint8 winy = _background_vertical_scrolling; 
+    
+    const uint16 test_y = ((y < winy) ? (y + 256) : y); 
+    const uint16 test_x = ((x < winx) ? (x + 256) : x); 
+    
+    const uint16 maxy = winy + 144; 
+    const uint16 maxx = winx + 160; 
+    
+    if(test_y >= (int)winy && test_y < (int)maxy && test_x >= (int)winx && test_x < (int)maxx) {
+        const uint8 display_x = test_x - winx; 
+        const uint8 display_y = test_y - winy; 
+        _display[display_y * 160 + display_x] = color; 
+    }
+}
+        
 // note: access to video RAM will happen transparent to this module currently
 //       so currently we only have to handle I/O access
 void  GBVideo::write_8(uint16 address, uint8 value) {
@@ -113,6 +211,8 @@ void  GBVideo::write_8(uint16 address, uint8 value) {
         std::cout << "[Video]:     Window Tile Table Address   : " << ( (_lcd_control & 0x40) ? "0x9C00-0x9FFF" : "0x9800-0x9BFF") << std::endl;
         std::cout << "[Video]:     Window Display              : " << ( (_lcd_control & 0x20) ? "ON" : "OFF") << std::endl;
         std::cout << "[Video]:     Tile Pattern Table Address  : " << ( (_lcd_control & 0x10) ? "0x8000-0x8FFF" : "0x8800-0x97FF") << std::endl;
+        
+        // 32 * 32 - 1 = 0x3FF
         std::cout << "[Video]:     Background Tile Table Addr  : " << ( (_lcd_control & 0x08) ? "0x9C00-0x9FFF" : "0x9800-0x9BFF") << std::endl;
         std::cout << "[Video]:     Sprite Size                 : " << ( (_lcd_control & 0x04) ? "8x16" : "8x8") << std::endl;
         std::cout << "[Video]:     Color #0 transparency in win: " << ( (_lcd_control & 0x02) ? "SOLID" : "TRANSPARENT") << std::endl;
@@ -148,7 +248,7 @@ void  GBVideo::write_8(uint16 address, uint8 value) {
         break; // SCROLLX [RW] Background Horizontal Scrolling
         
     case 0xFF44:
-        _current_scanine = value; // TODO: check if it is reset to 0 on writing
+        _current_scanline = value; // TODO: check if it is reset to 0 on writing
         std::cout << "[Video]: Resetting current scanline register" << std::endl; 
         break; // CURLINE [RW] Current Scanline
         
