@@ -13,14 +13,14 @@ GBCartridge::GBCartridge(uint32 start_address, uint32 end_address, const std::st
 
 uint8 GBCartridge::read_8(uint16 address) {
     // stay in ROM 
-    if(address > 0x0000 && address < 0x8000) {
+    if(address >= 0x0000 && address < 0x8000) {
         return _permanent_ROM.read_8(address); 
     }
 }
 
 void  GBCartridge::write_8(uint16 address, uint8 value) { 
     // stay in ROM 
-    if(address > 0x0000 && address < 0x8000) {
+    if(address >= 0x0000 && address < 0x8000) {
         return _permanent_ROM.write_8(address, value); 
     }
 }
@@ -42,7 +42,11 @@ void GBCartridge::read_file(const std::string& filename) {
     
     // read whole file for now
     for(int i=0; i<file_size; ++i) {
-        in.get((char&)data[i]); 
+        uint8 value;
+        if(in.get((char&)value)) {
+            data[i] = value; 
+        }
+        std::cout << "value: " << std::hex << (int)data[0] << std::endl; 
     }
     
     // output header for debug
@@ -167,7 +171,8 @@ void GBCartridge::read_file(const std::string& filename) {
     std::cout << "Filling data in Modules..." << std::endl; 
     std::cout << "Here only ROM 32k..." << std::endl; 
     _permanent_ROM.init(0x8000); 
-    for(int i=0; i<0x8000; ++i) 
+    for(int i=0; i<0x8000; ++i) {
         _permanent_ROM.write_8_rom(i, data[i]); 
+    }
     std::cout << "Filling done." << std::endl; 
 }

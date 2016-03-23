@@ -12,7 +12,7 @@ struct InstructionDeleter {
   }
 };
 
-LR35902::LR35902() : running(true), memory(MEMORY_SIZE) {
+LR35902::LR35902() : running(true), memory(MEMORY_SIZE), debug_mode(true), debug_hold(false) {
     instructions = std::vector<Instruction*>(0x100, static_cast<Instruction*>(0)); 
     instructions[0x00] = new         NOP_In();
     instructions[0x01] = new   LD_BC_d16_In();
@@ -1009,7 +1009,19 @@ void LR35902::single_step(bool verbose) {
             std::cout << "State before instruction: " << std::endl; 
             print_state(); 
         }
-        inst->execute(*this, memory); 
+        if(debug_mode) {
+            if(!debug_hold) {
+                TraceEntry te(registers, inst); 
+                inst->execute(*this, memory); 
+                te.registers_after = registers; 
+                trace.push_back(te); 
+                if(inst->alt_name == "RST 38H") 
+                    debug_hold = true; 
+            }
+        }
+        else {
+            inst->execute(*this, memory); 
+        }
         // registers.PC += inst->bytes;
        //  registers.PC += inst->addedBytes;
         
@@ -1021,6 +1033,13 @@ void LR35902::single_step(bool verbose) {
 }
 
 void LR35902::print_state() {
+    // print registers
+    std::cout << std::setfill(' '); 
+    std::cout << std::setw(7) << "PC" << std::setw(7) << "AF" << std::setw(7) << "BC" << std::setw(7) << "DE" << std::setw(7) << "HL" << std::setw(7) << "SP" << std::endl; 
+    std::cout << std::setw(7) << registers.PC << std::setw(7) << registers.AF << std::setw(7) << registers.BC << std::setw(7) << registers.DE << std::setw(7) << registers.HL << std::setw(7) << registers.SP << std::endl; 
+}
+
+void LR35902::print_state(Registers& registers) {
     // print registers
     std::cout << std::setfill(' '); 
     std::cout << std::setw(7) << "PC" << std::setw(7) << "AF" << std::setw(7) << "BC" << std::setw(7) << "DE" << std::setw(7) << "HL" << std::setw(7) << "SP" << std::endl; 

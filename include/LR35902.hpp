@@ -8,12 +8,27 @@
 
 class Instruction;  
 
+struct TraceEntry {
+    TraceEntry(Registers registers_before, Instruction* instruction) : registers_before(registers_before), instruction(instruction) { }
+    Registers registers_before; 
+    Registers registers_after; 
+    // Memory memory; 
+    Instruction* instruction;
+    
+}; 
+
 struct LR35902 {
     Registers registers; 
     Memory    memory; 
     bool      running; 
     bool      bhalt; 
+    
+    // Debug
+    bool debug_mode; 
+    bool debug_hold; 
+    
     std::vector<Instruction*> instructions; 
+    std::vector<TraceEntry> trace; 
     
     uint32    cycle_counter; 
     
@@ -87,6 +102,7 @@ struct LR35902 {
     void disassemble(); 
     void single_step(bool verbose);
     void print_state(); 
+    void print_state(Registers& registers); 
     
 }; 
 
