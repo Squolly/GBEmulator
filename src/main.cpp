@@ -126,9 +126,11 @@ int main() {
                 
                 case 'p': // press button 
                 {
+                    std::cout << "Press button "; 
                     std::stringstream ss(input);
                     std::string button;
                     ss >> button >> button; 
+                    std::cout << button << std::endl; 
                     if(button == "start" || button == "st")       joypad.start(true); 
                     else if(button == "select" || button == "se") joypad.select(true); 
                     else if(button == "up" || button == "u")      joypad.up(true); 
@@ -138,6 +140,7 @@ int main() {
                     else if(button == "a")                        joypad.a(true); 
                     else if(button == "b")                        joypad.b(true); 
                 }
+                break; 
                 
                 case 'b': // set next breakpoint 
                 {
@@ -146,6 +149,7 @@ int main() {
                     std::string tmp; 
                     ss >> tmp >> breakpoint; 
                 }
+                break; 
                 
                 case 'r': // release button
                 {
@@ -161,6 +165,7 @@ int main() {
                     else if(button == "a")                        joypad.a(); 
                     else if(button == "b")                        joypad.b(); 
                 }
+                break; 
                 
                 case 's': // step 
                 {
