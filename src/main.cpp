@@ -100,37 +100,87 @@ int main() {
     std::string input; 
     
     bool done = false;
+    use_breakpoint = false; 
+    uint16 breakpoint = 0; 
 
     while(!done) {
-        std::getline(std::cin, input); 
-        std::cout << "Eingabe war: " << input << std::endl; 
-        switch(input[0]) {
-            case 'q': 
-                done = true; 
+        if(!use_breakpoint) {
+            std::getline(std::cin, input); 
+            std::cout << "Eingabe war: " << input << std::endl; 
+            switch(input[0]) {
+                case 'q': // quit
+                    done = true; 
+                    break; 
+                    
+                case 't': // show trace
+                {
+                    std::cout << "Instruction Trace: " << cpu.trace.size() << " entries." << std::endl; 
+                    std::cout << "Printing last 20 instructions and states: " << std::endl; 
+                    for(int i=std::max(0, (int)cpu.trace.size()-20), iEnd = cpu.trace.size(); i != iEnd; ++i) {
+                        cpu.print_state(cpu.trace[i].registers_before); 
+                        std::cout << "Instruction: " << cpu.trace[i].instruction->alt_name << std::endl; 
+                    }
+                    cpu.print_state(cpu.trace.back().registers_after);
+                }
                 break; 
                 
-            case 't': 
-            {
-                std::cout << "Instruction Trace: " << cpu.trace.size() << " entries." << std::endl; 
-                std::cout << "Printing last 20 instructions and states: " << std::endl; 
-                for(int i=std::max(0, (int)cpu.trace.size()-20), iEnd = cpu.trace.size(); i != iEnd; ++i) {
-                    cpu.print_state(cpu.trace[i].registers_before); 
-                    std::cout << "Instruction: " << cpu.trace[i].instruction->alt_name << std::endl; 
+                case 'p': // press button 
+                {
+                    std::stringstream ss(input);
+                    std::string button;
+                    ss >> button >> button; 
+                    if(button == "start" || button == "st")       joypad.start(true); 
+                    else if(button == "select" || button == "se") joypad.select(true); 
+                    else if(button == "up" || button == "u")      joypad.up(true); 
+                    else if(button == "down" || button == "d")    joypad.down(true); 
+                    else if(button == "left" || button == "l")    joypad.left(true); 
+                    else if(button == "right" || button == "r")   joypad.right(true); 
+                    else if(button == "a")                        joypad.a(true); 
+                    else if(button == "b")                        joypad.b(true); 
                 }
-                cpu.print_state(cpu.trace.back().registers_after);
-            }
-            break; 
-            
-            case 's': 
-            {
-                 cpu.single_step(verbose_instruction);  
-                 cpu.print_state();
-            }
-            break; 
-            
-            default: 
-                std::cout << "Unknown option." << std::endl; 
+                
+                case 'b': // set next breakpoint 
+                {
+                    use_breakpoint = true; 
+                    std::stringstream ss(input); 
+                    std::string tmp; 
+                    ss >> tmp >> breakpoint; 
+                }
+                
+                case 'r': // release button
+                {
+                    std::stringstream ss(input);
+                    std::string button;
+                    ss >> button >> button; 
+                    if(button == "start" || button == "st")       joypad.start(); 
+                    else if(button == "select" || button == "se") joypad.select(); 
+                    else if(button == "up" || button == "u")      joypad.up(); 
+                    else if(button == "down" || button == "d")    joypad.down(); 
+                    else if(button == "left" || button == "l")    joypad.left(); 
+                    else if(button == "right" || button == "r")   joypad.right(); 
+                    else if(button == "a")                        joypad.a(); 
+                    else if(button == "b")                        joypad.b(); 
+                }
+                
+                case 's': // step 
+                {
+                    cpu.single_step(verbose_instruction);  
+                    cpu.print_state();
+                }
                 break; 
+                
+                default: 
+                    std::cout << "Unknown option." << std::endl; 
+                    break; 
+            }
+        }
+        else {
+            if(cpu.registers.PC == breakpoint) {
+                use_breakpoint = false; 
+            }
+            else {
+                cpu.single_step(verbose_instruction); 
+            }
         }
     }
     
