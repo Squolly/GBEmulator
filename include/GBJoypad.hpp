@@ -12,6 +12,15 @@ public:
         virtual uint8 read_8(uint16 address); 
         virtual void write_8(uint16 address, uint8 value); 
         
+        void start(bool pressed = false); 
+        void select(bool pressed = false); 
+        void up(bool pressed = false); 
+        void down(bool pressed = false); 
+        void left(bool pressed = false); 
+        void right(bool pressed = false); 
+        void a(bool pressed = false); 
+        void b(bool pressed = false); 
+        
 private: 
     
     // false == button IS NOT pressed, true == button IS pressed
