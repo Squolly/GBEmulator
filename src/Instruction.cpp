@@ -9,6 +9,11 @@ Instruction::Instruction(const std::string& mnemonic, const std::string& alt_nam
               bytes(bytes), addedBytes(0), addedCycles(0), cycles(cycles), verbose(verbose) { 
 }
 
+Instruction::~Instruction() {
+    
+}
+
+    
 void Instruction::execute(LR35902& cpu, Memory& memory) { 
     op(cpu, memory); 
     cpu.cycle_counter += cycles + addedCycles; 

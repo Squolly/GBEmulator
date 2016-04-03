@@ -65,6 +65,9 @@ int main() {
     cpu.init(); 
     
     
+    // current debug info: 
+    // 0x508: call to 0x90A
+    
     int a  = 0; 
     bool once = false; 
     bool use_breakpoint = true; 
@@ -78,7 +81,7 @@ int main() {
 
             // system("sleep 0.0001");
             if(use_breakpoint) {
-                if(!once && cpu.registers.PC == 0xe60) {
+                if(!once && cpu.registers.PC == 0x257) { // 0xe60
                     once = true; 
                     cpu.memory.dump(); 
                     verbose_instruction = true; 
@@ -112,6 +115,24 @@ int main() {
                     done = true; 
                     break; 
                     
+                case 'f': 
+                {
+                    std::stringstream ss(input);
+                    std::string filename;
+                    int entries = 100; 
+                    ss >> filename >> filename >> entries; 
+                    std::cout << "Saving trace (" << entries << ") to file " << filename << std::endl;  
+                    
+                    std::ofstream tracefile(filename.c_str()); 
+                    tracefile << std::hex; 
+                    for(int i=std::max(0, (int)cpu.trace.size()-entries), iEnd = cpu.trace.size(); i != iEnd; ++i) {
+                        cpu.print_state(cpu.trace[i].registers_before, tracefile); 
+                        tracefile << "Instruction: " << cpu.trace[i].instruction->alt_name << std::endl; 
+                    }
+                    cpu.print_state(cpu.trace.back().registers_after, tracefile);
+                }
+                break; 
+                    
                 case 't': // show trace
                 {
                     std::cout << "Instruction Trace: " << cpu.trace.size() << " entries." << std::endl; 
@@ -131,7 +152,7 @@ int main() {
                     std::string button;
                     ss >> button >> button; 
                     std::cout << button << std::endl; 
-                    if(button == "start" || button == "st")       joypad.start(true); 
+                    if(button == "start" || button == "st")       { std::cout << "ok" << std::endl; joypad.start(true); }
                     else if(button == "select" || button == "se") joypad.select(true); 
                     else if(button == "up" || button == "u")      joypad.up(true); 
                     else if(button == "down" || button == "d")    joypad.down(true); 
@@ -147,7 +168,7 @@ int main() {
                     use_breakpoint = true; 
                     std::stringstream ss(input); 
                     std::string tmp; 
-                    ss >> tmp >> breakpoint; 
+                    ss >> tmp >> std::hex >> breakpoint; 
                 }
                 break; 
                 
@@ -174,6 +195,10 @@ int main() {
                 }
                 break; 
                 
+                case 'v': 
+                    verbose_instruction = !verbose_instruction; 
+                    break; 
+                
                 default: 
                     std::cout << "Unknown option." << std::endl; 
                     break; 
@@ -185,6 +210,7 @@ int main() {
             }
             else {
                 cpu.single_step(verbose_instruction); 
+                video.execute();
             }
         }
     }

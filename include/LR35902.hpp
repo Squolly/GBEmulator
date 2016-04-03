@@ -1,6 +1,8 @@
 #ifndef __LR35902_HPP__
 #define __LR35902_HPP__
 
+#include <iostream>
+
 #include "types.hpp"
 
 #include "Memory.hpp"
@@ -101,8 +103,8 @@ struct LR35902 {
     void init(); 
     void disassemble(); 
     void single_step(bool verbose);
-    void print_state(); 
-    void print_state(Registers& registers); 
+    void print_state(std::ostream& out = std::cout); 
+    void print_state(Registers& registers, std::ostream& out = std::cout); 
     
 }; 
 

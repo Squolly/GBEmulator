@@ -1032,18 +1032,18 @@ void LR35902::single_step(bool verbose) {
     }
 }
 
-void LR35902::print_state() {
+void LR35902::print_state(std::ostream& out/* = std::cout */) {
     // print registers
-    std::cout << std::setfill(' '); 
-    std::cout << std::setw(7) << "PC" << std::setw(7) << "AF" << std::setw(7) << "BC" << std::setw(7) << "DE" << std::setw(7) << "HL" << std::setw(7) << "SP" << std::endl; 
-    std::cout << std::setw(7) << registers.PC << std::setw(7) << registers.AF << std::setw(7) << registers.BC << std::setw(7) << registers.DE << std::setw(7) << registers.HL << std::setw(7) << registers.SP << std::endl; 
+    out << std::setfill(' '); 
+    out << std::setw(7) << "PC" << std::setw(7) << "AF" << std::setw(7) << "BC" << std::setw(7) << "DE" << std::setw(7) << "HL" << std::setw(7) << "SP" << std::endl; 
+    out << std::setw(7) << registers.PC << std::setw(7) << registers.AF << std::setw(7) << registers.BC << std::setw(7) << registers.DE << std::setw(7) << registers.HL << std::setw(7) << registers.SP << std::endl; 
 }
 
-void LR35902::print_state(Registers& registers) {
+void LR35902::print_state(Registers& registers, std::ostream& out /* = std::cout*/) {
     // print registers
-    std::cout << std::setfill(' '); 
-    std::cout << std::setw(7) << "PC" << std::setw(7) << "AF" << std::setw(7) << "BC" << std::setw(7) << "DE" << std::setw(7) << "HL" << std::setw(7) << "SP" << std::endl; 
-    std::cout << std::setw(7) << registers.PC << std::setw(7) << registers.AF << std::setw(7) << registers.BC << std::setw(7) << registers.DE << std::setw(7) << registers.HL << std::setw(7) << registers.SP << std::endl; 
+    out << std::setfill(' '); 
+    out << std::setw(7) << "PC" << std::setw(7) << "AF" << std::setw(7) << "BC" << std::setw(7) << "DE" << std::setw(7) << "HL" << std::setw(7) << "SP" << std::endl; 
+    out << std::setw(7) << registers.PC << std::setw(7) << registers.AF << std::setw(7) << registers.BC << std::setw(7) << registers.DE << std::setw(7) << registers.HL << std::setw(7) << registers.SP << std::endl; 
 }
     
 

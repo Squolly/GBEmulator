@@ -11,7 +11,7 @@ class GBVideo : public MemoryMappedModule {
                 const std::string& name = std::string("First Video Module"), 
                 const std::string& description = std::string("This Video Module should be used for testing.")); 
                 
-        ~GBVideo(); 
+        virtual ~GBVideo(); 
         
         void connect_to_memory(Memory& memory); 
         

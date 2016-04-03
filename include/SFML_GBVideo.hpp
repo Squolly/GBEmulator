@@ -9,7 +9,7 @@ public:
     SFML_GBVideo(uint32 start_address, uint32 end_address, 
             const std::string& name = std::string("SFML Video Module"), 
             const std::string& description = std::string("This Video Module should be used for testing.")); 
-    ~SFML_GBVideo(); 
+    virtual ~SFML_GBVideo(); 
     
     virtual void operate(); 
     
