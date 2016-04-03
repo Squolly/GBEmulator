@@ -51,10 +51,10 @@ void  GBVideo::init() {
 
 void GBVideo::operate() {
     // handle operation stuff (draw something, increase counters and so on) 
-    static int counter = 0; 
+   //  static int counter = 0; 
    //  if(counter % 1 == 0) 
         next_render_step(); 
-    counter++; 
+  //   counter++; 
 }
 
 // note: access to video RAM will happen transparent to this module currently

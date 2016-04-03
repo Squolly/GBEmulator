@@ -11,9 +11,19 @@ public:
             const std::string& description = std::string("This Video Module should be used for testing.")); 
     virtual ~SFML_GBVideo(); 
     
-    virtual void operate(); 
+    virtual void operate();
+    virtual void render(); 
     
+    const float FRAMES_PER_SECOND; 
 private: 
+    bool _hold; // to make video module 60 fps for render stuff
+    
+    // SFML Related
+    sf::RenderWindow _window; 
+    sf::Thread       _renderThread; 
+    sf::Clock        _clock; 
+    sf::Time         _elapsed; 
+    
     sf::Uint8*  _pixels; 
     sf::Uint8*  _screen_pixels; 
     sf::Texture _screen_buffer; 

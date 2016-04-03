@@ -74,6 +74,7 @@ int main() {
     bool verbose_instruction = false; 
     cpu.memory.set_verbose(false); 
     bool switched = false; 
+    uint16 execute_until = 0xe60; 
     cpu.memory.connect(&joypad); 
     for(int i=0; i<100000000; ++i) {
         if(!cpu.debug_hold) {
@@ -81,7 +82,7 @@ int main() {
 
             // system("sleep 0.0001");
             if(use_breakpoint) {
-                if(!once && cpu.registers.PC == 0x257) { // 0xe60
+                if(!once && cpu.registers.PC == execute_until) { // 0xe60
                     once = true; 
                     cpu.memory.dump(); 
                     verbose_instruction = true; 
