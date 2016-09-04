@@ -394,7 +394,9 @@ void LR35902::inc_8bit_reg(uint8& reg) {
         registers.clear_z(); 
     }
     registers.clear_n();                // N - 0
-    if(reg == 0x10) {                  // H - carry from bit 3 to 4 (15 to 16 or 0x0F to 0x10)
+    
+    // bug fix: if lower nibble becomes 0 we had a carry over bit 3 to 4
+    if((reg & 0x0F) == 0x00) {                  // H - carry from bit 3 to 4 (15 to 16 or 0x0F to 0x10)
         registers.set_h();
     }
     else {
@@ -421,7 +423,9 @@ void LR35902::dec_8bit_reg(uint8& reg) {
         registers.clear_z(); 
     }
     registers.set_n();                 // N - 1 a substraction was done
-    if(reg == 0x0F) {                  // H - carry from bit 3 to 4 (15 to 16 or 0x0F to 0x10)
+    
+    // fixed bug: half carry is set everytime lower nibble becomes F
+    if((reg & 0x0F) == 0x0F) {         // H - carry from bit 3 to 4 (15 to 16 or 0x0F to 0x10)
         registers.set_h();
     }
     else {
