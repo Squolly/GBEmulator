@@ -74,7 +74,7 @@ int main() {
     bool verbose_instruction = false; 
     cpu.memory.set_verbose(false); 
     bool switched = false; 
-    uint16 execute_until = 0xe60; 
+    uint16 execute_until = 0x100; 
     cpu.memory.connect(&joypad); 
     for(int i=0; i<100000000; ++i) {
         if(!cpu.debug_hold) {
@@ -107,6 +107,8 @@ int main() {
     use_breakpoint = false; 
     uint16 breakpoint = 0; 
 
+    std::cout << "Bootstrap done. Now ROM execution..." << std::endl; 
+    
     while(!done) {
         if(!use_breakpoint) {
             std::getline(std::cin, input); 
@@ -115,7 +117,7 @@ int main() {
                 case 'q': // quit
                     done = true; 
                     break; 
-                    
+                
                 case 'f': 
                 {
                     std::stringstream ss(input);

@@ -11,7 +11,7 @@ SFML_GBVideo::SFML_GBVideo(uint32 start_address, uint32 end_address, const std::
     _window(sf::VideoMode(160, 144), "Test Window"), 
     _renderThread(&SFML_GBVideo::render, this), 
     _elapsed(sf::milliseconds(0)), 
-    FRAMES_PER_SECOND(60.f), _hold(false), _allowRender(false) {
+    FRAMES_PER_SECOND(60.f), _hold(false) {
     _screen_buffer.create(SCREEN_WIDTH, SCREEN_HEIGHT); 
     _screen.setTexture(_screen_buffer); 
 }
@@ -79,7 +79,7 @@ void SFML_GBVideo::operate() {
         if(_current_pixel_y == 0 && _current_pixel_x == 0)
             _hold = true; 
     }
-    if(_clock.getElapsedTime().asMilliseconds() - _elapsed.asMilliseconds() >= 1/FRAMES_PER_SECOND) {
+    if((_clock.getElapsedTime() - _elapsed).asMilliseconds() >= 1/FRAMES_PER_SECOND) {
         _hold = false; 
         _elapsed = _clock.getElapsedTime(); 
     }
