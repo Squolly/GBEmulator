@@ -2,6 +2,7 @@
 #define __LR35902_HPP__
 
 #include <iostream>
+#include <memory> 
 
 #include "types.hpp"
 
@@ -29,7 +30,7 @@ struct LR35902 {
     bool debug_mode; 
     bool debug_hold; 
     
-    std::vector<Instruction*> instructions; 
+    std::vector<std::unique_ptr<Instruction>> instructions; 
     std::vector<TraceEntry> trace; 
     
     uint32    cycle_counter; 
