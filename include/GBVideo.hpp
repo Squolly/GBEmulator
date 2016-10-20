@@ -44,8 +44,8 @@ class GBVideo : public MemoryMappedModule {
         
         uint8 _current_pixel_x; 
         uint8 _current_pixel_y; 
-        uint8* _screen_buffer; 
-        uint8* _display; 
+        std::vector<uint8> _screen_buffer; 
+        std::vector<uint8> _display; 
 }; 
     
 #endif

@@ -9,16 +9,11 @@ GBVideo::GBVideo(uint32 start_address, uint32 end_address, const std::string& na
          _lcd_control(0), _lcd_status(0), _background_vertical_scrolling(0), _background_horizontal_scrolling(0), 
          _current_scanline(0), _scanline_comparison(0), _background_palette(0), _sprite_palette_0(0), _sprite_palette_1(0), 
          _window_y_position(0), _window_x_position(0), _dma_transfer_control(0), 
-         _screen_buffer(new uint8[256 * 256]), _display(new uint8[160*144]), 
+         _screen_buffer(256 * 256, 0), _display(160*144, 0), 
          _current_pixel_x(0), _current_pixel_y(0),
          MemoryMappedModule(name, description, start_address, end_address) { }
 
-GBVideo::~GBVideo() {
-    if(_screen_buffer)
-        delete[] _screen_buffer; 
-    if(_display)
-        delete[] _display; 
-}
+GBVideo::~GBVideo() { }
 
 void GBVideo::connect_to_memory(Memory& memory) {
     // connect video 
