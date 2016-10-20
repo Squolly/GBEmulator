@@ -45,7 +45,7 @@ uint8 GBJoypad::read_8(uint16 address) {
             value = value | 0x01; // 0000 0001 
     }
        
-   std::cout << "Returning joypad value: " << (int)value; 
+   std::cout << "Returning joypad value: " << (int)value << std::endl; 
    return value; 
 }
 

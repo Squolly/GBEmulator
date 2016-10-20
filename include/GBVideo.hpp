@@ -23,6 +23,8 @@ class GBVideo : public MemoryMappedModule {
         virtual void next_render_step(); 
         virtual void put_pixel(uint8 x, uint8 y, uint8 color); 
         
+        std::vector<uint8> get_vram_visualization(int& width, int& height); 
+        
     protected: 
         GBRAM _character_ram; 
         GBRAM _background_map_1_ram; 

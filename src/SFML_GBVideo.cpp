@@ -42,6 +42,44 @@ void SFML_GBVideo::render() {
                 _screen_pixels[(x + y * 160) * 4 + 3] = a; 
             }
         }
+        
+         
+        int vram_vis_width = 0, vram_vis_height = 0; 
+        auto vram_vis = get_vram_visualization(vram_vis_width, vram_vis_height); 
+        
+        
+        static sf::Uint8 vram_screen_pixels[16 * 8 * 16 * 8 * 4]; 
+        static sf::Texture vram_screen_buffer; 
+        static sf::Sprite  vram_screen; 
+        static sf::RenderWindow vram_window(sf::VideoMode(16*8, 16*8), "VRAM Window"); 
+        
+        static bool vram_first = false; 
+        if(!vram_first) {
+            vram_screen_buffer.create(16 * 8, 16 * 8);
+            vram_screen.setTexture(vram_screen_buffer); 
+            vram_window.setActive(false); 
+            vram_first = true; 
+        }
+
+        
+        for(int y=0; y<16*8; ++y) {
+            for(int x=0; x<16*8; ++x) {
+                uint8 color = vram_vis[x + y * 16*8]; 
+                uint8 r, g, b, a; 
+                a = 255; 
+                r = g = b = (color * 70); 
+                // if(color != 0) 
+                //     std::cout << (int)color << std::endl; 
+                vram_screen_pixels[(x + y * 16*8) * 4 + 0] = r; 
+                vram_screen_pixels[(x + y * 16*8) * 4 + 1] = g; 
+                vram_screen_pixels[(x + y * 16*8) * 4 + 2] = b; 
+                vram_screen_pixels[(x + y * 16*8) * 4 + 3] = a; 
+            }
+        }
+        vram_screen_buffer.update(vram_screen_pixels); 
+        vram_window.draw(vram_screen); 
+        vram_window.display(); 
+        
         /* 
         for(int y=0; y<256; ++y) {
             for(int x=0; x<256; ++x) {
@@ -68,6 +106,7 @@ void SFML_GBVideo::render() {
             if (event.type == sf::Event::Closed) {
                 _renderThread.terminate(); 
                 _window.close();
+                vram_window.close(); 
             }
         }
     }

@@ -315,7 +315,7 @@ struct  PUSH_HL_In : public Instruction {  PUSH_HL_In(); virtual void op(LR35902
 struct   AND_d8_In : public Instruction {   AND_d8_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xE6
 struct RST_20H_In  : public Instruction {  RST_20H_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xE7
 struct ADD_SP_r8_In: public Instruction {ADD_SP_r8_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xE8
-struct   JP_mHL_In : public Instruction {   JP_mHL_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xE9
+struct   JP_HL_In : public Instruction {   JP_HL_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xE9
 struct LD_a16_A_In : public Instruction { LD_a16_A_In(); virtual void op(LR35902& cpu, Memory& memory); };  // 0xEA
 // 0xEB: no operation for this opcode in LR35902
 // 0xEC: no operation for this opcode in LR35902

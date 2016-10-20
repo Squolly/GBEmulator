@@ -84,7 +84,7 @@ int main() {
 
             // system("sleep 0.0001");
             if(use_breakpoint) {
-                if(!once && cpu.registers.PC == execute_until) { // 0xe60
+                if(!once && cpu.registers.PC >= execute_until) { // 0xe60
                     once = true; 
                     cpu.memory.dump(); 
                     verbose_instruction = true; 
@@ -102,7 +102,7 @@ int main() {
         else break; 
         video.execute(); 
     }
-    
+    cpu.memory.connect(&gbc); 
     std::string input; 
     
     bool done = false;

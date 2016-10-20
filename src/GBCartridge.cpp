@@ -46,7 +46,7 @@ void GBCartridge::read_file(const std::string& filename) {
         if(in.get((char&)value)) {
             data[i] = value; 
         }
-        std::cout << "value: " << std::hex << (int)data[0] << std::endl; 
+        // std::cout << "value: " << std::hex << (int)data[0] << std::endl; 
     }
     
     // output header for debug

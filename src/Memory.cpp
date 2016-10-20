@@ -31,7 +31,7 @@
  bool Memory::write_8(uint16 address, uint8 value) {
      if(address == 0x0000) {
          uint8 value_is =_mmms[0]->read_8(0); 
-         while(1) std::cout << "wtf " << (int)value_is << std::endl; 
+         // while(1) std::cout << "wtf " << (int)value_is << std::endl; 
      }
       if(_mmms[address] == NULL) {
          std::cout << "[Memory]: Not mapped. Skipping. (Write to " << (int)address << ")" << std::endl; 
@@ -44,7 +44,7 @@
  bool Memory::write_16(uint16 address, uint16 value) {
      if(address == 0x0000) {
          uint8 value_is =_mmms[0]->read_8(0); 
-         while(1) std::cout << "wtf " << (int)value_is << std::endl; 
+         // while(1) std::cout << "wtf " << (int)value_is << std::endl; 
      }
      write_8(address, value & 0xFF); 
      write_8(address + 1, (value >> 8) & 0xFF); 

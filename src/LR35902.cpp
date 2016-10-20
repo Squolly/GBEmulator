@@ -257,7 +257,7 @@ LR35902::LR35902() : running(true), memory(MEMORY_SIZE), debug_mode(false), debu
     instructions[0xE6] = std::unique_ptr<Instruction>(new      AND_d8_In());
     instructions[0xE7] = std::unique_ptr<Instruction>(new     RST_20H_In());
     instructions[0xE8] = std::unique_ptr<Instruction>(new   ADD_SP_r8_In());
-    instructions[0xE9] = std::unique_ptr<Instruction>(new      JP_mHL_In());
+    instructions[0xE9] = std::unique_ptr<Instruction>(new      JP_HL_In());
     instructions[0xEA] = std::unique_ptr<Instruction>(new    LD_a16_A_In());
     // instructions[0xEB];
     // instructions[0xEC];
@@ -1019,8 +1019,8 @@ void LR35902::single_step(bool verbose) {
         }
         else {
             static bool once = false; 
-            if(!once && registers.PC >= 0xFF) 
-                once = true; 
+            if(!once && registers.PC >= 0xFF);  
+               //  once = true; 
             
             if(once) {
                 std::cout << "cpu cycle counter: " << cycle_counter << std::endl; 

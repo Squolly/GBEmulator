@@ -173,6 +173,37 @@ void GBVideo::next_render_step() {
     _current_pixel_x++; 
 }
 
+std::vector<uint8> GBVideo::get_vram_visualization(int& width, int& height) {
+    const int c_width_pixels = 8 * 16; 
+    const int c_height_pixels = 8 * 16; 
+    
+    std::vector<uint8> vram_display(c_width_pixels * c_height_pixels, 0); 
+    
+    int current_address = 0; 
+    for(int tile_id=0; tile_id<256; ++tile_id) { // for each tile 
+        const int top_left_pos_in_display_x = (tile_id % 16) * 8; // 16 tiles per row 
+        const int top_left_pos_in_display_y = (tile_id / 16) * 8; // 16 tiles in column
+        
+        for(int line_of_tile=0; line_of_tile<8; ++line_of_tile) {
+            const uint8 data_byte_0 = _character_ram.read_8(0x8000 + current_address); 
+            const uint8 data_byte_1 = _character_ram.read_8(0x8000 + current_address + 1); 
+
+            for(int pixel_in_line=0; pixel_in_line<8; ++pixel_in_line) {
+                const uint8 color = (((data_byte_0 >> (7 - pixel_in_line)) & 0x1) << 1) | // higher bit
+                                    ((data_byte_1 >> (7 - pixel_in_line)) & 0x1);       // lower bit
+                                    
+                const int pixel_x = top_left_pos_in_display_x + pixel_in_line; 
+                const int pixel_y = (top_left_pos_in_display_y + line_of_tile) * c_width_pixels; 
+                vram_display.at(pixel_x + pixel_y) = color; 
+            }
+            current_address+= 2; 
+        }
+    }
+    width = c_width_pixels; 
+    height = c_height_pixels; 
+    return vram_display; 
+}
+
 void GBVideo::put_pixel(uint8 x, uint8 y, uint8 color) {
     _screen_buffer[y * 256 + x] = color; 
     
