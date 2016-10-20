@@ -5,7 +5,7 @@
 #include <iomanip> 
 #include <fstream>
 
- Memory::Memory(int size) : _mmms(MEMORY_SIZE, static_cast<MemoryMappedModule*>(0)), _verbose(false) {
+ Memory::Memory(int size) : _mmms(MEMORY_SIZE, nullptr), _verbose(false) {
      
  }
  

@@ -240,7 +240,7 @@ LR35902::LR35902() : running(true), memory(MEMORY_SIZE), debug_mode(false), debu
     instructions[0xD0] = new      RET_NC_In();
     instructions[0xD1] = new      POP_DE_In();
     instructions[0xD2] = new   JP_NC_a16_In();
-    instructions[0xD3] = 0;
+    instructions[0xD3] = nullptr;
     instructions[0xD4] = new CALL_NC_a16_In();
     instructions[0xD5] = new     PUSH_DE_In();
     instructions[0xD6] = new      SUB_d8_In();
@@ -248,9 +248,9 @@ LR35902::LR35902() : running(true), memory(MEMORY_SIZE), debug_mode(false), debu
     instructions[0xD8] = new       RET_C_In();
     instructions[0xD9] = new        RETI_In();
     instructions[0xDA] = new    JP_C_a16_In();
-    instructions[0xDB] = 0;
+    instructions[0xDB] = nullptr;
     instructions[0xDC] = new  CALL_C_a16_In();
-    instructions[0xDD] = 0;
+    instructions[0xDD] = nullptr;
     instructions[0xDE] = new    SBC_A_d8_In();
     instructions[0xDF] = new     RST_18H_In();
 
@@ -258,17 +258,17 @@ LR35902::LR35902() : running(true), memory(MEMORY_SIZE), debug_mode(false), debu
     instructions[0xE0] = new    LDH_a8_A_In();
     instructions[0xE1] = new      POP_HL_In();
     instructions[0xE2] = new     LD_mC_A_In();
-    instructions[0xE3] = 0;
-    instructions[0xE4] = 0;
+    instructions[0xE3] = nullptr;
+    instructions[0xE4] = nullptr;
     instructions[0xE5] = new     PUSH_HL_In();
     instructions[0xE6] = new      AND_d8_In();
     instructions[0xE7] = new     RST_20H_In();
     instructions[0xE8] = new   ADD_SP_r8_In();
     instructions[0xE9] = new      JP_mHL_In();
     instructions[0xEA] = new    LD_a16_A_In();
-    instructions[0xEB] = 0;
-    instructions[0xEC] = 0;
-    instructions[0xED] = 0;
+    instructions[0xEB] = nullptr;
+    instructions[0xEC] = nullptr;
+    instructions[0xED] = nullptr;
     instructions[0xEE] = new      XOR_d8_In();
     instructions[0xEF] = new     RST_28H_In();
 
@@ -277,7 +277,7 @@ LR35902::LR35902() : running(true), memory(MEMORY_SIZE), debug_mode(false), debu
     instructions[0xF1] = new      POP_AF_In();
     instructions[0xF2] = new     LD_A_mC_In();
     instructions[0xF3] = new          DI_In();
-    instructions[0xF4] = 0;
+    instructions[0xF4] = nullptr;
     instructions[0xF5] = new     PUSH_AF_In();
     instructions[0xF6] = new       OR_d8_In();
     instructions[0xF7] = new     RST_30H_In();
@@ -285,8 +285,8 @@ LR35902::LR35902() : running(true), memory(MEMORY_SIZE), debug_mode(false), debu
     instructions[0xF9] = new    LD_SP_HL_In();
     instructions[0xFA] = new    LD_A_a16_In();
     instructions[0xFB] = new          EI_In();
-    instructions[0xFC] = 0;
-    instructions[0xFD] = 0;
+    instructions[0xFC] = nullptr;
+    instructions[0xFD] = nullptr;
     instructions[0xFE] = new       CP_d8_In();
     instructions[0xFF] = new     RST_38H_In();
 }
