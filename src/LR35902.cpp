@@ -4,6 +4,7 @@
 #include <iostream>
 #include <iomanip>
 #include <algorithm>
+#include <fstream>
 
 struct InstructionDeleter {
   void operator() (const Instruction *instrPtr) const {
@@ -12,7 +13,7 @@ struct InstructionDeleter {
   }
 };
 
-LR35902::LR35902() : running(true), memory(MEMORY_SIZE), debug_mode(true), debug_hold(false) {
+LR35902::LR35902() : running(true), memory(MEMORY_SIZE), debug_mode(false), debug_hold(false), cycle_counter(0) {
     instructions = std::vector<Instruction*>(0x100, static_cast<Instruction*>(0)); 
     instructions[0x00] = new         NOP_In();
     instructions[0x01] = new   LD_BC_d16_In();
@@ -997,8 +998,11 @@ void LR35902::disassemble() {
 }
 
 void LR35902::single_step(bool verbose) {
+    static std::ofstream debug_out("debug.txt"); 
+    
     uint8 opcode; 
     Instruction* inst = instructions[opcode = memory.read_8(registers.PC)];
+
     if(inst == NULL) {
         if(verbose) {
             std::cout << "Invalid instruction: " << (int)opcode << std::endl;
@@ -1024,7 +1028,31 @@ void LR35902::single_step(bool verbose) {
             }
         }
         else {
+            static bool once = false; 
+            if(!once && registers.PC >= 0xFF) 
+                once = true; 
+            
+            if(once) {
+                std::cout << "cpu cycle counter: " << cycle_counter << std::endl; 
+            debug_out << std::hex << std::setw(4) << std::setfill('0') << (int)opcode << std::endl; 
+            debug_out << std::hex << std::setw(4) << std::setfill('0') << registers.PC << " " 
+                      << std::hex << std::setw(4) << std::setfill('0') << registers.AF << " " 
+                      << std::hex << std::setw(4) << std::setfill('0') << registers.BC << " "  
+                      << std::hex << std::setw(4) << std::setfill('0') << registers.DE << " " 
+                      << std::hex << std::setw(4) << std::setfill('0') << registers.HL << " " 
+                      << std::hex << std::setw(4) << std::setfill('0') << registers.SP << std::endl; 
+            }    
+            // std::cout << "registers.PC + inst->bytes: " << registers.PC << " + " << (int)inst->bytes << ": " << registers.PC + inst->bytes << std::endl;  
             inst->execute(*this, memory); 
+     
+            if(once) {
+            debug_out << std::hex << std::setw(4) << std::setfill('0') << registers.PC << " " 
+                      << std::hex << std::setw(4) << std::setfill('0') << registers.AF << " " 
+                      << std::hex << std::setw(4) << std::setfill('0') << registers.BC << " " 
+                      << std::hex << std::setw(4) << std::setfill('0') << registers.DE << " " 
+                      << std::hex << std::setw(4) << std::setfill('0') << registers.HL << " " 
+                      << std::hex << std::setw(4) << std::setfill('0') << registers.SP << std::endl << std::endl; 
+            }
         }
         // registers.PC += inst->bytes;
        //  registers.PC += inst->addedBytes;

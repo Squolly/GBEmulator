@@ -5,6 +5,7 @@
 #include "GBROM.hpp" 
 #include "GBCartridge.hpp"
 #include "GBJoypad.hpp"
+#include "GBSerialTransfer.hpp"
 #include "SFML_GBVideo.hpp"
 
 #include "Instruction.hpp"
@@ -27,7 +28,8 @@ int main() {
     GBRAM  internal_ram(0xC000, 0xFE00);    internal_ram.init(internal_ram.size()); 
     GBRAM  switchable_ram(0xA000, 0xC000);   switchable_ram.init(switchable_ram.size());  
     GBJoypad joypad(0xFF00, 0xFF01); 
- 
+    GBSerialTransfer serialTransfer(0xFF01, 0xFF03); 
+    
     SFML_GBVideo video(0x8000, 0xA000); 
     cpu.memory.connect(&zero_page_ram); 
     cpu.memory.connect(&internal_ram); 
@@ -56,7 +58,7 @@ int main() {
     
     // read cartridge
     GBCartridge gbc(0x0000, 0x8000); 
-    gbc.read_file("data/Bounce.gb"); 
+    gbc.read_file("data/Tetris.gb"); 
     cpu.memory.connect(&gbc); 
     // map cartridge to memory
     // now printing dissassembly // rom will overwrite gbc entries
