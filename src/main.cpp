@@ -4,6 +4,7 @@
 #include "LR35902.hpp"
 #include "GBROM.hpp" 
 #include "GBCartridge.hpp"
+#include "GBInterruptEnable.hpp" 
 #include "GBJoypad.hpp"
 #include "GBSerialTransfer.hpp"
 #include "SFML_GBVideo.hpp"
@@ -29,6 +30,9 @@ int main() {
     GBRAM  switchable_ram(0xA000, 0xC000);   switchable_ram.init(switchable_ram.size());  
     GBJoypad joypad(0xFF00, 0xFF01); 
     GBSerialTransfer serialTransfer(0xFF01, 0xFF03); 
+    GBInterruptEnable ie(0xFFFF, 0x10000);
+    ie.set_verbose(true); 
+    
     
     SFML_GBVideo video(0x8000, 0xA000); 
     cpu.memory.connect(&zero_page_ram); 
@@ -58,7 +62,8 @@ int main() {
     
     // read cartridge
     GBCartridge gbc(0x0000, 0x8000); 
-    gbc.read_file("data/Tetris.gb"); 
+    gbc.read_file("data/Bounce.gb"); 
+    //gbc.read_file("data/cpu_instrs.gb"); 
     cpu.memory.connect(&gbc); 
     // map cartridge to memory
     // now printing dissassembly // rom will overwrite gbc entries
@@ -78,6 +83,9 @@ int main() {
     bool switched = false; 
     uint16 execute_until = 0x100; 
     cpu.memory.connect(&joypad); 
+    cpu.memory.connect(&serialTransfer); 
+    cpu.memory.connect(&ie); 
+    
     for(int i=0; i<100000000; ++i) {
         if(!cpu.debug_hold) {
             cpu.single_step(verbose_instruction);  
@@ -112,6 +120,10 @@ int main() {
     std::cout << "Bootstrap done. Now ROM execution..." << std::endl; 
     
     while(!done) {
+        if(video.break_request()) {
+            use_breakpoint = false; 
+            video.set_break_request(false); 
+        }
         if(!use_breakpoint) {
             std::getline(std::cin, input); 
             std::cout << "Eingabe war: " << input << std::endl; 
@@ -157,14 +169,14 @@ int main() {
                     std::string button;
                     ss >> button >> button; 
                     std::cout << button << std::endl; 
-                    if(button == "start" || button == "st")       { std::cout << "ok" << std::endl; joypad.start(true); }
-                    else if(button == "select" || button == "se") joypad.select(true); 
-                    else if(button == "up" || button == "u")      joypad.up(true); 
-                    else if(button == "down" || button == "d")    joypad.down(true); 
-                    else if(button == "left" || button == "l")    joypad.left(true); 
-                    else if(button == "right" || button == "r")   joypad.right(true); 
-                    else if(button == "a")                        joypad.a(true); 
-                    else if(button == "b")                        joypad.b(true); 
+                    if(button == "start" || button == "st")       { joypad.start(!joypad.start_pressed()); }
+                    else if(button == "select" || button == "se") joypad.select(!joypad.select_pressed()); 
+                    else if(button == "up" || button == "u")      joypad.up(!joypad.up_pressed()); 
+                    else if(button == "down" || button == "d")    joypad.down(!joypad.down_pressed()); 
+                    else if(button == "left" || button == "l")    joypad.left(!joypad.left_pressed()); 
+                    else if(button == "right" || button == "r")   joypad.right(!joypad.right_pressed()); 
+                    else if(button == "a")                        joypad.a(!joypad.a_pressed()); 
+                    else if(button == "b")                        joypad.b(!joypad.b_pressed()); 
                 }
                 break; 
                 

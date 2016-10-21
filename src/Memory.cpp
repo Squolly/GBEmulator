@@ -11,7 +11,7 @@
  
  uint8 Memory::read_8(uint16 address) {
      if(_verbose) std::cout << "[Memory]: Reading (8 bit): " << address << " "; 
-     if(_mmms[address] == NULL) {
+     if(_mmms[address] == nullptr) {
          std::cout << "[Memory]: Not mapped. Skipping (Read of address " << (int)address << ")" << std::endl; 
          return 0; 
      }

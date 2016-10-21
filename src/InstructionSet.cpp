@@ -869,7 +869,7 @@ void    SBC_D_In::op(LR35902& cpu, Memory& memory) { cpu.sbc_8_8(cpu.registers.A
 void    SBC_E_In::op(LR35902& cpu, Memory& memory) { cpu.sbc_8_8(cpu.registers.A, cpu.registers.E); }              // 0x9B
 void    SBC_H_In::op(LR35902& cpu, Memory& memory) { cpu.sbc_8_8(cpu.registers.A, cpu.registers.H); }              // 0x9C
 void    SBC_L_In::op(LR35902& cpu, Memory& memory) { cpu.sbc_8_8(cpu.registers.A, cpu.registers.L); }              // 0x9D
-void  SBC_mHL_In::op(LR35902& cpu, Memory& memory) { cpu.sbc_8_8(cpu.registers.A, memory.read_8(cpu.registers.HL));} // 0x9E
+void  SBC_mHL_In::op(LR35902& cpu, Memory& memory) { uint8 loaded_hl = memory.read_8(cpu.registers.HL); cpu.sbc_8_8(cpu.registers.A, loaded_hl);} // 0x9E
 void    SBC_A_In::op(LR35902& cpu, Memory& memory) { cpu.sbc_8_8(cpu.registers.A, cpu.registers.A); }              // 0x9F
 
 // =================================================================================================
@@ -968,8 +968,7 @@ void    LD_mC_A_In::op(LR35902& cpu, Memory& memory) { memory.write_8((0xFF00 | 
 void    PUSH_HL_In::op(LR35902& cpu, Memory& memory) { cpu.push(cpu.registers.HL); }                               // 0xE5
 void     AND_d8_In::op(LR35902& cpu, Memory& memory) { cpu.and_8(memory.read_8(cpu.registers.PC + 1)); }           // 0xE6
 void    RST_20H_In::op(LR35902& cpu, Memory& memory) { cpu.push(cpu.registers.PC+bytes); cpu.jp(0x0020); cpu.registers.PC -= bytes; }              // 0xE7
-void  ADD_SP_r8_In::op(LR35902& cpu, Memory& memory) { cpu.add_16_16(cpu.registers.SP,                             // 0xE8
-                                                                     cpu.sign_ext(memory.read_8(cpu.registers.PC + 1))); 
+void  ADD_SP_r8_In::op(LR35902& cpu, Memory& memory) { cpu.registers.SP = cpu.add_sp_n(cpu.registers.SP, memory.read_8(cpu.registers.PC + 1)); 
                                                        cpu.registers.clear_z(); } // always cleared
 void    JP_HL_In::op(LR35902& cpu, Memory& memory) { cpu.jp(cpu.registers.HL); cpu.registers.PC -= bytes;  }                 // 0xE9
 void  LD_a16_A_In::op(LR35902& cpu, Memory& memory) { memory.write_8(memory.read_16(cpu.registers.PC + 1), cpu.registers.A);  } // 0xEA
@@ -984,17 +983,14 @@ void   RST_28H_In::op(LR35902& cpu, Memory& memory) { cpu.push(cpu.registers.PC+
 // =================================================================================================
 
 void    LDH_A_a8_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = memory.read_8(0xFF00 | memory.read_8(cpu.registers.PC + 1));  } // 0xF0
-void      POP_AF_In::op(LR35902& cpu, Memory& memory) { cpu.pop(cpu.registers.AF); }                               // 0xF1
+void      POP_AF_In::op(LR35902& cpu, Memory& memory) { uint16 reg; cpu.pop(reg); cpu.registers.AF = reg & 0xFFF0; }  // 0xF1
 void     LD_A_mC_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = memory.read_8(0xFF00 | cpu.registers.C);  } // 0xF2
 void          DI_In::op(LR35902& cpu, Memory& memory) { cpu.di(); }                                                // 0xF3
 // 0xF4: no operation for this opcode in LR35902
 void     PUSH_AF_In::op(LR35902& cpu, Memory& memory) { cpu.push(cpu.registers.AF); }                              // 0xF5
 void       OR_d8_In::op(LR35902& cpu, Memory& memory) { cpu.or_8(memory.read_8(cpu.registers.PC + 1)); }           // 0xF6
 void     RST_30H_In::op(LR35902& cpu, Memory& memory) { cpu.push(cpu.registers.PC+bytes); cpu.jp(0x0030); cpu.registers.PC -= bytes;  }             // 0xF7
-void LD_HL_SP_r8_In::op(LR35902& cpu, Memory& memory) { cpu.registers.HL = cpu.registers.SP;                       // 0xF8
-                                                        cpu.add_16_16(cpu.registers.HL, 
-                                                        cpu.sign_ext(memory.read_8(cpu.registers.PC + 1))); 
-                                                        cpu.registers.clear_z(); }
+void LD_HL_SP_r8_In::op(LR35902& cpu, Memory& memory) { cpu.registers.HL = cpu.add_sp_n(cpu.registers.SP, memory.read_8(cpu.registers.PC + 1)); }
 void    LD_SP_HL_In::op(LR35902& cpu, Memory& memory) { cpu.registers.SP = cpu.registers.HL;  }                    // 0xF9
 void    LD_A_a16_In::op(LR35902& cpu, Memory& memory) { cpu.registers.A = memory.read_8(memory.read_16(cpu.registers.PC + 1)); } // 0xFA
 void          EI_In::op(LR35902& cpu, Memory& memory) { cpu.ei(); }                                                // 0xFB

@@ -52,6 +52,12 @@ void GBVideo::operate() {
   //   counter++; 
 }
 
+void GBVideo::set_bit(uint8& r, int bit, bool value) {
+    const uint8 r_masked_bit = r & ~(1 << bit); 
+    const uint8 set_n = ((value ? 1 : 0) << bit); 
+    r = r | set_n; 
+}
+
 // note: access to video RAM will happen transparent to this module currently
 //       so currently we only have to handle I/O access
 uint8 GBVideo::read_8(uint16 address) {
@@ -78,7 +84,7 @@ uint8 GBVideo::read_8(uint16 address) {
         break; // CURLINE [RW] Current Scanline
         
     case 0xFF45: 
-        
+        return _scanline_comparison; 
         break; // CMPLINE [RW] Scanline Comparison
         
     case 0xFF46: 
@@ -114,6 +120,13 @@ uint8 GBVideo::read_8(uint16 address) {
 void GBVideo::next_render_step() {
     const uint8 pos_x = _current_pixel_x; 
     const uint8 pos_y = _current_pixel_y; 
+    
+    if(_current_pixel_y == _scanline_comparison) {
+        set_coincidence_flag(true); 
+    }
+    else {
+        set_coincidence_flag(false); 
+    }
     
     // check if background is turned on 
     if(_lcd_control & 0x01) {

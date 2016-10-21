@@ -25,6 +25,22 @@ class GBVideo : public MemoryMappedModule {
         
         std::vector<uint8> get_vram_visualization(int& width, int& height); 
         
+        enum class Mode {
+            HBlank = 0, 
+            VBlank = 1, 
+            SearchingOAM = 2, 
+            TransferData = 3
+        }; 
+        void set_bit(uint8& r, int bit, bool value); 
+        void set_coincidence_interrupt(bool enable) { set_bit(_lcd_status, 6, enable); } 
+        void set_oam_interrupt(bool enable) { set_bit(_lcd_status, 5, enable); }
+        void set_vblank_interrupt(bool enable) { set_bit(_lcd_status, 4, enable); }
+        void set_hblank_interrupt(bool enable) { set_bit(_lcd_status, 3, enable); }
+        void set_coincidence_flag(bool enable) { set_bit(_lcd_status, 2, enable); }
+        void set_mode_flag(Mode mode) { 
+            set_bit(_lcd_status, 1, static_cast<int>(mode) & 0x2); 
+            set_bit(_lcd_status, 0, static_cast<int>(mode) & 0x1); 
+        }
     protected: 
         GBRAM _character_ram; 
         GBRAM _background_map_1_ram; 

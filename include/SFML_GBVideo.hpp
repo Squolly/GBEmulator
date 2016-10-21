@@ -14,6 +14,9 @@ public:
     virtual void operate();
     virtual void render(); 
     
+    bool break_request() { return _break_request; }
+    void set_break_request(bool request) { _break_request = request; }
+    
     const float FRAMES_PER_SECOND; 
 private: 
     bool _hold; // to make video module 60 fps for render stuff
@@ -28,6 +31,8 @@ private:
     sf::Uint8*  _screen_pixels; 
     sf::Texture _screen_buffer; 
     sf::Sprite  _screen; 
+    
+    bool _break_request; 
 }; 
 
 #endif

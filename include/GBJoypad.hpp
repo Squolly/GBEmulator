@@ -21,6 +21,15 @@ public:
         void a(bool pressed = false); 
         void b(bool pressed = false); 
         
+        bool start_pressed() { return _button_start; }
+        bool select_pressed() { return _button_select; }
+        bool up_pressed() { return _button_up; }
+        bool down_pressed() { return _button_down; }
+        bool left_pressed() { return _button_left; }
+        bool right_pressed() { return _button_right; }
+        bool a_pressed() { return _button_a; }
+        bool b_pressed() { return _button_b; }
+        
 private: 
     
     // false == button IS NOT pressed, true == button IS pressed

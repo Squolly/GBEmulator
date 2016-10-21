@@ -35,6 +35,8 @@ struct LR35902 {
     
     uint32    cycle_counter; 
     
+    bool ime; // interupt master enable
+    
     LR35902(); 
     ~LR35902(); 
     
@@ -73,6 +75,8 @@ struct LR35902 {
     void shift_left_reg_a(); 
     void shift_right_c_reg_a(); 
     void shift_right_reg_a();
+    
+    uint16 add_sp_n(uint16 sp, uint8 n); 
     
     void add_16_16(uint16& reg1, uint16 reg2); 
     void add_8_8(uint8& reg1,  uint8 reg2);

@@ -11,7 +11,7 @@ SFML_GBVideo::SFML_GBVideo(uint32 start_address, uint32 end_address, const std::
     _window(sf::VideoMode(160, 144), "Test Window"), 
     _renderThread(&SFML_GBVideo::render, this), 
     _elapsed(sf::milliseconds(0)), 
-    FRAMES_PER_SECOND(60.f), _hold(false) {
+    FRAMES_PER_SECOND(60.f), _hold(false), _break_request(false) {
     _screen_buffer.create(SCREEN_WIDTH, SCREEN_HEIGHT); 
     _screen.setTexture(_screen_buffer); 
 }
@@ -103,6 +103,10 @@ void SFML_GBVideo::render() {
         sf::Event event;
         while (_window.pollEvent(event))
         {
+            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::S)
+            {
+                _break_request = true; 
+            }
             if (event.type == sf::Event::Closed) {
                 _renderThread.terminate(); 
                 _window.close();

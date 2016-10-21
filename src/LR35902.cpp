@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <fstream>
 
-LR35902::LR35902() : running(true), memory(MEMORY_SIZE), debug_mode(false), debug_hold(false), cycle_counter(0) {
+LR35902::LR35902() : running(true), memory(MEMORY_SIZE), debug_mode(false), debug_hold(false), cycle_counter(0), ime(false) {
     instructions = std::vector<std::unique_ptr<Instruction>>(0x100); 
     instructions[0x00] = std::unique_ptr<Instruction>(new         NOP_In());
     instructions[0x01] = std::unique_ptr<Instruction>(new   LD_BC_d16_In());
@@ -358,21 +358,23 @@ void LR35902::jp(uint16 addr) {
 }
     
 void LR35902::ei() {
-    // TODO 
+    ime = true; 
 }
     
 void LR35902::di() {
-    // TODO 
+    ime = false; 
 }
     
 void LR35902::push(uint16 reg) {
+    memory.write_16(registers.SP-2, reg); 
     registers.SP -= 2; 
-    memory.write_16(registers.SP, reg); 
+    // std::cout << "Pushed " << reg << std::endl; 
 }
 
 void LR35902::pop(uint16& reg) {
     reg = memory.read_16(registers.SP); 
     registers.SP += 2; 
+    // std::cout << "Popped " << reg << std::endl; 
 }
 
     
@@ -508,6 +510,28 @@ void LR35902::shift_right_reg_a() {
     registers.clear_h(); 
 }
 
+uint16 LR35902::add_sp_n(uint16 sp, uint8 n) { // for fixing LDHL SP, r8 (opcode 0xF8)
+    sint8 sign_ext_n = n;
+    sint32 r = sp + sign_ext_n; 
+
+    if(((sp ^ sign_ext_n ^ (r & 0xFFFF)) & 0x100) == 0x100) {
+        registers.set_c(); 
+    }
+    else {
+        registers.clear_c(); 
+    }
+    
+    if(((sp ^ sign_ext_n ^ (r & 0xFFFF)) & 0x10) == 0x10) {
+        registers.set_h(); 
+    }
+    else {
+        registers.clear_h(); 
+    }
+    
+    registers.clear_n(); 
+    registers.clear_z();
+    return (uint16)(r & 0xFFFF); 
+}
 
 const uint16 BITMASK_11n = 0x0FFF; 
 const uint32 MASK_8 = 0xFF; 
@@ -520,7 +544,7 @@ void LR35902::add_16_16(uint16& reg1, uint16 reg2) {
     else {
         registers.clear_c(); 
     }
-        registers.clear_n(); 
+    registers.clear_n(); 
     
     //  check H-flag (carry from bit 11 to bit 12)
     uint32 carry_check = (reg1 & BITMASK_11n) + (reg2 & BITMASK_11n); 
@@ -592,30 +616,25 @@ void LR35902::adc_8_8(uint8& reg1, uint8 reg2) {
 
 void LR35902::sbc_8_8(uint8& reg1, uint8 reg2) {
     uint8 carry = (registers.c() ? 1 : 0); 
-    uint8 nibble_reg1 = reg1 & 0x0F; 
-    uint8 nibble_reg2 = reg2 & 0x0F; 
-    
-    uint8 nibble_result = nibble_reg1 - nibble_reg2 - carry; 
-    uint16 result = reg1 - reg2 - carry; 
-    
+    sint16 result = reg1 - reg2 - carry; 
     registers.set_n(); 
     
-    if(nibble_result > 0x0F) // borrow from bit 4
+    if(((reg1 ^ reg2 ^ result) & 0x10) == 0x10) // borrow from bit 4
         registers.set_h(); 
     else 
         registers.clear_h(); 
     
-    if(result > 255) // borrow 
+    if(result < 0) // borrow 
         registers.set_c(); 
     else
         registers.clear_c(); 
     
-    if(result == 0) 
+    reg1 = result & 0xFF;  
+    
+    if(reg1 == 0) 
         registers.set_z(); 
     else
-        registers.clear_z(); 
-    
-    reg1 = result & 0xFF; 
+        registers.clear_z();  
 }
 
 void LR35902::sub_8(uint8 reg) {
@@ -688,7 +707,7 @@ void LR35902::cp_8(uint8 reg) {
 
 
 uint16 LR35902::sign_ext(uint8 value) {
-    return (0xF0 * ((value >> 7) & 0x1)) | value; // multiply sign of value (7. bit) with 0xF0 
+    return (0xFF00 * ((value >> 7) & 0x1)) | value; // multiply sign of value (7. bit) with 0xF0 
 }
 
 // rotate left, old bit 7 in carry
@@ -879,6 +898,36 @@ void LR35902::srl(uint8& reg) {
 #define LOW_NIBBLE(x) (x & 0xF)
 #define HIGH_NIBBLE(x) ((x >> 4)&0xF)
 void LR35902::dda() { // convert A from binary to BCD
+    int a = registers.A; 
+    
+    if(!registers.n()) {
+        if(registers.h() || (a & 0xF) > 9) {
+            a += 0x06; 
+        }
+        if(registers.c() || a > 0x9F) {
+            a += 0x60; 
+        }
+    }
+    else {
+        if(registers.h()) 
+            a = (a - 6) & 0xFF; 
+        if(registers.c()) 
+            a -= 0x60; 
+    }
+    registers.clear_h(); 
+    registers.clear_z(); 
+    
+    if((a & 0x100) == 0x100) 
+        registers.set_c(); 
+    
+    a &= 0xFF; 
+    
+    if(a == 0) 
+        registers.set_z(); 
+    
+    registers.A = (uint8)a; 
+    
+    /*
     uint8 add = 0; 
     uint8 ln = LOW_NIBBLE(registers.A); 
     uint8 hn = HIGH_NIBBLE(registers.A); 
@@ -922,6 +971,8 @@ void LR35902::dda() { // convert A from binary to BCD
         registers.set_z(); 
     else
         registers.clear_z(); 
+    
+    */
 }
 
 // Z is 1 if bit b of reg is 0, else it is 0
