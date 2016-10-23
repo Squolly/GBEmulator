@@ -47,6 +47,7 @@ class GBVideo : public MemoryMappedModule {
         void render_image(); 
         uint8 get_background_pixel(uint8 x, uint8 y); // returns color of background at (WINX + x, WINY + y)
         void update_tile(uint16 address, uint8 value); 
+        void update_sprite(uint16 address, uint8 value); 
         
         // old render functions
         virtual void next_render_step(); // deprecated
@@ -82,6 +83,10 @@ class GBVideo : public MemoryMappedModule {
         bool vblank_interrupt_request() { return _vblank_interrupt_request; }
         bool lcdc_interrupt_request() { return _lcdc_interrupt_request; }
         
+        void request_dma() { _dma_request = true; }
+        bool dma_request() { return _dma_request; }
+        void clear_dma_request() { _dma_request = false; }
+        uint8 dma_transfer_value() { return _dma_transfer_control; }
     protected: 
         GBRAM _character_ram; 
         GBRAM _background_map_1_ram; 
@@ -124,6 +129,23 @@ class GBVideo : public MemoryMappedModule {
         
         bool _vblank_interrupt_request; 
         bool _lcdc_interrupt_request; 
+        
+        bool _dma_request; 
+        
+        struct Sprite {
+            uint8 x; 
+            uint8 y; 
+            uint8 tile_id; 
+            
+            bool palette; 
+            bool flip_x; 
+            bool flip_y; 
+            bool priority; 
+            
+            Sprite() : x(0), y(0), tile_id(0), palette(false), flip_x(false), flip_y(false), priority(false) { }
+        }; 
+        
+        std::vector<Sprite> _sprites;
 }; 
     
 #endif

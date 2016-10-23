@@ -37,7 +37,7 @@ void SFML_GBVideo::render() {
                     uint8 color = display[x + y * 160]; 
                     uint8 r, g, b, a; 
                     a = 255; 
-                    r = g = b = (color * 70); 
+                    r = g = b = ((3-color) * 70); 
                     // if(color != 0) 
                     //     std::cout << (int)color << std::endl; 
                     _screen_pixels[(x + y * 160) * 4 + 0] = r; 
@@ -112,10 +112,60 @@ void SFML_GBVideo::render() {
         sf::Event event;
         while (_window.pollEvent(event))
         {
-            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::S)
+            int set_keys = -1; 
+            if (event.type == sf::Event::KeyPressed)
             {
-                _break_request = true; 
+                set_keys = 1; 
             }
+            else if (event.type == sf::Event::KeyReleased)
+            {
+                set_keys = 0; 
+            }
+            
+            if(set_keys == 0 || set_keys == 1) {
+                switch(event.key.code) {
+                    case sf::Keyboard::W: 
+                        _break_request = set_keys; 
+                        std::cout << "Break request! " << std::endl; 
+                        break; 
+                    
+                    case sf::Keyboard::Up: 
+                        _button_up = set_keys; 
+                        break; 
+                        
+                    case sf::Keyboard::Down: 
+                        _button_down = set_keys; 
+                        break; 
+                        
+                    case sf::Keyboard::Left: 
+                        _button_left = set_keys; 
+                        break; 
+                        
+                    case sf::Keyboard::Right: 
+                        _button_right = set_keys; 
+                        break; 
+
+                    case sf::Keyboard::Y: 
+                        _button_a = set_keys; 
+                        break; 
+                        
+                    case sf::Keyboard::X: 
+                        _button_b = set_keys; 
+                        break; 
+                    
+                    case sf::Keyboard::A: 
+                        _button_start = set_keys; 
+                        break;
+                        
+                    case sf::Keyboard::S: 
+                        _button_select = set_keys; 
+                        break; 
+                }
+                _buttons_changed = true; 
+            }
+            else
+                _buttons_changed = false; 
+            
             if (event.type == sf::Event::Closed) {
                 _renderThread.terminate(); 
                 _window.close();

@@ -66,7 +66,7 @@ int main() {
     
     // read cartridge
     GBCartridge gbc(0x0000, 0x8000); 
-    gbc.read_file("data/CRASH.GB"); 
+    gbc.read_file("data/Bounce.gb"); 
     //gbc.read_file("data/cpu_instrs.gb"); 
     cpu.memory.connect(&gbc); 
     // map cartridge to memory
@@ -126,6 +126,18 @@ int main() {
         if(video.lcdc_interrupt_request()) {
             iff.set_interrupt(Interrupt::LCDC); 
             video.clear_lcdc_interrupt_request(); 
+        }
+        
+        // handle dma
+        if(video.dma_request()) {
+            std::cout << "dma requested." << std::endl; 
+            uint16 dma_transfer_address = video.dma_transfer_value() << 8; 
+            std::cout << "address: " << dma_transfer_address << std::endl; 
+            video.clear_dma_request(); 
+            for(int dma_i=0; dma_i < 0xA0; ++dma_i) {
+                uint8 value = cpu.memory.read_8(dma_transfer_address + dma_i); 
+                cpu.memory.write_8(0xFE00 + dma_i, value); 
+            }
         }
     }
     cpu.memory.connect(&gbc); 
@@ -257,8 +269,33 @@ int main() {
                     iff.set_interrupt(Interrupt::LCDC); 
                     video.clear_lcdc_interrupt_request(); 
                 }
+                
+                // handle dma
+                if(video.dma_request()) {
+                    // std::cout << "dma requested." << std::endl; 
+                    uint16 dma_transfer_address = video.dma_transfer_value() << 8; 
+                    // std::cout << "address: " << dma_transfer_address << std::endl; 
+                    video.clear_dma_request(); 
+                    // cpu.memory.set_verbose(true); 
+                    for(int dma_i=0; dma_i < 0xA0; ++dma_i) {
+                        uint8 value = cpu.memory.read_8(dma_transfer_address + dma_i); 
+                        cpu.memory.write_8(0xFE00 + dma_i, value); 
+                    }
+                    // cpu.memory.set_verbose(false); 
+                }
+                
+                // hack to have input
+                if(video.buttons_changed()) {
+                    joypad.start(video.button_start()); 
+                    joypad.select(video.button_select()); 
+                    joypad.up(video.button_up()); 
+                    joypad.down(video.button_down()); 
+                    joypad.left(video.button_left()); 
+                    joypad.right(video.button_right()); 
+                    joypad.a(video.button_a()); 
+                    joypad.b(video.button_b()); 
+                }
             }
         }
     }
-    
 }

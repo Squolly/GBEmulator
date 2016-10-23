@@ -16,6 +16,8 @@ uint8 GBCartridge::read_8(uint16 address) {
     if(address >= 0x0000 && address < 0x8000) {
         return _permanent_ROM.read_8(address); 
     }
+    else 
+        std::cout << "Illegal read." << std::endl; 
 }
 
 void  GBCartridge::write_8(uint16 address, uint8 value) { 
@@ -23,6 +25,8 @@ void  GBCartridge::write_8(uint16 address, uint8 value) {
     if(address >= 0x0000 && address < 0x8000) {
         return _permanent_ROM.write_8(address, value); 
     }
+    else 
+        std::cout << "Illegal write." << std::endl; 
 }
       
 void GBCartridge::read_file(const std::string& filename) {

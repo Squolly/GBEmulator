@@ -17,7 +17,8 @@ GBVideo::GBVideo(uint32 start_address, uint32 end_address, const std::string& na
          _current_mode(GPUMode::VBlank), 
          _current_cpu_cycles(0),
          _last_cpu_cycles(0), 
-         _refresh(false)
+         _refresh(false), 
+         _sprites(40, GBVideo::Sprite())
           { }
 
 GBVideo::~GBVideo() { }
@@ -30,7 +31,8 @@ void GBVideo::connect_to_memory(Memory& memory) {
     
     memory.connect(&_background_map_1_ram); // Background Map Data 1
     memory.connect(&_background_map_2_ram); // Background Map Data 2
-    memory.connect(&_oam_ram);              // OAM - Object Attribute Memory
+    // memory.connect(&_oam_ram);              // OAM - Object Attribute Memory
+    memory.connect(this, _oam_ram.start_address(), _oam_ram.end_address()); 
     
     // connect video I/O Ports
     memory.connect(this, 0xFF40); // LCDCONT [RW] LCD Control
@@ -153,6 +155,10 @@ uint8 GBVideo::read_8(uint16 address) {
         ret = _character_ram.read_8(address); 
     }
     
+    if(address >= _oam_ram.start_address() && address < _oam_ram.end_address()) {
+        ret = _oam_ram.read_8(address); 
+    }
+    
     switch(address) {
     case 0xFF40: 
         ret = _lcd_control; 
@@ -205,6 +211,10 @@ uint8 GBVideo::read_8(uint16 address) {
     default: 
         if(address >= _character_ram.start_address() && address < _character_ram.end_address()) 
             break; 
+        
+        if(address >= _oam_ram.start_address() && address < _oam_ram.end_address()) 
+            break; 
+        
         std::cout << "[Video]: " << (int)address << " access [R] with unknown purpose" << std::endl; 
         break; 
     }
@@ -343,6 +353,44 @@ void GBVideo::update_tile(uint16 address, uint8 value) {
     }
 }
 
+void GBVideo::update_sprite(uint16 address, uint8 value) {
+    uint16 relative_address = address - _oam_ram.start_address(); 
+    
+    int sprite_id = relative_address >> 2; // 4 bytes per sprite
+    
+    if(sprite_id >= 40) 
+        return; // unknown sprite id
+        
+    uint8 sprite_byte = relative_address & 0x3; 
+    
+    // std::cout << "sprite: " << (int)sprite_id << ", sprite byte: " << (int)sprite_byte << std::endl; 
+    switch(sprite_byte) {
+        case 0: // Y-coordinate
+            _sprites[sprite_id].y = value - 16; 
+            break; 
+            
+        case 1: // X-coordinate
+            _sprites[sprite_id].x = value - 8; 
+            break; 
+            
+        case 2: // tile id
+            _sprites[sprite_id].tile_id = value; 
+            break; 
+            
+        case 3: // flags
+            // bit 4 palette
+            _sprites[sprite_id].palette = value & 0x10; 
+            // bit 5 palette
+            _sprites[sprite_id].flip_x  = value & 0x20; 
+            // bit 4 palette
+            _sprites[sprite_id].flip_y  = value & 0x40; 
+            // bit 4 palette
+            _sprites[sprite_id].priority = value & 0x80; 
+            break; 
+    }
+    
+}
+
 uint8 GBVideo::get_background_pixel(uint8 x, uint8 y) {
     const uint8 background_map_switch = _lcd_control & 0x08; 
     uint16 map_offset = (background_map_switch) ? 0x9C00 : 0x9800; 
@@ -377,10 +425,90 @@ void GBVideo::render_scanline() {
     
     static int count = 0; 
     
+    std::vector<uint8> scanline_row(160, 0); 
     if(_lcd_control & 0x01) { // draw background if enabled
         for(int i=0; i<160; ++i) {
-            const uint8 color = get_background_pixel(i, _current_scanline); 
+            const uint8 color_ind = get_background_pixel(i, _current_scanline); 
+            const uint8 color = (_background_palette >> (color_ind * 2)) & 0x3; 
             _offscreen_display[_current_scanline * 160 + i] = color; 
+            scanline_row[i] = color; 
+        }
+    }
+    
+    if(_lcd_control & 0x02) { // draw sprites if enabled
+        bool sprite_size_8x16 = _lcd_control & 0x04; 
+        
+        for(int i=0; i<40; ++i) {
+            Sprite& sprite = _sprites.at(i); 
+            
+            // std::cout << "Sprite: " << (int)i << " pos: " << (int)sprite.x << ", " << (int)sprite.y << ", tile_id: " << (int)sprite.tile_id << std::endl; 
+            // sprite in scanine? 
+            if(!sprite_size_8x16) {
+                if(!(_current_scanline >= sprite.y && _current_scanline < sprite.y + 8)) 
+                    continue; 
+            }
+            else {
+                if(!(_current_scanline >= sprite.y && _current_scanline < sprite.y + 16)) 
+                    continue;
+            }
+            
+            uint8 sprite_palette = _sprite_palette_0; 
+            if(sprite.palette) {
+                sprite_palette = _sprite_palette_1; 
+            }
+            
+            uint8 tile_id = sprite.tile_id; 
+            uint8 tile_id_ext = 0; 
+            
+            if(sprite_size_8x16) { // ignore least significant bit in 8x16 mode
+                tile_id &= ~0x1; 
+                tile_id_ext = tile_id + 1; 
+            }
+                
+            std::vector<uint8> tilerow; 
+            if(!sprite_size_8x16) {
+                tilerow = _tileset.at(sprite.tile_id).at(_current_scanline - sprite.y); 
+                if(sprite.flip_y) {
+                    tilerow = _tileset.at(sprite.tile_id).at(7 - (_current_scanline - sprite.y)); 
+                }
+            }
+            else {
+                int sprite_tile_y = _current_scanline - sprite.y; 
+                if(!sprite.flip_y) {
+                    if(sprite_tile_y > 7) 
+                        tilerow = _tileset.at(tile_id_ext).at(sprite_tile_y - 8); 
+                    else 
+                        tilerow = _tileset.at(tile_id).at(sprite_tile_y); 
+                }
+                else if(sprite.flip_y) {
+                    sprite_tile_y = 13 - sprite_tile_y; 
+                    if(sprite_tile_y > 7) 
+                        tilerow = _tileset.at(tile_id_ext).at(sprite_tile_y - 8); 
+                    else 
+                        tilerow = _tileset.at(tile_id).at(sprite_tile_y); 
+                }
+            }
+
+            
+            for(int x=0; x<8; ++x) {
+                if(x + sprite.x < 0 || x + sprite.x >= 160) // visible? 
+                    continue; 
+                
+
+                if(tilerow[sprite.flip_x ? (7 - x) : x] == 0) // transparent
+                    continue; 
+                
+                if(!sprite.priority && scanline_row[sprite.x + x]) 
+                    continue; // low priority and background not 0 --> skip
+                    
+                // sprite is visible!
+                // exchange color with true palette color
+                uint8 color_ind = tilerow[sprite.flip_x ? (7 - x) : x]; 
+                uint8 color = (sprite_palette >> (color_ind * 2)) & 0x3; 
+                
+                // std::cout << "Sprite written with color " << (int)color << std::endl; 
+                _offscreen_display[_current_scanline * 160 + sprite.x + x] = color; 
+            }
         }
     }
 }
@@ -400,6 +528,12 @@ void GBVideo::write_8(uint16 address, uint8 value) {
         update_tile(address, value); 
     }
     
+    if(address >= _oam_ram.start_address() && address < _oam_ram.end_address()) {
+        _oam_ram.write_8(address, value); 
+        
+        update_sprite(address, value); 
+    }
+    
     switch(address) {
     case 0xFF40: 
         _lcd_control = value; 
@@ -412,7 +546,7 @@ void GBVideo::write_8(uint16 address, uint8 value) {
         // 32 * 32 - 1 = 0x3FF
         std::cout << "[Video]:     Background Tile Table Addr  : " << ( (_lcd_control & 0x08) ? "0x9C00-0x9FFF" : "0x9800-0x9BFF") << std::endl;
         std::cout << "[Video]:     Sprite Size                 : " << ( (_lcd_control & 0x04) ? "8x16" : "8x8") << std::endl;
-        std::cout << "[Video]:     Color #0 transparency in win: " << ( (_lcd_control & 0x02) ? "SOLID" : "TRANSPARENT") << std::endl;
+        std::cout << "[Video]:     Sprites display             : " << ( (_lcd_control & 0x02) ? "ON" : "OFF") << std::endl;
         std::cout << "[Video]:     Background display          : " << ( (_lcd_control & 0x01) ? "ON" : "OFF") << std::endl;
         break; // LCDCONT [RW] LCD Control
         
@@ -458,6 +592,7 @@ void GBVideo::write_8(uint16 address, uint8 value) {
         _dma_transfer_control = value; 
         std::cout << "[Video]: DMA Transfer Controller triggered." << std::endl; 
         std::cout << "[Video]:     Should write from " << (int)_dma_transfer_control << "00 to OAM" << std::endl; 
+        request_dma(); 
         break; // DMACONT [W] DMA Transfer Control 
         
     case 0xFF47: 
@@ -517,6 +652,8 @@ void GBVideo::write_8(uint16 address, uint8 value) {
         
     default: 
         if(address >= _character_ram.start_address() && address < _character_ram.end_address()) 
+            break; 
+        if(address >= _oam_ram.start_address() && address < _oam_ram.end_address()) 
             break; 
         std::cout << "[Video]: " << (int)address << " access [W] with unknown purpose" << std::endl; 
         break; 

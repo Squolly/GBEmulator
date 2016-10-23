@@ -18,6 +18,17 @@ public:
     void set_break_request(bool request) { _break_request = request; }
     
     const float FRAMES_PER_SECOND; 
+    
+    
+    bool button_start() { return _button_start; };  
+    bool button_select() { return _button_select; }; 
+    bool button_up() { return _button_up; };  
+    bool button_down() { return _button_down; }; 
+    bool button_left() { return _button_left; }; 
+    bool button_right() { return _button_right; }; 
+    bool button_a() { return _button_a; }; 
+    bool button_b() { return _button_b; }; 
+    bool buttons_changed() { return _buttons_changed; }; 
 private: 
     bool _hold; // to make video module 60 fps for render stuff
     
@@ -33,6 +44,16 @@ private:
     sf::Sprite  _screen; 
     
     bool _break_request; 
+    
+    bool _button_start; 
+    bool _button_select; 
+    bool _button_up; 
+    bool _button_down; 
+    bool _button_left; 
+    bool _button_right; 
+    bool _button_a; 
+    bool _button_b; 
+    bool _buttons_changed; 
 }; 
 
 #endif
