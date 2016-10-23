@@ -119,7 +119,14 @@ void GBVideo::operate() {
         }
     }
     
+    if(_current_scanline == _scanline_comparison) {
+        set_coincidence_flag(true); 
+    }
+    else {
+        set_coincidence_flag(false); 
+    }
     
+    set_mode_flag(_current_mode); 
 }
 
 void GBVideo::set_bit(uint8& r, int bit, bool value) {
@@ -348,13 +355,11 @@ uint8 GBVideo::get_background_pixel(uint8 x, uint8 y) {
         
     int tile_id = background_map->read_8(map_offset); 
 
-    // std::cout << "pre tile_id: " << tile_id; 
     const uint8 tile_table_switch = (_lcd_control & 0x10); 
     // tile_table switch == 0 -> 0x8800 - 0x97FF (signed), 1 -> 0x8000 - 0x8FFF (unsigned)
     if(!tile_table_switch && tile_id < 128) 
         tile_id += 256; 
     
-   //  std::cout << " post tile_id: " << tile_id << std::endl; 
     return _tileset[tile_id][tile_y][tile_x]; 
 }
 
