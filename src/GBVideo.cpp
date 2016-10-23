@@ -376,10 +376,12 @@ void GBVideo::render_scanline() {
         return; 
     
     static int count = 0; 
-    // render one line
-    for(int i=0; i<160; ++i) {
-        const uint8 color = get_background_pixel(i, _current_scanline); 
-        _offscreen_display[_current_scanline * 160 + i] = color; 
+    
+    if(_lcd_control & 0x01) { // draw background if enabled
+        for(int i=0; i<160; ++i) {
+            const uint8 color = get_background_pixel(i, _current_scanline); 
+            _offscreen_display[_current_scanline * 160 + i] = color; 
+        }
     }
 }
 
