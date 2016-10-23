@@ -68,6 +68,8 @@ void GBVideo::operate() {
     // std::cout << "Current Mode: " << (int)_current_mode << std::endl; 
     // std::cout << "Cycles: " << _mode_cycles << std::endl; 
     
+    uint8 last_scanline = _current_scanline; 
+    
     switch(_current_mode) {
         case GPUMode::HBlank: { // HBlank duration: 204 cycles
             if(_mode_cycles >= 204) {
@@ -79,9 +81,13 @@ void GBVideo::operate() {
                     // render image
                     render_image(); // update visible image
                     _refresh = true; 
+                    
+                    // vblank interrupt 
+                    request_vblank_interrupt(); 
                 }
                 else {
                     _current_mode = GPUMode::OAM; 
+                    request_oam_interrupt(); 
                 }
             }
         }
@@ -104,6 +110,7 @@ void GBVideo::operate() {
                     // restart 
                     _current_mode = GPUMode::OAM; 
                     _current_scanline = 0; 
+                    request_oam_interrupt(); 
                 }
             }
         }
@@ -115,12 +122,15 @@ void GBVideo::operate() {
                 _current_mode = GPUMode::HBlank; 
                 // render scanline
                 render_scanline(); // update scanline
+                request_hblank_interrupt(); 
             }
         }
     }
     
     if(_current_scanline == _scanline_comparison) {
         set_coincidence_flag(true); 
+        if(last_scanline != _current_scanline) 
+            request_coincidence_interrupt(); // only request coincidence interrupt if LYC == LY once per line
     }
     else {
         set_coincidence_flag(false); 

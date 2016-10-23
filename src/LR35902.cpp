@@ -1,12 +1,23 @@
 #include "LR35902.hpp"
 #include "InstructionSet.hpp"
 
+#include "GBInterruptFlag.hpp"
+#include "GBInterruptEnable.hpp"
+
 #include <iostream>
 #include <iomanip>
 #include <algorithm>
 #include <fstream>
 
-LR35902::LR35902() : running(true), memory(MEMORY_SIZE), debug_mode(false), debug_hold(false), cycle_counter(0), ime(false) {
+LR35902::LR35902() : 
+    running(true), 
+    memory(MEMORY_SIZE), 
+    debug_mode(false), 
+    debug_hold(false), 
+    cycle_counter(0), 
+    ime(false), 
+    _interrupt_enable_delay(0), 
+    ie(0), iff(0) {
     instructions = std::vector<std::unique_ptr<Instruction>>(0x100); 
     instructions[0x00] = std::unique_ptr<Instruction>(new         NOP_In());
     instructions[0x01] = std::unique_ptr<Instruction>(new   LD_BC_d16_In());
@@ -359,11 +370,50 @@ void LR35902::jp(uint16 addr) {
     
 void LR35902::ei() {
     ime = true; 
+    _interrupt_enable_delay = 1; 
 }
     
 void LR35902::di() {
     ime = false; 
 }
+
+void LR35902::handle_pending_interrupts() {
+    bool handle_interrupt = false; 
+    uint16 addr = 0; 
+    uint8 bit = 0; 
+    if(ie->vblank_enabled() && iff->vblank_occurred()) {
+       handle_interrupt = true; 
+       iff->clear_interrupt(Interrupt::VBlank); 
+       addr = 0x40; 
+    }
+    else if(ie->lcdc_enabled() && iff->lcdc_occurred()) {
+       handle_interrupt = true; 
+       iff->clear_interrupt(Interrupt::LCDC); 
+       addr = 0x48; 
+    }
+    else if(ie->timer_overflow_enabled() && iff->timer_occurred()) {
+       handle_interrupt = true; 
+       iff->clear_interrupt(Interrupt::Timer); 
+       addr = 0x50;   
+    }
+    else if(ie->serial_io_complete_enabled() && iff->serial_io_complete_occurred()) {
+       handle_interrupt = true; 
+       iff->clear_interrupt(Interrupt::Serial_IO); 
+       addr = 0x58; 
+    }
+    else if(ie->joystick_enabled() && iff->joystick_occurred()) {
+       handle_interrupt = true; 
+       iff->clear_interrupt(Interrupt::Joystick); 
+       addr = 0x60; 
+    }
+    
+    if(handle_interrupt) {
+        // disable interrupts
+        di(); 
+        call(addr, registers.PC); 
+    }
+}
+
     
 void LR35902::push(uint16 reg) {
     memory.write_16(registers.SP-2, reg); 
@@ -1098,6 +1148,16 @@ void LR35902::single_step(bool verbose) {
         // registers.PC += inst->bytes;
        //  registers.PC += inst->addedBytes;
         
+        if(ime) {
+            if(_interrupt_enable_delay == 0) {
+                // handle interrupts
+                handle_pending_interrupts(); 
+            }
+            else {
+                _interrupt_enable_delay--; 
+            }
+            
+        }
         if(verbose) {
             std::cout << "State after instruction: " << std::endl; 
             print_state(); 

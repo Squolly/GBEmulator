@@ -10,6 +10,8 @@
 #include "Registers.hpp"
 
 class Instruction;  
+class GBInterruptEnable; 
+class GBInterruptFlag; 
 
 struct TraceEntry {
     TraceEntry(Registers registers_before, Instruction* instruction) : registers_before(registers_before), instruction(instruction) { }
@@ -34,8 +36,12 @@ struct LR35902 {
     std::vector<TraceEntry> trace; 
     
     uint32    cycle_counter; 
-    
+    int       _interrupt_enable_delay; 
+  
     bool ime; // interupt master enable
+    
+    GBInterruptEnable* ie; 
+    GBInterruptFlag* iff;  
     
     LR35902(); 
     ~LR35902(); 
@@ -56,8 +62,9 @@ struct LR35902 {
     bool jpf_n(uint8 flag, uint16 addr);   // jump if flag is not set
     void jp(uint16 addr);                         // jump
     
-    void ei();                                           // TODO 
-    void di();                                           // TODO 
+    void ei();
+    void di();
+    void handle_pending_interrupts(); 
 
     void push(uint16 reg);                               // push register on stack 
     void pop(uint16& reg);                               // pop register from stack

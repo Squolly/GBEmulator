@@ -5,6 +5,7 @@
 #include "GBROM.hpp" 
 #include "GBCartridge.hpp"
 #include "GBInterruptEnable.hpp" 
+#include "GBInterruptFlag.hpp"
 #include "GBJoypad.hpp"
 #include "GBSerialTransfer.hpp"
 #include "SFML_GBVideo.hpp"
@@ -31,6 +32,9 @@ int main() {
     GBJoypad joypad(0xFF00, 0xFF01); 
     GBSerialTransfer serialTransfer(0xFF01, 0xFF03); 
     GBInterruptEnable ie(0xFFFF, 0x10000);
+    GBInterruptFlag iff(0xFF0F, 0xFF10); 
+    cpu.ie = &ie; 
+    cpu.iff = &iff; 
     ie.set_verbose(true); 
     
     
@@ -62,7 +66,7 @@ int main() {
     
     // read cartridge
     GBCartridge gbc(0x0000, 0x8000); 
-    gbc.read_file("data/Tetris.gb"); 
+    gbc.read_file("data/CRASH.GB"); 
     //gbc.read_file("data/cpu_instrs.gb"); 
     cpu.memory.connect(&gbc); 
     // map cartridge to memory
@@ -82,9 +86,12 @@ int main() {
     cpu.memory.set_verbose(false); 
     bool switched = false; 
     uint16 execute_until = 0x100; 
+    
     cpu.memory.connect(&joypad); 
     cpu.memory.connect(&serialTransfer); 
     cpu.memory.connect(&ie); 
+    cpu.memory.connect(&iff); 
+    
     video.update_cycles(cpu.cycle_counter); 
     for(int i=0; i<100000000; ++i) {
         if(!cpu.debug_hold) {
@@ -110,6 +117,16 @@ int main() {
         else break; 
         video.update_cycles(cpu.cycle_counter); 
         video.execute(); 
+        
+        // forward interrupts
+        if(video.vblank_interrupt_request()) { 
+            iff.set_interrupt(Interrupt::VBlank); 
+            video.clear_vblank_interrupt_request(); 
+        }
+        if(video.lcdc_interrupt_request()) {
+            iff.set_interrupt(Interrupt::LCDC); 
+            video.clear_lcdc_interrupt_request(); 
+        }
     }
     cpu.memory.connect(&gbc); 
     std::string input; 
@@ -230,6 +247,16 @@ int main() {
                 cpu.single_step(verbose_instruction); 
                 video.update_cycles(cpu.cycle_counter); 
                 video.execute();
+                
+                // forward interrupts
+                if(video.vblank_interrupt_request()) { 
+                    iff.set_interrupt(Interrupt::VBlank); 
+                    video.clear_vblank_interrupt_request(); 
+                }
+                if(video.lcdc_interrupt_request()) {
+                    iff.set_interrupt(Interrupt::LCDC); 
+                    video.clear_lcdc_interrupt_request(); 
+                }
             }
         }
     }

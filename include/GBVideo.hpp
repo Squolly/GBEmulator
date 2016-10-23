@@ -56,6 +56,8 @@ class GBVideo : public MemoryMappedModule {
         std::vector<uint8> get_display() { std::lock_guard<std::mutex> lg(_display_mutex); std::vector<uint8> res = _display; return res; }
         
         void set_bit(uint8& r, int bit, bool value); 
+        bool is_bit(uint8 r, int bit) { return (r & (1 << bit)); }
+        
         void set_coincidence_interrupt(bool enable) { set_bit(_lcd_status, 6, enable); } 
         void set_oam_interrupt(bool enable) { set_bit(_lcd_status, 5, enable); }
         void set_vblank_interrupt(bool enable) { set_bit(_lcd_status, 4, enable); }
@@ -65,6 +67,21 @@ class GBVideo : public MemoryMappedModule {
             set_bit(_lcd_status, 1, static_cast<int>(mode) & 0x2); 
             set_bit(_lcd_status, 0, static_cast<int>(mode) & 0x1); 
         }
+        
+        // second class interrupts (only lcdc interrupt if not masked out)
+        void request_coincidence_interrupt() { if(is_bit(_lcd_status, 6)) request_lcdc_interrupt(); }
+        void request_oam_interrupt() { if(is_bit(_lcd_status, 5)) request_lcdc_interrupt(); }
+        void request_hblank_interrupt() { if(is_bit(_lcd_status, 3)) request_lcdc_interrupt(); }
+        
+        // real interrupts
+        void request_vblank_interrupt() { _vblank_interrupt_request = true;  if(is_bit(_lcd_status, 4)) request_lcdc_interrupt(); }
+        void request_lcdc_interrupt() { _lcdc_interrupt_request = true; }
+        
+        void clear_vblank_interrupt_request() { _vblank_interrupt_request = false; }
+        void clear_lcdc_interrupt_request() { _lcdc_interrupt_request = false; } 
+        bool vblank_interrupt_request() { return _vblank_interrupt_request; }
+        bool lcdc_interrupt_request() { return _lcdc_interrupt_request; }
+        
     protected: 
         GBRAM _character_ram; 
         GBRAM _background_map_1_ram; 
@@ -104,6 +121,9 @@ class GBVideo : public MemoryMappedModule {
         GPUMode _current_mode; 
         
         bool _refresh; 
+        
+        bool _vblank_interrupt_request; 
+        bool _lcdc_interrupt_request; 
 }; 
     
 #endif

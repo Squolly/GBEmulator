@@ -19,6 +19,7 @@ include_directories(
 set(GAME_BOY_EMULATOR_SOURCE_FILES
     ${PROJECT_SOURCE_DIR}/src/GBCartridge.cpp
     ${PROJECT_SOURCE_DIR}/src/GBInterruptEnable.cpp
+    ${PROJECT_SOURCE_DIR}/src/GBInterruptFlag.cpp
     ${PROJECT_SOURCE_DIR}/src/GBJoypad.cpp
     ${PROJECT_SOURCE_DIR}/src/GBRAM.cpp
     ${PROJECT_SOURCE_DIR}/src/GBROM.cpp
@@ -37,6 +38,7 @@ set(GAME_BOY_EMULATOR_HEADER_FILES
     ${PROJECT_SOURCE_DIR}/include/GBCartridge.hpp
     ${PROJECT_SOURCE_DIR}/include/GBJoypad.hpp
     ${PROJECT_SOURCE_DIR}/include/GBInterruptEnable.hpp
+    ${PROJECT_SOURCE_DIR}/include/GBInterruptFlag.hpp
     ${PROJECT_SOURCE_DIR}/include/GBRAM.hpp
     ${PROJECT_SOURCE_DIR}/include/GBROM.hpp
     ${PROJECT_SOURCE_DIR}/include/GBSerialTransfer.hpp
