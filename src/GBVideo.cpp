@@ -323,9 +323,7 @@ void GBVideo::update_tile(uint16 address, uint8 value) {
     const int tile_row = (address & 0xF) >> 1; // 2 rows are one line 
     
     address = (address & 0xFFFE); 
-    
-    std::cout << "Updating tile_id: " << tile_id << std::endl; 
-    std::cout << "Row: " << tile_row << std::endl; 
+
     const uint8 data0 = _character_ram.read_8(address); 
     const uint8 data1 = _character_ram.read_8(address + 1); 
     for(int i=0; i<8; ++i) {
