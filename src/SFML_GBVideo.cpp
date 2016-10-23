@@ -28,20 +28,26 @@ SFML_GBVideo::~SFML_GBVideo() {
 void SFML_GBVideo::render() {
     while(_window.isOpen()) {
         // copy display from GBVideo
-        for(int y=0; y<144; ++y) {
-            for(int x=0; x<160; ++x) {
-                uint8 color = GBVideo::_display[x + y * 160]; 
-                uint8 r, g, b, a; 
-                a = 255; 
-                r = g = b = (color * 70); 
-                // if(color != 0) 
-                //     std::cout << (int)color << std::endl; 
-                _screen_pixels[(x + y * 160) * 4 + 0] = r; 
-                _screen_pixels[(x + y * 160) * 4 + 1] = g; 
-                _screen_pixels[(x + y * 160) * 4 + 2] = b; 
-                _screen_pixels[(x + y * 160) * 4 + 3] = a; 
+       
+        if(refresh()) {
+            refreshed(); 
+            const std::vector<uint8> display = get_display(); 
+            for(int y=0; y<144; ++y) {
+                for(int x=0; x<160; ++x) {
+                    uint8 color = display[x + y * 160]; 
+                    uint8 r, g, b, a; 
+                    a = 255; 
+                    r = g = b = (color * 70); 
+                    // if(color != 0) 
+                    //     std::cout << (int)color << std::endl; 
+                    _screen_pixels[(x + y * 160) * 4 + 0] = r; 
+                    _screen_pixels[(x + y * 160) * 4 + 1] = g; 
+                    _screen_pixels[(x + y * 160) * 4 + 2] = b; 
+                    _screen_pixels[(x + y * 160) * 4 + 3] = a; 
+                }
             }
         }
+       
         
          
         int vram_vis_width = 0, vram_vis_height = 0; 
@@ -96,8 +102,11 @@ void SFML_GBVideo::render() {
             }
         }
         */
+        
+        
         _screen_buffer.update(_screen_pixels); 
         _window.draw(_screen); 
+       
         _window.display();  
         
         sf::Event event;
@@ -114,19 +123,21 @@ void SFML_GBVideo::render() {
             }
         }
     }
+    
 }
 
 void SFML_GBVideo::operate() {
-    if(!_hold) {
+   //  if(!_hold) {
         GBVideo::operate(); 
-        if(_current_pixel_y == 0 && _current_pixel_x == 0)
-            _hold = true; 
-    }
+   //  }
     if((_clock.getElapsedTime() - _elapsed).asMilliseconds() >= 1/FRAMES_PER_SECOND) {
         _hold = false; 
         _elapsed = _clock.getElapsedTime(); 
     }
+    else
+        _hold = true; 
         
+    
     static bool once = false; 
     if(!once) {
         once = true; 

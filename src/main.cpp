@@ -85,7 +85,7 @@ int main() {
     cpu.memory.connect(&joypad); 
     cpu.memory.connect(&serialTransfer); 
     cpu.memory.connect(&ie); 
-    
+    video.update_cycles(cpu.cycle_counter); 
     for(int i=0; i<100000000; ++i) {
         if(!cpu.debug_hold) {
             cpu.single_step(verbose_instruction);  
@@ -108,6 +108,7 @@ int main() {
             }
         }
         else break; 
+        video.update_cycles(cpu.cycle_counter); 
         video.execute(); 
     }
     cpu.memory.connect(&gbc); 
@@ -227,6 +228,7 @@ int main() {
             }
             else {
                 cpu.single_step(verbose_instruction); 
+                video.update_cycles(cpu.cycle_counter); 
                 video.execute();
             }
         }

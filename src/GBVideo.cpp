@@ -3,21 +3,31 @@
 #include <iostream>
 #include <cassert>
 
-GBVideo::GBVideo(uint32 start_address, uint32 end_address, const std::string& name, const std::string& description) : 
+GBVideo::GBVideo(uint32 start_address, uint32 end_address, const std::string& name, const std::string& description) :
+        MemoryMappedModule(name, description, start_address, end_address),
          _character_ram(0x8000, 0x9800), _background_map_1_ram(0x9800, 0x9C00), _background_map_2_ram(0x9C00, 0xA000),
          _oam_ram(0xFE00, 0xFEA0), 
          _lcd_control(0), _lcd_status(0), _background_vertical_scrolling(0), _background_horizontal_scrolling(0), 
          _current_scanline(0), _scanline_comparison(0), _background_palette(0), _sprite_palette_0(0), _sprite_palette_1(0), 
          _window_y_position(0), _window_x_position(0), _dma_transfer_control(0), 
-         _screen_buffer(256 * 256, 0), _display(160*144, 0), 
+         _screen_buffer(256 * 256, 0), _display(160*144, 0), _offscreen_display(160*144, 0), 
          _current_pixel_x(0), _current_pixel_y(0),
-         MemoryMappedModule(name, description, start_address, end_address) { }
+         _tileset(384, std::vector<std::vector<uint8> >(8, std::vector<uint8>(8, 0))), // 384 tiles x 8 x 8
+         _mode_cycles(0),
+         _current_mode(GPUMode::VBlank), 
+         _current_cpu_cycles(0),
+         _last_cpu_cycles(0), 
+         _refresh(false)
+          { }
 
 GBVideo::~GBVideo() { }
 
 void GBVideo::connect_to_memory(Memory& memory) {
     // connect video 
-    memory.connect(&_character_ram);        // Character RAM 
+    // memory.connect(&_character_ram);        // Character RAM 
+    // need to capture access to character ram to update tiles
+    memory.connect(this, _character_ram.start_address(), _character_ram.end_address()); 
+    
     memory.connect(&_background_map_1_ram); // Background Map Data 1
     memory.connect(&_background_map_2_ram); // Background Map Data 2
     memory.connect(&_oam_ram);              // OAM - Object Attribute Memory
@@ -48,8 +58,68 @@ void GBVideo::operate() {
     // handle operation stuff (draw something, increase counters and so on) 
    //  static int counter = 0; 
    //  if(counter % 1 == 0) 
-        next_render_step(); 
+   //  next_render_step(); // deprecated
   //   counter++; 
+    
+    
+    // update mode cycles 
+    update_mode_cycles(); 
+    
+    // std::cout << "Current Mode: " << (int)_current_mode << std::endl; 
+    // std::cout << "Cycles: " << _mode_cycles << std::endl; 
+    
+    switch(_current_mode) {
+        case GPUMode::HBlank: { // HBlank duration: 204 cycles
+            if(_mode_cycles >= 204) {
+                // HBlank done, switch to OAM unless this was the last line
+                _mode_cycles -= 204;
+                _current_scanline++; // after HBlank we go to the next line
+                if(_current_scanline == 143) {
+                    _current_mode = GPUMode::VBlank; 
+                    // render image
+                    render_image(); // update visible image
+                    _refresh = true; 
+                }
+                else {
+                    _current_mode = GPUMode::OAM; 
+                }
+            }
+        }
+        break; 
+        
+        case GPUMode::OAM: {
+            if(_mode_cycles >= 80) { // simulate OAM access
+                _mode_cycles -= 80; 
+                _current_mode = GPUMode::VRAM; 
+            }
+        }
+        break; 
+        
+        case GPUMode::VBlank: {
+            if(_mode_cycles >= 456) {
+                _mode_cycles -= 456; 
+                _current_scanline++; 
+                
+                if(_current_scanline > 153) { // 10 lines of vblank
+                    // restart 
+                    _current_mode = GPUMode::OAM; 
+                    _current_scanline = 0; 
+                }
+            }
+        }
+        break; 
+        
+        case GPUMode::VRAM: { // simulate VRAM access
+            if(_mode_cycles >= 172) {
+                _mode_cycles -= 172; 
+                _current_mode = GPUMode::HBlank; 
+                // render scanline
+                render_scanline(); // update scanline
+            }
+        }
+    }
+    
+    
 }
 
 void GBVideo::set_bit(uint8& r, int bit, bool value) {
@@ -61,60 +131,68 @@ void GBVideo::set_bit(uint8& r, int bit, bool value) {
 // note: access to video RAM will happen transparent to this module currently
 //       so currently we only have to handle I/O access
 uint8 GBVideo::read_8(uint16 address) {
-    // TODO: consider exchanging switch-statement
+    uint8 ret = 0xFF; 
+    if(address >= _character_ram.start_address() && address < _character_ram.end_address()) {
+        ret = _character_ram.read_8(address); 
+    }
+    
     switch(address) {
     case 0xFF40: 
-        return _lcd_control; 
+        ret = _lcd_control; 
         break; // LCDCONT [RW] LCD Control
         
     case 0xFF41: 
-        
+        ret = 0; 
         break; // LCDSTAT [RW] LCD Status
         
     case 0xFF42: 
-        return _background_vertical_scrolling; 
+        ret =  _background_vertical_scrolling; 
         break; // SCROLLY [RW] Background Vertical Scrolling
         
     case 0xFF43: 
-        return _background_horizontal_scrolling; 
+        ret =  _background_horizontal_scrolling; 
         break; // SCROLLX [RW] Background Horizontal Scrolling
         
     case 0xFF44:
-        return _current_scanline; 
+        ret =  _current_scanline; 
         break; // CURLINE [RW] Current Scanline
         
     case 0xFF45: 
-        return _scanline_comparison; 
+        ret =  _scanline_comparison; 
         break; // CMPLINE [RW] Scanline Comparison
         
     case 0xFF46: 
-        
+        ret = 0; 
         break; // DMACONT [W] DMA Transfer Control 
         
     case 0xFF47: 
-        
+        ret = 0; 
         break; // BGRDPAL [W]  Background Palette
         
     case 0xFF48: 
-        
+        ret = 0; 
         break; // OBJ0PAL [W]  Sprite Palette #0
         
     case 0xFF49: 
-        
+        ret = 0; 
         break; // OBJ1PAL [W]  Sprite Palette #1
         
     case 0xFF4A:
-        return _window_y_position; 
+        ret =  _window_y_position; 
         break; // WNDPOSY [RW] Window Y Position
         
     case 0xFF4B: 
-        return _window_x_position; 
+        ret =  _window_x_position; 
         break; // WNDPOSX [RW] Window X Position  
         
     default: 
+        if(address >= _character_ram.start_address() && address < _character_ram.end_address()) 
+            break; 
         std::cout << "[Video]: " << (int)address << " access [R] with unknown purpose" << std::endl; 
         break; 
     }
+    
+    return ret; 
 }
 
 void GBVideo::next_render_step() {
@@ -198,16 +276,10 @@ std::vector<uint8> GBVideo::get_vram_visualization(int& width, int& height) {
         const int top_left_pos_in_display_y = (tile_id / 16) * 8; // 16 tiles in column
         
         for(int line_of_tile=0; line_of_tile<8; ++line_of_tile) {
-            const uint8 data_byte_0 = _character_ram.read_8(0x8000 + current_address); 
-            const uint8 data_byte_1 = _character_ram.read_8(0x8000 + current_address + 1); 
-
-            for(int pixel_in_line=0; pixel_in_line<8; ++pixel_in_line) {
-                const uint8 color = (((data_byte_0 >> (7 - pixel_in_line)) & 0x1) << 1) | // higher bit
-                                    ((data_byte_1 >> (7 - pixel_in_line)) & 0x1);       // lower bit
-                                    
+            for(int pixel_in_line=0; pixel_in_line<8; ++pixel_in_line) {             
                 const int pixel_x = top_left_pos_in_display_x + pixel_in_line; 
                 const int pixel_y = (top_left_pos_in_display_y + line_of_tile) * c_width_pixels; 
-                vram_display.at(pixel_x + pixel_y) = color; 
+                vram_display.at(pixel_x + pixel_y) = _tileset[tile_id][line_of_tile][pixel_in_line]; // color; 
             }
             current_address+= 2; 
         }
@@ -217,7 +289,7 @@ std::vector<uint8> GBVideo::get_vram_visualization(int& width, int& height) {
     return vram_display; 
 }
 
-void GBVideo::put_pixel(uint8 x, uint8 y, uint8 color) {
+void GBVideo::put_pixel(uint8 x, uint8 y, uint8 color) { // deprecated
     _screen_buffer[y * 256 + x] = color; 
     
     // check if in window
@@ -238,10 +310,81 @@ void GBVideo::put_pixel(uint8 x, uint8 y, uint8 color) {
     }
 }
         
+void GBVideo::update_tile(uint16 address, uint8 value) {
+    const int tile_id = (address >> 4) & 0x1FF; // (each tile consists of 16 bytes beginning from 0x8000)
+    const int tile_base_address = address & 0xFFFC; // tile address without least significant 4 bits
+    const int tile_row = (address & 0xF) >> 1; // 2 rows are one line 
+    
+    address = (address & 0xFFFE); 
+    
+    std::cout << "Updating tile_id: " << tile_id << std::endl; 
+    std::cout << "Row: " << tile_row << std::endl; 
+    const uint8 data0 = _character_ram.read_8(address); 
+    const uint8 data1 = _character_ram.read_8(address + 1); 
+    for(int i=0; i<8; ++i) {
+        uint8 bit_idx = 1 << ( 7 - i ); 
+        uint8 color = ((data0 & bit_idx) ? 1 : 0) | (((data1 & bit_idx) ? 2 : 0)); 
+        _tileset[tile_id][tile_row][i] = color; 
+    }
+}
+
+uint8 GBVideo::get_background_pixel(uint8 x, uint8 y) {
+    const uint8 background_map_switch = _lcd_control & 0x08; 
+    uint16 map_offset = (background_map_switch) ? 0x9C00 : 0x9800; 
+    
+    // background is 32 x 32 tiles wide
+    // each tile is 8 x 8
+    // --> background is 256 x 256 pixels 
+    const uint8 tile_y = (y + _background_vertical_scrolling) & 0x7;
+    const uint8 tile_x = (x + _background_horizontal_scrolling) & 0x7; 
+    const uint8 bg_tile_y = (y + _background_vertical_scrolling) >> 3;
+    const uint8 bg_tile_x = (x + _background_horizontal_scrolling) >> 3; 
+    map_offset += (bg_tile_y * 32 + bg_tile_x); 
+    GBRAM *background_map; 
+    if(!background_map_switch) 
+        background_map = &_background_map_1_ram; 
+    else 
+        background_map = &_background_map_2_ram; 
+        
+    int tile_id = background_map->read_8(map_offset); 
+
+    // std::cout << "pre tile_id: " << tile_id; 
+    const uint8 tile_table_switch = (_lcd_control & 0x10); 
+    // tile_table switch == 0 -> 0x8800 - 0x97FF (signed), 1 -> 0x8000 - 0x8FFF (unsigned)
+    if(!tile_table_switch && tile_id < 128) 
+        tile_id += 256; 
+    
+   //  std::cout << " post tile_id: " << tile_id << std::endl; 
+    return _tileset[tile_id][tile_y][tile_x]; 
+}
+
+void GBVideo::render_scanline() {
+    if(_current_scanline >= 144) 
+        return; 
+    
+    static int count = 0; 
+    // render one line
+    for(int i=0; i<160; ++i) {
+        const uint8 color = get_background_pixel(i, _current_scanline); 
+        _offscreen_display[_current_scanline * 160 + i] = color; 
+    }
+}
+
+void GBVideo::render_image() {
+    std::lock_guard<std::mutex> lg(_display_mutex); 
+    _display = _offscreen_display; 
+}
+
 // note: access to video RAM will happen transparent to this module currently
 //       so currently we only have to handle I/O access
-void  GBVideo::write_8(uint16 address, uint8 value) {
-    // TODO: consider exchanging switch-statement
+void GBVideo::write_8(uint16 address, uint8 value) {
+    if(address >= _character_ram.start_address() && address < _character_ram.end_address()) {
+        _character_ram.write_8(address, value); 
+        
+        // update tile in _tileset
+        update_tile(address, value); 
+    }
+    
     switch(address) {
     case 0xFF40: 
         _lcd_control = value; 
@@ -358,6 +501,8 @@ void  GBVideo::write_8(uint16 address, uint8 value) {
         break; // WNDPOSX [RW] Window X Position  
         
     default: 
+        if(address >= _character_ram.start_address() && address < _character_ram.end_address()) 
+            break; 
         std::cout << "[Video]: " << (int)address << " access [W] with unknown purpose" << std::endl; 
         break; 
     }
