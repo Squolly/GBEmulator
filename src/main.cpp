@@ -66,7 +66,7 @@ int main() {
     
     // read cartridge
     GBCartridge gbc(0x0000, 0x8000); 
-    gbc.read_file("data/Bounce.gb"); 
+    gbc.read_file("data/KIRBYXXL.GB"); 
     //gbc.read_file("data/cpu_instrs.gb"); 
     cpu.memory.connect(&gbc); 
     // map cartridge to memory

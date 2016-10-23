@@ -382,9 +382,9 @@ void GBVideo::update_sprite(uint16 address, uint8 value) {
             _sprites[sprite_id].palette = value & 0x10; 
             // bit 5 palette
             _sprites[sprite_id].flip_x  = value & 0x20; 
-            // bit 4 palette
+            // bit 6 palette
             _sprites[sprite_id].flip_y  = value & 0x40; 
-            // bit 4 palette
+            // bit 7 palette
             _sprites[sprite_id].priority = value & 0x80; 
             break; 
     }
@@ -431,7 +431,7 @@ void GBVideo::render_scanline() {
             const uint8 color_ind = get_background_pixel(i, _current_scanline); 
             const uint8 color = (_background_palette >> (color_ind * 2)) & 0x3; 
             _offscreen_display[_current_scanline * 160 + i] = color; 
-            scanline_row[i] = color; 
+            scanline_row[i] = color_ind; 
         }
     }
     
@@ -494,16 +494,15 @@ void GBVideo::render_scanline() {
                 if(x + sprite.x < 0 || x + sprite.x >= 160) // visible? 
                     continue; 
                 
-
-                if(tilerow[sprite.flip_x ? (7 - x) : x] == 0) // transparent
+                uint8 color_ind = tilerow[sprite.flip_x ? (7 - x) : x]; 
+                if(color_ind == 0) // transparent
                     continue; 
                 
-                if(!sprite.priority && scanline_row[sprite.x + x]) 
+                if(sprite.priority && scanline_row[sprite.x + x]) 
                     continue; // low priority and background not 0 --> skip
                     
                 // sprite is visible!
                 // exchange color with true palette color
-                uint8 color_ind = tilerow[sprite.flip_x ? (7 - x) : x]; 
                 uint8 color = (sprite_palette >> (color_ind * 2)) & 0x3; 
                 
                 // std::cout << "Sprite written with color " << (int)color << std::endl; 
