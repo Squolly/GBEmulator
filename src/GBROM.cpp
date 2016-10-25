@@ -1,5 +1,7 @@
 #include "GBROM.hpp"
 
+#include <iostream>
+
 GBROM::GBROM(uint32 start_address, uint32 end_address, 
     const std::string& name /* = std::string("ROM Module") */, 
     const std::string& description /* = std::string("ROM - Read Only Memory") */) : 
@@ -26,5 +28,6 @@ void GBROM::init(int size) {
 
 void GBROM::write_8_rom(uint16 address, uint8 value) {
     const uint16 relative = relative_address(address); 
-    _data[relative] = value; 
+    // std::cout << "Relative: " << relative << std::endl; 
+    _data.at(relative) = value; 
 }

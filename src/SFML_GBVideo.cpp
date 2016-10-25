@@ -28,7 +28,8 @@ SFML_GBVideo::~SFML_GBVideo() {
 void SFML_GBVideo::render() {
     while(_window.isOpen()) {
         // copy display from GBVideo
-       
+        static sf::RenderWindow vram_window(sf::VideoMode(16*8, 16*8), "VRAM Window"); 
+        
         if(refresh()) {
             refreshed(); 
             const std::vector<uint8> display = get_display(); 
@@ -46,45 +47,46 @@ void SFML_GBVideo::render() {
                     _screen_pixels[(x + y * 160) * 4 + 3] = a; 
                 }
             }
-        }
-       
-        
-         
-        int vram_vis_width = 0, vram_vis_height = 0; 
-        auto vram_vis = get_vram_visualization(vram_vis_width, vram_vis_height); 
-        
-        
-        static sf::Uint8 vram_screen_pixels[16 * 8 * 16 * 8 * 4]; 
-        static sf::Texture vram_screen_buffer; 
-        static sf::Sprite  vram_screen; 
-        static sf::RenderWindow vram_window(sf::VideoMode(16*8, 16*8), "VRAM Window"); 
-        
-        static bool vram_first = false; 
-        if(!vram_first) {
-            vram_screen_buffer.create(16 * 8, 16 * 8);
-            vram_screen.setTexture(vram_screen_buffer); 
-            vram_window.setActive(false); 
-            vram_first = true; 
+            _screen_buffer.update(_screen_pixels); 
+            _window.draw(_screen); 
+            _window.display(); 
+            
+            int vram_vis_width = 0, vram_vis_height = 0; 
+            auto vram_vis = get_vram_visualization(vram_vis_width, vram_vis_height); 
+            
+            
+            static sf::Uint8 vram_screen_pixels[16 * 8 * 16 * 8 * 4]; 
+            static sf::Texture vram_screen_buffer; 
+            static sf::Sprite  vram_screen; 
+            
+            static bool vram_first = false; 
+            if(!vram_first) {
+                vram_screen_buffer.create(16 * 8, 16 * 8);
+                vram_screen.setTexture(vram_screen_buffer); 
+                vram_window.setActive(false); 
+                vram_first = true; 
+            }
+
+            
+            for(int y=0; y<16*8; ++y) {
+                for(int x=0; x<16*8; ++x) {
+                    uint8 color = vram_vis[x + y * 16*8]; 
+                    uint8 r, g, b, a; 
+                    a = 255; 
+                    r = g = b = (color * 70); 
+                    // if(color != 0) 
+                    //     std::cout << (int)color << std::endl; 
+                    vram_screen_pixels[(x + y * 16*8) * 4 + 0] = r; 
+                    vram_screen_pixels[(x + y * 16*8) * 4 + 1] = g; 
+                    vram_screen_pixels[(x + y * 16*8) * 4 + 2] = b; 
+                    vram_screen_pixels[(x + y * 16*8) * 4 + 3] = a; 
+                }
+            }
+            vram_screen_buffer.update(vram_screen_pixels); 
+            vram_window.draw(vram_screen); 
+            vram_window.display();
         }
 
-        
-        for(int y=0; y<16*8; ++y) {
-            for(int x=0; x<16*8; ++x) {
-                uint8 color = vram_vis[x + y * 16*8]; 
-                uint8 r, g, b, a; 
-                a = 255; 
-                r = g = b = (color * 70); 
-                // if(color != 0) 
-                //     std::cout << (int)color << std::endl; 
-                vram_screen_pixels[(x + y * 16*8) * 4 + 0] = r; 
-                vram_screen_pixels[(x + y * 16*8) * 4 + 1] = g; 
-                vram_screen_pixels[(x + y * 16*8) * 4 + 2] = b; 
-                vram_screen_pixels[(x + y * 16*8) * 4 + 3] = a; 
-            }
-        }
-        vram_screen_buffer.update(vram_screen_pixels); 
-        vram_window.draw(vram_screen); 
-        vram_window.display(); 
         
         /* 
         for(int y=0; y<256; ++y) {
@@ -102,13 +104,7 @@ void SFML_GBVideo::render() {
             }
         }
         */
-        
-        
-        _screen_buffer.update(_screen_pixels); 
-        _window.draw(_screen); 
-       
-        _window.display();  
-        
+
         sf::Event event;
         while (_window.pollEvent(event))
         {
@@ -180,13 +176,14 @@ void SFML_GBVideo::operate() {
    //  if(!_hold) {
         GBVideo::operate(); 
    //  }
+        /*
     if((_clock.getElapsedTime() - _elapsed).asMilliseconds() >= 1/FRAMES_PER_SECOND) {
         _hold = false; 
         _elapsed = _clock.getElapsedTime(); 
     }
     else
         _hold = true; 
-        
+        */
     
     static bool once = false; 
     if(!once) {

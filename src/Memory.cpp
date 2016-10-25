@@ -5,6 +5,8 @@
 #include <iomanip> 
 #include <fstream>
 
+#include "Cartridge/GBMBC1.hpp" 
+
  Memory::Memory(int size) : _mmms(MEMORY_SIZE, nullptr), _verbose(false) {
      
  }
@@ -12,9 +14,10 @@
  uint8 Memory::read_8(uint16 address) {
      if(_verbose) std::cout << "[Memory]: Reading (8 bit): " << address << " "; 
      if(_mmms[address] == nullptr) {
-         std::cout << "[Memory]: Not mapped. Skipping (Read of address " << (int)address << ")" << std::endl; 
+         //std::cout << "[Memory]: Not mapped. Skipping (Read of address " << (int)address << ")" << std::endl; 
          return 0; 
      }
+     
      uint8 value = _mmms[address]->read_8(address); 
      if(_verbose) std::cout << "[Memory]:     returning: " << (int)value << std::endl; 
      return value; 
@@ -33,12 +36,14 @@
          uint8 value_is =_mmms[0]->read_8(0); 
          // while(1) std::cout << "wtf " << (int)value_is << std::endl; 
      }
-      if(_mmms[address] == NULL) {
-         std::cout << "[Memory]: Not mapped. Skipping. (Write to " << (int)address << ")" << std::endl; 
+      if(_mmms[address] == nullptr) {
+         // std::cout << "[Memory]: Not mapped. Skipping. (Write to " << (int)address << ")" << std::endl; 
          return 0; 
      }
+
      if(_verbose) std::cout << "[Memory]: Writing (8 bit)... " << address << " <- " << (int)value << std::endl; 
      _mmms[address]->write_8(address, value); 
+     return true; 
  }
  
  bool Memory::write_16(uint16 address, uint16 value) {
@@ -49,6 +54,7 @@
      write_8(address, value & 0xFF); 
      write_8(address + 1, (value >> 8) & 0xFF); 
      if(_verbose) std::cout << "[Memory]: Writing (16 bit)... " << address << " <- " << (int)value << std::endl; 
+     return true; 
  }
  
 bool Memory::set_verbose(bool verbose) {

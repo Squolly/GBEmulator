@@ -4,10 +4,12 @@
 #include "LR35902.hpp"
 #include "GBROM.hpp" 
 #include "GBCartridge.hpp"
+#include "Cartridge/GBMBC1.hpp"
 #include "GBInterruptEnable.hpp" 
 #include "GBInterruptFlag.hpp"
 #include "GBJoypad.hpp"
 #include "GBSerialTransfer.hpp"
+#include "GBTimer.hpp"
 #include "SFML_GBVideo.hpp"
 
 #include "Instruction.hpp"
@@ -15,6 +17,7 @@
 #include <fstream>
 #include <cstdlib> 
 #include <limits>
+#include <iomanip>
 
 
 std::string show_bcd(uint8 v) {
@@ -28,22 +31,26 @@ int main() {
     GBROM  rom(0x0000, 0x0100);             rom.init(rom.size()); 
     GBRAM  zero_page_ram(0xFF80, 0xFFFF);   zero_page_ram.init(zero_page_ram.size()); 
     GBRAM  internal_ram(0xC000, 0xFE00);    internal_ram.init(internal_ram.size()); 
-    GBRAM  switchable_ram(0xA000, 0xC000);   switchable_ram.init(switchable_ram.size());  
+    // GBRAM  switchable_ram(0xA000, 0xC000);   switchable_ram.init(switchable_ram.size());  
     GBJoypad joypad(0xFF00, 0xFF01); 
     GBSerialTransfer serialTransfer(0xFF01, 0xFF03); 
     GBInterruptEnable ie(0xFFFF, 0x10000);
     GBInterruptFlag iff(0xFF0F, 0xFF10); 
+    GBTimer timer(0xFF04, 0xFF08); 
+    timer.set_verbose(true); 
     cpu.ie = &ie; 
     cpu.iff = &iff; 
-    ie.set_verbose(true); 
+    ie.set_verbose(false); 
     
     
     SFML_GBVideo video(0x8000, 0xA000); 
     cpu.memory.connect(&zero_page_ram); 
-    cpu.memory.connect(&internal_ram); 
-    cpu.memory.connect(&switchable_ram); 
+    cpu.memory.connect(&internal_ram);
+    cpu.memory.connect(&timer); 
+    // cpu.memory.connect(&switchable_ram); 
     video.init(); 
     video.connect_to_memory(cpu.memory); 
+    video.set_verbose(false); 
     
     // fill rom with boot info
     std::fstream in("data/DMG_ROM.bin", std::ios::in | std::ios::binary);
@@ -65,10 +72,12 @@ int main() {
    //  std::cin >> g; 
     
     // read cartridge
-    GBCartridge gbc(0x0000, 0x8000); 
-    gbc.read_file("data/KIRBYXXL.GB"); 
+    GBMBC1 gbc(0x0000, 0x8000); 
+    // GBCartridge gbc(0x0000, 0x8000); 
+    gbc.read_file("data/ocket.gb"); 
     //gbc.read_file("data/cpu_instrs.gb"); 
     cpu.memory.connect(&gbc); 
+    cpu.memory.connect(&gbc, 0xA000, 0xC000); 
     // map cartridge to memory
     // now printing dissassembly // rom will overwrite gbc entries
     cpu.memory.connect(&rom); 
@@ -126,6 +135,14 @@ int main() {
         if(video.lcdc_interrupt_request()) {
             iff.set_interrupt(Interrupt::LCDC); 
             video.clear_lcdc_interrupt_request(); 
+        }
+        
+        
+       timer.update_cycles(cpu.cycle_counter); 
+       timer.execute(); 
+       if(timer.timer_interrupt_request()) {
+            iff.set_interrupt(Interrupt::Timer); 
+            timer.clear_timer_interrupt(); 
         }
         
         // handle dma
@@ -244,7 +261,32 @@ int main() {
                 
                 case 'v': 
                     verbose_instruction = !verbose_instruction; 
-                    break; 
+                    break;
+                    
+                case 'd': { // dump background_maps
+                    {
+                        std::ofstream out("bgmap1.txt"); 
+                        for(int y=0; y<32; ++y) {
+                            for(int x=0; x<32; ++x) {
+                                int offset = x + y * 32; 
+                                out << std::setw(5) << std::setfill(' ') << (int)cpu.memory.read_8(0x9800 + offset)<< " "; 
+                            }
+                            out << std::endl; 
+                        }
+                    }
+                    {
+                        std::ofstream out("bgmap2.txt"); 
+                        for(int y=0; y<32; ++y) {
+                            for(int x=0; x<32; ++x) {
+                                int offset = x + y * 32; 
+                                out << std::setw(5) << std::setfill(' ') << (int)cpu.memory.read_8(0x9C00 + offset)<< " "; 
+                            }
+                            out << std::endl; 
+                        }
+                    }
+                    
+                }
+                break; 
                 
                 default: 
                     std::cout << "Unknown option." << std::endl; 
@@ -270,11 +312,18 @@ int main() {
                     video.clear_lcdc_interrupt_request(); 
                 }
                 
+                timer.update_cycles(cpu.cycle_counter); 
+                timer.execute(); 
+                if(timer.timer_interrupt_request()) {
+                        iff.set_interrupt(Interrupt::Timer); 
+                        timer.clear_timer_interrupt(); 
+                    }
+                
                 // handle dma
                 if(video.dma_request()) {
                     // std::cout << "dma requested." << std::endl; 
                     uint16 dma_transfer_address = video.dma_transfer_value() << 8; 
-                    // std::cout << "address: " << dma_transfer_address << std::endl; 
+                    std::cout << "address: " << dma_transfer_address << std::endl; 
                     video.clear_dma_request(); 
                     // cpu.memory.set_verbose(true); 
                     for(int dma_i=0; dma_i < 0xA0; ++dma_i) {

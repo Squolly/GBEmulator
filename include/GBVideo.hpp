@@ -45,7 +45,7 @@ class GBVideo : public MemoryMappedModule {
         // new render functions 
         void render_scanline(); 
         void render_image(); 
-        uint8 get_background_pixel(uint8 x, uint8 y); // returns color of background at (WINX + x, WINY + y)
+        uint8 get_background_pixel(uint8 x, uint8 y, bool window = false ); // returns color of background at (WINX + x, WINY + y)
         void update_tile(uint16 address, uint8 value); 
         void update_sprite(uint16 address, uint8 value); 
         
@@ -82,6 +82,8 @@ class GBVideo : public MemoryMappedModule {
         void clear_lcdc_interrupt_request() { _lcdc_interrupt_request = false; } 
         bool vblank_interrupt_request() { return _vblank_interrupt_request; }
         bool lcdc_interrupt_request() { return _lcdc_interrupt_request; }
+        
+        void set_verbose(bool flag) { _verbose = flag; }
         
         void request_dma() { _dma_request = true; }
         bool dma_request() { return _dma_request; }
@@ -126,6 +128,7 @@ class GBVideo : public MemoryMappedModule {
         GPUMode _current_mode; 
         
         bool _refresh; 
+        bool _verbose; 
         
         bool _vblank_interrupt_request; 
         bool _lcdc_interrupt_request; 
