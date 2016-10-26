@@ -1,5 +1,7 @@
 #include "GBVideo.hpp"
 
+#include "Utility/ScopedTimer.hpp"
+
 #include <iostream>
 #include <cassert>
 
@@ -59,6 +61,8 @@ void  GBVideo::init() {
 }
 
 void GBVideo::operate() {
+    ScopedTimer st("GBVideo::operate"); 
+    
     // handle operation stuff (draw something, increase counters and so on) 
    //  static int counter = 0; 
    //  if(counter % 1 == 0) 
@@ -80,7 +84,7 @@ void GBVideo::operate() {
                 // HBlank done, switch to OAM unless this was the last line
                 _mode_cycles -= 204;
                 _current_scanline++; // after HBlank we go to the next line
-                if(_current_scanline == 143) {
+                if(_current_scanline == 144) {
                     _current_mode = GPUMode::VBlank; 
                     // render image
                     render_image(); // update visible image
@@ -93,14 +97,6 @@ void GBVideo::operate() {
                     _current_mode = GPUMode::OAM; 
                     request_oam_interrupt(); 
                 }
-            }
-        }
-        break; 
-        
-        case GPUMode::OAM: {
-            if(_mode_cycles >= 80) { // simulate OAM access
-                _mode_cycles -= 80; 
-                _current_mode = GPUMode::VRAM; 
             }
         }
         break; 
@@ -120,6 +116,14 @@ void GBVideo::operate() {
         }
         break; 
         
+        case GPUMode::OAM: {
+            if(_mode_cycles >= 80) { // simulate OAM access
+                _mode_cycles -= 80; 
+                _current_mode = GPUMode::VRAM; 
+            }
+        }
+        break; 
+        
         case GPUMode::VRAM: { // simulate VRAM access
             if(_mode_cycles >= 172) {
                 _mode_cycles -= 172; 
@@ -129,6 +133,7 @@ void GBVideo::operate() {
                 request_hblank_interrupt(); 
             }
         }
+        break; 
     }
     
     if(_current_scanline == _scanline_comparison) {
@@ -146,12 +151,14 @@ void GBVideo::operate() {
 void GBVideo::set_bit(uint8& r, int bit, bool value) {
     const uint8 r_masked_bit = r & ~(1 << bit); 
     const uint8 set_n = ((value ? 1 : 0) << bit); 
-    r = r | set_n; 
+    r = r_masked_bit | set_n; 
 }
 
 // note: access to video RAM will happen transparent to this module currently
 //       so currently we only have to handle I/O access
 uint8 GBVideo::read_8(uint16 address) {
+    ScopedTimer st("GBVideo::read_8"); 
+    
     uint8 ret = 0xFF; 
     if(address >= _character_ram.start_address() && address < _character_ram.end_address()) {
         ret = _character_ram.read_8(address); 
@@ -167,7 +174,7 @@ uint8 GBVideo::read_8(uint16 address) {
         break; // LCDCONT [RW] LCD Control
         
     case 0xFF41: 
-        ret = 0; 
+        ret = _lcd_status; 
         break; // LCDSTAT [RW] LCD Status
         
     case 0xFF42: 
@@ -225,6 +232,8 @@ uint8 GBVideo::read_8(uint16 address) {
 }
 
 void GBVideo::next_render_step() {
+    ScopedTimer st("GBVideo::next_render_step"); 
+    
     const uint8 pos_x = _current_pixel_x; 
     const uint8 pos_y = _current_pixel_y; 
     
@@ -294,6 +303,8 @@ void GBVideo::next_render_step() {
 }
 
 std::vector<uint8> GBVideo::get_vram_visualization(int& width, int& height) {
+    ScopedTimer st("GBVideo::get_vram_visualization"); 
+    
     const int c_width_pixels = 8 * 16; 
     const int c_height_pixels = 8 * 16; 
     
@@ -319,6 +330,8 @@ std::vector<uint8> GBVideo::get_vram_visualization(int& width, int& height) {
 }
 
 void GBVideo::put_pixel(uint8 x, uint8 y, uint8 color) { // deprecated
+    ScopedTimer st("GBVideo::put_pixel"); 
+    
     _screen_buffer[y * 256 + x] = color; 
     
     // check if in window
@@ -340,6 +353,8 @@ void GBVideo::put_pixel(uint8 x, uint8 y, uint8 color) { // deprecated
 }
         
 void GBVideo::update_tile(uint16 address, uint8 value) {
+    ScopedTimer st("GBVideo::update_tile"); 
+    
     const int tile_id = (address >> 4) & 0x1FF; // (each tile consists of 16 bytes beginning from 0x8000)
     const int tile_base_address = address & 0xFFFC; // tile address without least significant 4 bits
     const int tile_row = (address & 0xF) >> 1; // 2 rows are one line 
@@ -356,6 +371,8 @@ void GBVideo::update_tile(uint16 address, uint8 value) {
 }
 
 void GBVideo::update_sprite(uint16 address, uint8 value) {
+    ScopedTimer st("GBVideo::update_sprite"); 
+    
     uint16 relative_address = address - _oam_ram.start_address(); 
     
     int sprite_id = relative_address >> 2; // 4 bytes per sprite
@@ -394,6 +411,8 @@ void GBVideo::update_sprite(uint16 address, uint8 value) {
 }
 
 uint8 GBVideo::get_background_pixel(uint8 x, uint8 y, bool window /* = false */) {
+    // ScopedTimer st("GBVideo::get_background_pixel"); 
+    
     uint8 background_map_switch = 0; 
     if(!window) {
         background_map_switch = _lcd_control & 0x08; 
@@ -439,6 +458,8 @@ uint8 GBVideo::get_background_pixel(uint8 x, uint8 y, bool window /* = false */)
 }
 
 void GBVideo::render_scanline() {
+    ScopedTimer st("GBVideo::render_scanline"); 
+    
     if(_current_scanline >= 144) 
         return; 
     
@@ -545,6 +566,7 @@ void GBVideo::render_scanline() {
 }
 
 void GBVideo::render_image() {
+    ScopedTimer st("GBVideo::render_image"); 
     // std::lock_guard<std::mutex> lg(_display_mutex); 
     _display = _offscreen_display; 
 }
@@ -552,6 +574,8 @@ void GBVideo::render_image() {
 // note: access to video RAM will happen transparent to this module currently
 //       so currently we only have to handle I/O access
 void GBVideo::write_8(uint16 address, uint8 value) {
+    ScopedTimer st("GBVideo::write_8");
+    
     if(address >= _character_ram.start_address() && address < _character_ram.end_address()) {
         _character_ram.write_8(address, value); 
         

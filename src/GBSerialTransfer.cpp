@@ -31,6 +31,7 @@ uint8 GBSerialTransfer::read_8(uint16 address) {
                 _info |= 0x01; // set bit 0 
         }
     }
+    std::cout << "Reading serial transfer" << std::endl; 
 }
 
 void GBSerialTransfer::write_8(uint16 address, uint8 value) {

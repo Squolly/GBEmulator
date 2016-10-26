@@ -14,6 +14,8 @@
 
 #include "Instruction.hpp"
 
+#include "Utility/ScopedTimer.hpp"
+
 #include <fstream>
 #include <cstdlib> 
 #include <limits>
@@ -27,7 +29,10 @@ std::string show_bcd(uint8 v) {
 }
 
 int main() {
+    ScopedTimer st("main"); 
+    
     LR35902 cpu; 
+    cpu.memory.set_boot(true); 
     GBROM  rom(0x0000, 0x0100);             rom.init(rom.size()); 
     GBRAM  zero_page_ram(0xFF80, 0xFFFF);   zero_page_ram.init(zero_page_ram.size()); 
     GBRAM  internal_ram(0xC000, 0xFE00);    internal_ram.init(internal_ram.size()); 
@@ -37,7 +42,7 @@ int main() {
     GBInterruptEnable ie(0xFFFF, 0x10000);
     GBInterruptFlag iff(0xFF0F, 0xFF10); 
     GBTimer timer(0xFF04, 0xFF08); 
-    timer.set_verbose(true); 
+    timer.set_verbose(false); 
     cpu.ie = &ie; 
     cpu.iff = &iff; 
     ie.set_verbose(false); 
@@ -74,10 +79,10 @@ int main() {
     // read cartridge
     GBMBC1 gbc(0x0000, 0x8000); 
     // GBCartridge gbc(0x0000, 0x8000); 
-    gbc.read_file("data/ocket.gb"); 
+    gbc.read_file("data/Bounce.gb"); 
     //gbc.read_file("data/cpu_instrs.gb"); 
     cpu.memory.connect(&gbc); 
-    cpu.memory.connect(&gbc, 0xA000, 0xC000); 
+    
     // map cartridge to memory
     // now printing dissassembly // rom will overwrite gbc entries
     cpu.memory.connect(&rom); 
@@ -102,6 +107,8 @@ int main() {
     cpu.memory.connect(&iff); 
     
     video.update_cycles(cpu.cycle_counter); 
+    timer.init(cpu.cycle_counter); 
+    timer.update_cycles(cpu.cycle_counter); 
     for(int i=0; i<100000000; ++i) {
         if(!cpu.debug_hold) {
             cpu.single_step(verbose_instruction);  
@@ -158,6 +165,8 @@ int main() {
         }
     }
     cpu.memory.connect(&gbc); 
+    cpu.memory.connect(&gbc, 0xA000, 0xC000); 
+    cpu.memory.set_boot(false); 
     std::string input; 
     
     bool done = false;
@@ -165,7 +174,9 @@ int main() {
     uint16 breakpoint = 0; 
 
     std::cout << "Bootstrap done. Now ROM execution..." << std::endl; 
-    
+    verbose_instruction = false; 
+    // use_breakpoint = true; 
+    breakpoint = -1; 
     while(!done) {
         if(video.break_request()) {
             use_breakpoint = false; 
@@ -299,6 +310,8 @@ int main() {
             }
             else {
                 cpu.single_step(verbose_instruction); 
+                // if(cpu.calls() >= 69856675)
+                //     done = true; 
                 video.update_cycles(cpu.cycle_counter); 
                 video.execute();
                 
@@ -315,15 +328,15 @@ int main() {
                 timer.update_cycles(cpu.cycle_counter); 
                 timer.execute(); 
                 if(timer.timer_interrupt_request()) {
-                        iff.set_interrupt(Interrupt::Timer); 
-                        timer.clear_timer_interrupt(); 
-                    }
+                    iff.set_interrupt(Interrupt::Timer); 
+                    timer.clear_timer_interrupt(); 
+                }
                 
                 // handle dma
                 if(video.dma_request()) {
                     // std::cout << "dma requested." << std::endl; 
                     uint16 dma_transfer_address = video.dma_transfer_value() << 8; 
-                    std::cout << "address: " << dma_transfer_address << std::endl; 
+                    // std::cout << "address: " << dma_transfer_address << std::endl; 
                     video.clear_dma_request(); 
                     // cpu.memory.set_verbose(true); 
                     for(int dma_i=0; dma_i < 0xA0; ++dma_i) {
@@ -335,6 +348,7 @@ int main() {
                 
                 // hack to have input
                 if(video.buttons_changed()) {
+                    video.clear_button_changed();  
                     joypad.start(video.button_start()); 
                     joypad.select(video.button_select()); 
                     joypad.up(video.button_up()); 
@@ -343,6 +357,7 @@ int main() {
                     joypad.right(video.button_right()); 
                     joypad.a(video.button_a()); 
                     joypad.b(video.button_b()); 
+                    iff.set_interrupt(Interrupt::Joystick); 
                 }
             }
         }

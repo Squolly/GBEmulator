@@ -85,7 +85,7 @@ void GBInterruptFlag::clear_interrupt(Interrupt interrupt) {
     if(bit < 0) 
         return; 
     
-    _interrupt_flags = _interrupt_flags & (~(1 << bit)); 
+    _interrupt_flags = set_bit(_interrupt_flags, bit, false); 
 }
 
 uint8 GBInterruptFlag::read_8(uint16 address) {

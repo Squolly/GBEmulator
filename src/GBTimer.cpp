@@ -1,4 +1,5 @@
 #include "GBTimer.hpp"
+#include "Utility/ScopedTimer.hpp" 
 
 #include <algorithm> 
 #include <iostream>
@@ -14,18 +15,22 @@ GBTimer::GBTimer(uint32 start_address, uint32 end_address,
     _timer_control(0), 
     _timer_stop(false),  
     _input_clock(0), 
-    _timer_interrupt(false)
+    _timer_interrupt(false), 
+    _current_cpu_cycles(0),  
+    _last_cpu_cycles(0), 
+    _timer_update_cycles(0), 
+    _divider_update_cycles(0) 
     { }
     
 void GBTimer::operate() { 
-    const double clock_speed_gb = 1.; 41943040.; // Hz
-    const double divider_cycles = clock_speed_gb / 16384.; 
-    const double mode_0_cycles = clock_speed_gb / 4096.; 
-    const double mode_1_cycles = clock_speed_gb / 262144.; 
-    const double mode_2_cycles = clock_speed_gb / 65536.; 
-    const double mode_3_cycles = clock_speed_gb / 16348.; 
+    const uint32 clock_speed_gb = 4194304; // 41943040.; // Hz
+    const uint32 divider_cycles = clock_speed_gb / 16384; 
+    const uint32 mode_0_cycles = clock_speed_gb / 4096; 
+    const uint32 mode_1_cycles = clock_speed_gb / 262144; 
+    const uint32 mode_2_cycles = clock_speed_gb / 65536; 
+    const uint32 mode_3_cycles = clock_speed_gb / 16348; 
     
-    if(_divider_update_cycles > divider_cycles) { // 16384 Hz
+    while(_divider_update_cycles > divider_cycles) { // 16384 Hz
         _divider_register++; 
         _divider_update_cycles -= divider_cycles; 
     }
@@ -46,15 +51,23 @@ void GBTimer::operate() {
             
         case 3: // 16348 Hz
             cycles_needed = mode_3_cycles; 
+            break;
+        
+        default: 
+            std::cout << "[Timer] Error! Unknown Timer Mode." << std::endl; 
             break; 
     }
     
+    
     // if timer on
     if(_timer_stop) {
-        if(_timer_update_cycles > cycles_needed) {
-            // std::cout << "Timer cycles needed: " << cycles_needed << std::endl; 
+        // if(_verbose) std::cout << (int)_timer_update_cycles << " - " << cycles_needed << std::endl; 
+        while(_timer_update_cycles > cycles_needed) {
+            ScopedTimer st("Timer Increase"); 
+            if(_verbose) std::cout << "Timer cycles needed: " << cycles_needed << std::endl; 
             _timer_counter++; 
             _timer_update_cycles -= cycles_needed; 
+            if(_verbose) std::cout << "up " << (int)_timer_update_cycles << " - " << cycles_needed << std::endl;
             if(_timer_counter == 0) {
                 request_timer_interrupt(); 
                 _timer_counter = _timer_modulo; 
@@ -109,7 +122,4 @@ void GBTimer::write_8(uint16 address, uint8 value) {
             std::cout << "[Timer] Error: unknown address (write)" << std::endl; 
             break; 
     }
-
-
-
 }

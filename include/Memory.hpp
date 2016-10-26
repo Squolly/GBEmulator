@@ -33,10 +33,13 @@ public:
     
     void dump(); 
     
+    void set_boot(bool boot) { _boot = boot; }
+    
 private: 
     std::vector<MemoryMappedModule*> _mmms; 
     std::vector<uint8> _data; // TODO: remove this and only provide access to connected modules 
     bool _verbose; 
+    bool _boot; 
 }; 
 
 #endif

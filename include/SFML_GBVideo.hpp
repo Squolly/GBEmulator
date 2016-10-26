@@ -29,6 +29,8 @@ public:
     bool button_a() { return _button_a; }; 
     bool button_b() { return _button_b; }; 
     bool buttons_changed() { return _buttons_changed; }; 
+    bool clear_button_changed() { _buttons_changed = false; }
+    
 private: 
     bool _hold; // to make video module 60 fps for render stuff
     

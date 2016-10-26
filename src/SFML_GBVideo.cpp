@@ -159,8 +159,6 @@ void SFML_GBVideo::render() {
                 }
                 _buttons_changed = true; 
             }
-            else
-                _buttons_changed = false; 
             
             if (event.type == sf::Event::Closed) {
                 _renderThread.terminate(); 

@@ -34,6 +34,8 @@ set(GAME_BOY_EMULATOR_SOURCE_FILES
     ${PROJECT_SOURCE_DIR}/src/LR35902.cpp
     ${PROJECT_SOURCE_DIR}/src/Memory.cpp
     ${PROJECT_SOURCE_DIR}/src/Registers.cpp
+    
+    ${PROJECT_SOURCE_DIR}/src/Utility/ScopedTimer.cpp
 )
 
 set(GAME_BOY_EMULATOR_HEADER_FILES
@@ -57,6 +59,8 @@ set(GAME_BOY_EMULATOR_HEADER_FILES
     ${PROJECT_SOURCE_DIR}/include/LR35902.hpp
     ${PROJECT_SOURCE_DIR}/include/Registers.hpp
     ${PROJECT_SOURCE_DIR}/include/types.hpp
+    
+    ${PROJECT_SOURCE_DIR}/include/Utility/ScopedTimer.hpp
 )
 
 if(SFML_FOUND)

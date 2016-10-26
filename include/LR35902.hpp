@@ -26,12 +26,15 @@ struct LR35902 {
     Registers registers; 
     Memory    memory; 
     bool      running; 
-    bool      bhalt; 
+    bool      _halt; 
+    bool      _repeat_next_instruction; 
+    int       _unhalt_cycles; 
     
     // Debug
     bool debug_mode; 
-    bool debug_hold; 
-    
+    bool debug_hold;
+    int _calls; 
+
     std::vector<std::unique_ptr<Instruction>> instructions; 
     std::vector<TraceEntry> trace; 
     
@@ -117,6 +120,8 @@ struct LR35902 {
     void single_step(bool verbose);
     void print_state(std::ostream& out = std::cout); 
     void print_state(Registers& registers, std::ostream& out = std::cout); 
+    
+    int calls() { return _calls; }
     
 }; 
 

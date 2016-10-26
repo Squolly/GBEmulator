@@ -1,5 +1,7 @@
 #include "Cartridge/GBMBC1.hpp"
 
+#include "Utility/ScopedTimer.hpp"
+
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -19,25 +21,34 @@ GBMBC1::GBMBC1(uint32 start_address, uint32 end_address, const std::string& name
 }
 
 uint8 GBMBC1::read_8(uint16 address) {
+    ScopedTimer st("GBMBC1::read_8"); 
+    
     // stay in ROM 
     if(address >= 0x0000 && address < 0x3FFF) {
+        ScopedTimer st("GBMBC1::read_8 0-4k"); 
         return _switchable_ROM[0].read_8(address); 
     }
     else if(address >= 0x4000 && address < 0x8000) {
+        ScopedTimer st("GBMBC1::read_8 4-8k"); 
         return _switchable_ROM[_selected_ROM].read_8(address); 
     }
     else if(address >= 0xA000 && address < 0xC000 && _ram_enabled) {
+        ScopedTimer st("GBMBC1::read_8 RAM"); 
         return _switchable_RAM[_selected_RAM].read_8(address); 
     }
-    else; 
-        // std::cout << "Illegal read." << std::endl; 
+    else 
+        std::cout << "Illegal read." << std::endl; 
     return -1; 
 }
 
-void  GBMBC1::write_8(uint16 address, uint8 value) { 
+void  GBMBC1::write_8(uint16 address, uint8 value) {
+    ScopedTimer st("GBMBC1::write_8"); 
+    
     // RAM Enable (00h disable, xAh enable)
     if(address >= 0x0000 && address <= 0x1FFF) {
-        if(value & 0xF == 0xA) {
+        ScopedTimer st("GBMBC1::write_8 0-2k");
+        std::cout << "Wrote: " << (int)value << std::endl;
+        if((value & 0xF) == 0xA) {
             _ram_enabled = true; 
         }
         else {
@@ -48,6 +59,7 @@ void  GBMBC1::write_8(uint16 address, uint8 value) {
     
     // ROM Bank Number
     else if(address >= 0x2000 && address <= 0x3FFF) {
+        ScopedTimer st("GBMBC1::write_8 2-4k"); 
         // special case for 00h, 20h ...
         value &= 0x1F; // only 5 bits
         if((value >> 4) % 2 == 0 && (value & 0xF) == 0 )
@@ -59,6 +71,7 @@ void  GBMBC1::write_8(uint16 address, uint8 value) {
     
     // RAM Bank Number OR Upper Bits of ROM Bank Number
     else if(address >= 0x4000 && address <= 0x5FFF) {
+        ScopedTimer st("GBMBC1::write_8 4-6k"); 
         value &= 0x3; 
         if(_selection_mode) { // RAM selection 
             _selected_RAM = value; 
@@ -75,6 +88,7 @@ void  GBMBC1::write_8(uint16 address, uint8 value) {
     }
     
     else if(address >= 0x6000 && address <= 0x7FFF) {
+        ScopedTimer st("GBMBC1::write_8 6-8k");
         std::cout << "Value: " << (int)(value) << std::endl; 
         value &= 1; 
         if(value) { // RAM Banking Mode
@@ -86,6 +100,7 @@ void  GBMBC1::write_8(uint16 address, uint8 value) {
         std::cout << "Setting selection mode: " << (_selection_mode ? "true" : "false") << std::endl; 
     }
     else if(address >= 0xA000 && address <= 0xC000) {
+        ScopedTimer st("GBMBC1::write_8 A-Ck");
         std::cout << "Writing to external RAM" << std::endl; 
         std::cout << "External RAM banks: " << _num_ram_banks << std::endl; 
         if(_ram_enabled) {
@@ -100,6 +115,8 @@ void  GBMBC1::write_8(uint16 address, uint8 value) {
 }
       
 void GBMBC1::read_file(const std::string& filename) {
+    ScopedTimer st("GBMBC1::read_file");
+    
     std::ifstream in(filename.c_str()); 
     
     if(!in.is_open()) {

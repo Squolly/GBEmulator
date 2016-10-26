@@ -12,11 +12,14 @@ public:
         virtual uint8 read_8(uint16 address); 
         virtual void write_8(uint16 address, uint8 value); 
         
+        void init(uint32 current_cpu_cycles) { _current_cpu_cycles = _last_cpu_cycles = current_cpu_cycles; }
         uint32 elapsed_cycles() { return _current_cpu_cycles - _last_cpu_cycles; }
         void update_cycles(uint32 current_cpu_cycles) { 
             _last_cpu_cycles = _current_cpu_cycles; 
             _current_cpu_cycles = current_cpu_cycles; 
-            _timer_update_cycles += elapsed_cycles(); 
+            if(_timer_stop) {
+                _timer_update_cycles += elapsed_cycles(); 
+            }
             _divider_update_cycles += elapsed_cycles();
         }
         

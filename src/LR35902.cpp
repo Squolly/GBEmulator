@@ -4,6 +4,8 @@
 #include "GBInterruptFlag.hpp"
 #include "GBInterruptEnable.hpp"
 
+#include "Utility/ScopedTimer.hpp"
+
 #include <iostream>
 #include <iomanip>
 #include <algorithm>
@@ -14,6 +16,7 @@ LR35902::LR35902() :
     memory(MEMORY_SIZE), 
     debug_mode(false), 
     debug_hold(false), 
+    _halt(false),
     cycle_counter(0), 
     ime(false), 
     _interrupt_enable_delay(0), 
@@ -325,6 +328,7 @@ void LR35902::ret() {
 void LR35902::reti() {
     ret(); 
     ei(); 
+    _interrupt_enable_delay = 0; 
 }
 
 bool LR35902::callf(uint8 flag, uint16 addr, uint16 next_pc) {
@@ -382,26 +386,31 @@ void LR35902::handle_pending_interrupts() {
     uint16 addr = 0; 
     uint8 bit = 0; 
     if(ie->vblank_enabled() && iff->vblank_occurred()) {
+       ScopedTimer st("VBlank Interrupt"); 
        handle_interrupt = true; 
        iff->clear_interrupt(Interrupt::VBlank); 
        addr = 0x40; 
     }
     else if(ie->lcdc_enabled() && iff->lcdc_occurred()) {
+        ScopedTimer st("LCDC Interrupt"); 
        handle_interrupt = true; 
        iff->clear_interrupt(Interrupt::LCDC); 
        addr = 0x48; 
     }
     else if(ie->timer_overflow_enabled() && iff->timer_occurred()) {
+       ScopedTimer st("Timer Overflow Interrupt"); 
        handle_interrupt = true; 
        iff->clear_interrupt(Interrupt::Timer); 
        addr = 0x50;   
     }
     else if(ie->serial_io_complete_enabled() && iff->serial_io_complete_occurred()) {
+       ScopedTimer st("Serial IO Interrupt"); 
        handle_interrupt = true; 
        iff->clear_interrupt(Interrupt::Serial_IO); 
        addr = 0x58; 
     }
     else if(ie->joystick_enabled() && iff->joystick_occurred()) {
+       ScopedTimer st("Joystick Interrupt"); 
        handle_interrupt = true; 
        iff->clear_interrupt(Interrupt::Joystick); 
        addr = 0x60; 
@@ -409,8 +418,10 @@ void LR35902::handle_pending_interrupts() {
     
     if(handle_interrupt) {
         // disable interrupts
+        _unhalt_cycles = 12; // interrupts stop cpu halting
         di(); 
         call(addr, registers.PC); 
+        cycle_counter += 20; 
     }
 }
 
@@ -1055,7 +1066,8 @@ void LR35902::set(uint8 b, uint8& reg) {
     
 
 void LR35902::halt() {
-    bhalt = true; 
+    _halt = true; 
+    _repeat_next_instruction = true; 
 }
 
 void LR35902::init() {
@@ -1089,79 +1101,101 @@ void LR35902::disassemble() {
 }
 
 void LR35902::single_step(bool verbose) {
+    _calls++; 
+    ScopedTimer st("LR35902::single_step"); 
+    
     static std::ofstream debug_out("debug.txt"); 
     
-    uint8 opcode; 
-    Instruction* inst = instructions[opcode = memory.read_8(registers.PC)].get();
+    if(!_halt) {
+        uint8 opcode; 
+        Instruction* inst = instructions[opcode = memory.read_8(registers.PC)].get();
 
-    if(inst == NULL) {
-        if(verbose) {
-            std::cout << "Invalid instruction: " << (int)opcode << std::endl;
-            std::cout << "PC: " << registers.PC << std::endl; 
-        }
-    }
-    else {
-        if(verbose) {
-            std::cout << std::hex << std::setw(2) << std::setfill('0') << registers.PC << " - "; 
-            std::cout << std::setw(2) << (int)opcode << ": " << inst->alt_name << std::endl; 
-    
-            std::cout << "State before instruction: " << std::endl; 
-            print_state(); 
-        }
-        if(debug_mode) {
-            if(!debug_hold) {
-                TraceEntry te(registers, inst); 
-                inst->execute(*this, memory); 
-                te.registers_after = registers; 
-                trace.push_back(te); 
-                if(inst->alt_name == "RST 38H") 
-                    debug_hold = true; 
+        if(inst == NULL) {
+            if(verbose) {
+                std::cout << "Invalid instruction: " << (int)opcode << std::endl;
+                std::cout << "PC: " << registers.PC << std::endl; 
             }
         }
         else {
-            static bool once = false; 
-            if(!once && registers.PC >= 0xFF);  
-               //  once = true; 
-            
-            if(once) {
-                std::cout << "cpu cycle counter: " << cycle_counter << std::endl; 
-            debug_out << std::hex << std::setw(4) << std::setfill('0') << (int)opcode << std::endl; 
-            debug_out << std::hex << std::setw(4) << std::setfill('0') << registers.PC << " " 
-                      << std::hex << std::setw(4) << std::setfill('0') << registers.AF << " " 
-                      << std::hex << std::setw(4) << std::setfill('0') << registers.BC << " "  
-                      << std::hex << std::setw(4) << std::setfill('0') << registers.DE << " " 
-                      << std::hex << std::setw(4) << std::setfill('0') << registers.HL << " " 
-                      << std::hex << std::setw(4) << std::setfill('0') << registers.SP << std::endl; 
-            }    
-            // std::cout << "registers.PC + inst->bytes: " << registers.PC << " + " << (int)inst->bytes << ": " << registers.PC + inst->bytes << std::endl;  
-            inst->execute(*this, memory); 
-     
-            if(once) {
-            debug_out << std::hex << std::setw(4) << std::setfill('0') << registers.PC << " " 
-                      << std::hex << std::setw(4) << std::setfill('0') << registers.AF << " " 
-                      << std::hex << std::setw(4) << std::setfill('0') << registers.BC << " " 
-                      << std::hex << std::setw(4) << std::setfill('0') << registers.DE << " " 
-                      << std::hex << std::setw(4) << std::setfill('0') << registers.HL << " " 
-                      << std::hex << std::setw(4) << std::setfill('0') << registers.SP << std::endl << std::endl; 
+            if(verbose) {
+                std::cout << std::hex << std::setw(2) << std::setfill('0') << registers.PC << " - "; 
+                std::cout << std::setw(2) << (int)opcode << ": " << inst->alt_name << std::endl; 
+        
+                std::cout << "State before instruction: " << std::endl; 
+                print_state(); 
+            }
+            if(debug_mode) {
+                if(!debug_hold) {
+                    TraceEntry te(registers, inst); 
+                    inst->execute(*this, memory); 
+                    te.registers_after = registers; 
+                    trace.push_back(te); 
+                    if(inst->alt_name == "RST 38H") 
+                        debug_hold = true; 
+                }
+            }
+            else {
+                static bool once = false; 
+                if(!once && registers.PC >= 0xFF);  
+                //  once = true; 
+                
+                if(once) {
+                    std::cout << "cpu cycle counter: " << cycle_counter << std::endl; 
+                debug_out << std::hex << std::setw(4) << std::setfill('0') << (int)opcode << std::endl; 
+                debug_out << std::hex << std::setw(4) << std::setfill('0') << registers.PC << " " 
+                        << std::hex << std::setw(4) << std::setfill('0') << registers.AF << " " 
+                        << std::hex << std::setw(4) << std::setfill('0') << registers.BC << " "  
+                        << std::hex << std::setw(4) << std::setfill('0') << registers.DE << " " 
+                        << std::hex << std::setw(4) << std::setfill('0') << registers.HL << " " 
+                        << std::hex << std::setw(4) << std::setfill('0') << registers.SP << std::endl; 
+                }    
+                // std::cout << "registers.PC + inst->bytes: " << registers.PC << " + " << (int)inst->bytes << ": " << registers.PC + inst->bytes << std::endl;  
+                if(_repeat_next_instruction) {
+                    uint16 PC = registers.PC; 
+                    inst->execute(*this, memory); 
+                    registers.PC = PC; 
+                    _repeat_next_instruction = false; 
+                }
+                else {
+                    inst->execute(*this, memory); 
+                }
+        
+                if(once) {
+                debug_out << std::hex << std::setw(4) << std::setfill('0') << registers.PC << " " 
+                        << std::hex << std::setw(4) << std::setfill('0') << registers.AF << " " 
+                        << std::hex << std::setw(4) << std::setfill('0') << registers.BC << " " 
+                        << std::hex << std::setw(4) << std::setfill('0') << registers.DE << " " 
+                        << std::hex << std::setw(4) << std::setfill('0') << registers.HL << " " 
+                        << std::hex << std::setw(4) << std::setfill('0') << registers.SP << std::endl << std::endl; 
+                }
             }
         }
+    }
+    else {
+        cycle_counter += 4; // increase cycle counter for interrupts to occur
+        if(_unhalt_cycles > 0) {
+            _unhalt_cycles -= 4; 
+            if(_unhalt_cycles <= 0) 
+                _halt = false; 
+        }
+    }
+        
         // registers.PC += inst->bytes;
        //  registers.PC += inst->addedBytes;
         
-        if(ime) {
-            if(_interrupt_enable_delay == 0) {
-                // handle interrupts
-                handle_pending_interrupts(); 
-            }
-            else {
-                _interrupt_enable_delay--; 
-            }
-            
+    if(ime /* ||  (_halt && iff->timer_occurred()) */) {
+        if(_interrupt_enable_delay == 0) {
+            // handle interrupts
+            handle_pending_interrupts(); 
         }
-        if(verbose) {
-            std::cout << "State after instruction: " << std::endl; 
-            print_state(); 
+        else {
+            _interrupt_enable_delay--; 
         }
+        
+    }
+    if(verbose) {
+        std::cout << "State after instruction: " << std::endl; 
+        print_state(); 
     }
 }
 
