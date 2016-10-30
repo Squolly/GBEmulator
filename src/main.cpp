@@ -11,6 +11,7 @@
 #include "GBSerialTransfer.hpp"
 #include "GBTimer.hpp"
 #include "SFML_GBVideo.hpp"
+#include "Sound/GBSound.hpp"
 
 #include "Instruction.hpp"
 
@@ -41,6 +42,7 @@ int main() {
     GBSerialTransfer serialTransfer(0xFF01, 0xFF03); 
     GBInterruptEnable ie(0xFFFF, 0x10000);
     GBInterruptFlag iff(0xFF0F, 0xFF10); 
+    GBSound sound; 
     GBTimer timer(0xFF04, 0xFF08); 
     timer.set_verbose(false); 
     cpu.ie = &ie; 
@@ -56,6 +58,9 @@ int main() {
     video.init(); 
     video.connect_to_memory(cpu.memory); 
     video.set_verbose(false); 
+    
+    sound.connect_to_memory(cpu.memory); 
+    sound.set_verbose(true); 
     
     // fill rom with boot info
     std::fstream in("data/DMG_ROM.bin", std::ios::in | std::ios::binary);
@@ -77,10 +82,9 @@ int main() {
    //  std::cin >> g; 
     
     // read cartridge
-    GBMBC1 gbc(0x0000, 0x8000); 
-    // GBCartridge gbc(0x0000, 0x8000); 
-    gbc.read_file("data/Bounce.gb"); 
-    //gbc.read_file("data/cpu_instrs.gb"); 
+    // GBMBC1 gbc(0x0000, 0x8000); 
+    GBCartridge gbc(0x0000, 0x8000); 
+    gbc.read_file("data/cpu_instrs.gb"); 
     cpu.memory.connect(&gbc); 
     
     // map cartridge to memory

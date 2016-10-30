@@ -20,6 +20,7 @@ set(GAME_BOY_EMULATOR_SOURCE_FILES
     ${PROJECT_SOURCE_DIR}/src/GBCartridge.cpp
     ${PROJECT_SOURCE_DIR}/src/GBInterruptEnable.cpp
     ${PROJECT_SOURCE_DIR}/src/GBInterruptFlag.cpp
+    ${PROJECT_SOURCE_DIR}/src/Sound/GBSound.cpp
     ${PROJECT_SOURCE_DIR}/src/Cartridge/GBMBC1.cpp
     ${PROJECT_SOURCE_DIR}/src/GBJoypad.cpp
     ${PROJECT_SOURCE_DIR}/src/GBRAM.cpp
@@ -43,6 +44,7 @@ set(GAME_BOY_EMULATOR_HEADER_FILES
     ${PROJECT_SOURCE_DIR}/include/GBJoypad.hpp
     ${PROJECT_SOURCE_DIR}/include/GBInterruptEnable.hpp
     ${PROJECT_SOURCE_DIR}/include/GBInterruptFlag.hpp
+    ${PROJECT_SOURCE_DIR}/include/Sound/GBSound.hpp
     ${PROJECT_SOURCE_DIR}/include/Cartridge/GBMBC1.hpp
     ${PROJECT_SOURCE_DIR}/include/GBRAM.hpp
     ${PROJECT_SOURCE_DIR}/include/GBROM.hpp
