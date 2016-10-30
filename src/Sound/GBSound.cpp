@@ -26,6 +26,7 @@ void GBSound::connect_channel_1(Memory& memory) {
 }
 
 void GBSound::connect_channel_2(Memory& memory) {
+    memory.connect(this, 0xFF15); // NR20 - Unused? TODO: Check
     memory.connect(this, 0xFF16); // NR21 - Channel 2 Sound Length/Wave Pattern Duty (R/W partly)
     memory.connect(this, 0xFF17); // NR22 - Channel 2 Volume Envelope (R/W)
     memory.connect(this, 0xFF18); // NR23 - Channel 2 Frequency lo data (W)
@@ -44,6 +45,7 @@ void GBSound::connect_channel_3(Memory& memory) {
 }
 
 void GBSound::connect_channel_4(Memory& memory) {
+    memory.connect(this, 0xFF19); // NR40 - Unused? TODO: Check
     memory.connect(this, 0xFF20); // NR41 - Channel 4 Sound Length (R/W)
     memory.connect(this, 0xFF21); // NR42 - Channel 4 Volume Envelope (R/W)
     memory.connect(this, 0xFF22); // NR43 - Channel 4 Polynomial Counter (R/W)
@@ -74,52 +76,60 @@ uint8 GBSound::read_8(uint16 address) {
     switch(address) {
         // Channel 1 Registers
         case 0xFF10: 
-            return _nr10_sweep_register; 
+            return _nr10_sweep_register | 0x80; 
             
         case 0xFF11: 
-            return _nr11_sound_wave; 
+            return _nr11_sound_wave | 0x3F; 
         
         case 0xFF12: 
-            return _nr12_volume_envelope; 
+            return _nr12_volume_envelope;  
             
         case 0xFF13: 
             return 0xFF; // write only
             
         case 0xFF14:
-            return _nr14_frequency_hi; 
+            return _nr14_frequency_hi | 0xBF; 
             
         // Channel 2 Registers
+            
+        case 0xFF15: // TODO: check this
+            return 0xFF; 
+            
         case 0xFF16:
-            return _nr21_sound_wave; 
+            return _nr21_sound_wave | 0x3F; 
             
         case 0xFF17:
-            return _nr22_volume_envelope; 
+            return _nr22_volume_envelope;  
             
         case 0xFF18:
             return 0xFF; // write only
             
         case 0xFF19:
-            return _nr24_frequency_hi_data; 
+            return _nr24_frequency_hi_data | 0xBF; 
             
         // Channel 3 Registers
         case 0xFF1A: 
-            return _nr30_sound_on_off; 
+            return _nr30_sound_on_off | 0x7F; 
             
         case 0xFF1B:
-            return _nr31_sound_length; 
+            return _nr31_sound_length | 0xFF; 
             
         case 0xFF1C:
-            return _nr32_output_level; 
+            return _nr32_output_level | 0x9F; 
             
         case 0xFF1D:
             return 0xFF; // write only
             
         case 0xFF1E:
-            return _nr34_frequency_hi_data; 
+            return _nr34_frequency_hi_data | 0xBF; 
             
         // Channel 4 Registers
+            
+        case 0xFF1F: // TODO: Check this
+            return 0xFF; 
+            
         case 0xFF20: 
-            return _nr41_sound_length; 
+            return _nr41_sound_length | 0xFF; 
             
         case 0xFF21:
             return _nr42_volume_envelope; 
@@ -128,7 +138,7 @@ uint8 GBSound::read_8(uint16 address) {
             return _nr43_polynomia_counter; 
             
         case 0xFF23:
-            return _nr44_counter; 
+            return _nr44_counter | 0xBF; 
             
         // Sound Control Registers
         case 0xFF24:
@@ -138,7 +148,7 @@ uint8 GBSound::read_8(uint16 address) {
             return _nr51_sound_output_selection; 
             
         case 0xFF26:
-            return _nr52_sound_on_off; 
+            return _nr52_sound_on_off | 0x70; 
     }
     
     

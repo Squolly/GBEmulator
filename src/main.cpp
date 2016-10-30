@@ -82,8 +82,9 @@ int main() {
    //  std::cin >> g; 
     
     // read cartridge
-    // GBMBC1 gbc(0x0000, 0x8000); 
-    GBCartridge gbc(0x0000, 0x8000); 
+    GBMBC1 gbc(0x0000, 0x8000); 
+    // GBCartridge gbc(0x0000, 0x8000); 
+    
     gbc.read_file("data/cpu_instrs.gb"); 
     cpu.memory.connect(&gbc); 
     
