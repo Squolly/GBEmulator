@@ -3,6 +3,8 @@
 
 #include "MemoryMappedModule.hpp"
 #include "GBRAM.hpp"
+#include "Sound/SweepSquareWave.hpp" 
+#include "Sound/Wave.hpp" 
 
 class Memory; 
 
@@ -11,7 +13,8 @@ public:
         GBSound(const std::string& name = std::string("Sound"), 
                 const std::string& description = std::string("Sound Module"));
         
-        virtual void operate(); 
+        ~GBSound() { }
+        
         virtual uint8 read_8(uint16 address); 
         virtual void write_8(uint16 address, uint8 value); 
         
@@ -19,6 +22,21 @@ public:
         
         void set_verbose(bool verbose) { _verbose = verbose; }
         bool verbose() { return _verbose; }
+        
+        virtual void operate(); 
+        
+        void init(uint32 current_cpu_cycles) { _current_cpu_cycles = _last_cpu_cycles = current_cpu_cycles; }
+        uint32 elapsed_cycles() { return _current_cpu_cycles - _last_cpu_cycles; }
+        void update_cycles(uint32 current_cpu_cycles) { 
+            _last_cpu_cycles = _current_cpu_cycles; 
+            _current_cpu_cycles = current_cpu_cycles; 
+        }
+        
+protected: 
+        SweepSquareWave ch1; 
+        SquareWave ch2;
+        Wave ch3; 
+        
 private: 
         void connect_channel_1(Memory& memory); 
         void connect_channel_2(Memory& memory); 
@@ -52,7 +70,7 @@ private:
         std::string describe_nr51(); 
         std::string describe_nr52(); 
         
-        GBRAM wave_pattern_ram; 
+        // GBRAM wave_pattern_ram; 
         
         // ==================================
         // Channel 1 Registers
@@ -182,6 +200,9 @@ private:
         bool _sc_ch1_on; 
         
         bool _verbose; 
+        
+        uint32 _current_cpu_cycles; 
+        uint32 _last_cpu_cycles; 
 };
 
 #endif

@@ -4,7 +4,7 @@ project(GameBoyEmulator)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 if(EXISTS "${CMAKE_SOURCE_DIR}/cmake/FindSFML.cmake")
-    find_package(SFML 2 COMPONENTS system window graphics) 
+    find_package(SFML 2 COMPONENTS system window graphics audio) 
 else()
 
 endif()
@@ -37,6 +37,8 @@ set(GAME_BOY_EMULATOR_SOURCE_FILES
     ${PROJECT_SOURCE_DIR}/src/Registers.cpp
     
     ${PROJECT_SOURCE_DIR}/src/Utility/ScopedTimer.cpp
+    
+    ${PROJECT_SOURCE_DIR}/src/Sound/Synth.cpp
 )
 
 set(GAME_BOY_EMULATOR_HEADER_FILES
@@ -45,6 +47,7 @@ set(GAME_BOY_EMULATOR_HEADER_FILES
     ${PROJECT_SOURCE_DIR}/include/GBInterruptEnable.hpp
     ${PROJECT_SOURCE_DIR}/include/GBInterruptFlag.hpp
     ${PROJECT_SOURCE_DIR}/include/Sound/GBSound.hpp
+    ${PROJECT_SOURCE_DIR}/include/Sound/SquareWave.hpp
     ${PROJECT_SOURCE_DIR}/include/Cartridge/GBMBC1.hpp
     ${PROJECT_SOURCE_DIR}/include/GBRAM.hpp
     ${PROJECT_SOURCE_DIR}/include/GBROM.hpp
@@ -63,6 +66,10 @@ set(GAME_BOY_EMULATOR_HEADER_FILES
     ${PROJECT_SOURCE_DIR}/include/types.hpp
     
     ${PROJECT_SOURCE_DIR}/include/Utility/ScopedTimer.hpp
+    
+    ${PROJECT_SOURCE_DIR}/include/Sound/Synth.hpp
+    ${PROJECT_SOURCE_DIR}/include/Sound/SweepSquareWave.hpp
+    ${PROJECT_SOURCE_DIR}/include/Sound/Wave.hpp
 )
 
 if(SFML_FOUND)
@@ -73,6 +80,7 @@ if(SFML_FOUND)
     set(GAME_BOY_EMULATOR_HEADER_FILES
         ${GAME_BOY_EMULATOR_HEADER_FILES}
         ${PROJECT_SOURCE_DIR}/include/SFML_GBVideo.hpp
+        ${PROJECT_SOURCE_DIR}/include/Sound/SFML_GBSound.hpp
     )
     
 else(SFML_FOUND) 

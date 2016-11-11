@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <memory> 
+#include <chrono>
 
 #include "types.hpp"
 
@@ -30,6 +31,11 @@ struct LR35902 {
     bool      _repeat_next_instruction; 
     int       _unhalt_cycles; 
     
+    std::chrono::high_resolution_clock::time_point  _last_time; 
+    std::chrono::nanoseconds                        _cycle_duration; 
+    bool                                            _use_timer; 
+    int                                             _cycles_passed; 
+    
     // Debug
     bool debug_mode; 
     bool debug_hold;
@@ -48,6 +54,13 @@ struct LR35902 {
     
     LR35902(); 
     ~LR35902(); 
+    
+    void init_timer(std::chrono::nanoseconds cycle_duration = std::chrono::nanoseconds(239)) {
+        _cycle_duration = cycle_duration; 
+        _use_timer = true; 
+        _last_time = std::chrono::high_resolution_clock::now(); 
+        _cycles_passed = 0; 
+    }
     
     void halt();
     

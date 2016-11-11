@@ -11,7 +11,7 @@
 #include "GBSerialTransfer.hpp"
 #include "GBTimer.hpp"
 #include "SFML_GBVideo.hpp"
-#include "Sound/GBSound.hpp"
+#include "Sound/SFML_GBSound.hpp"
 
 #include "Instruction.hpp"
 
@@ -37,12 +37,13 @@ int main() {
     GBROM  rom(0x0000, 0x0100);             rom.init(rom.size()); 
     GBRAM  zero_page_ram(0xFF80, 0xFFFF);   zero_page_ram.init(zero_page_ram.size()); 
     GBRAM  internal_ram(0xC000, 0xFE00);    internal_ram.init(internal_ram.size()); 
-    // GBRAM  switchable_ram(0xA000, 0xC000);   switchable_ram.init(switchable_ram.size());  
+    GBRAM  switchable_ram(0xA000, 0xC000);   switchable_ram.init(switchable_ram.size());  
     GBJoypad joypad(0xFF00, 0xFF01); 
     GBSerialTransfer serialTransfer(0xFF01, 0xFF03); 
     GBInterruptEnable ie(0xFFFF, 0x10000);
     GBInterruptFlag iff(0xFF0F, 0xFF10); 
-    GBSound sound; 
+    SFML_GBSound sound; 
+    sound.play(); 
     GBTimer timer(0xFF04, 0xFF08); 
     timer.set_verbose(false); 
     cpu.ie = &ie; 
@@ -60,7 +61,7 @@ int main() {
     video.set_verbose(false); 
     
     sound.connect_to_memory(cpu.memory); 
-    sound.set_verbose(true); 
+    sound.set_verbose(false); 
     
     // fill rom with boot info
     std::fstream in("data/DMG_ROM.bin", std::ios::in | std::ios::binary);
@@ -83,9 +84,7 @@ int main() {
     
     // read cartridge
     GBMBC1 gbc(0x0000, 0x8000); 
-    // GBCartridge gbc(0x0000, 0x8000); 
-    
-    gbc.read_file("data/cpu_instrs.gb"); 
+    gbc.read_file("data/Bounce.gb"); 
     cpu.memory.connect(&gbc); 
     
     // map cartridge to memory
@@ -111,6 +110,8 @@ int main() {
     cpu.memory.connect(&ie); 
     cpu.memory.connect(&iff); 
     
+    cpu.init_timer(); 
+    sound.init(cpu.cycle_counter); 
     video.update_cycles(cpu.cycle_counter); 
     timer.init(cpu.cycle_counter); 
     timer.update_cycles(cpu.cycle_counter); 
@@ -156,6 +157,9 @@ int main() {
             iff.set_interrupt(Interrupt::Timer); 
             timer.clear_timer_interrupt(); 
         }
+        
+        sound.update_cycles(cpu.cycle_counter); 
+        sound.execute(); 
         
         // handle dma
         if(video.dma_request()) {
@@ -336,6 +340,9 @@ int main() {
                     iff.set_interrupt(Interrupt::Timer); 
                     timer.clear_timer_interrupt(); 
                 }
+                
+                sound.update_cycles(cpu.cycle_counter); 
+                sound.execute(); 
                 
                 // handle dma
                 if(video.dma_request()) {

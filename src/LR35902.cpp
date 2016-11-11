@@ -20,7 +20,11 @@ LR35902::LR35902() :
     cycle_counter(0), 
     ime(false), 
     _interrupt_enable_delay(0), 
-    ie(0), iff(0) {
+    ie(0), iff(0), 
+    _cycle_duration(std::chrono::nanoseconds(1000)),
+    _use_timer(false),
+    _cycles_passed(0)
+    {
     instructions = std::vector<std::unique_ptr<Instruction>>(0x100); 
     instructions[0x00] = std::unique_ptr<Instruction>(new         NOP_In());
     instructions[0x01] = std::unique_ptr<Instruction>(new   LD_BC_d16_In());
@@ -1106,92 +1110,98 @@ void LR35902::single_step(bool verbose) {
     
     static std::ofstream debug_out("debug.txt"); 
     
-    if(!_halt) {
-        uint8 opcode; 
-        Instruction* inst = instructions[opcode = memory.read_8(registers.PC)].get();
-
-        if(inst == NULL) {
-            if(verbose) {
-                std::cout << "Invalid instruction: " << (int)opcode << std::endl;
-                std::cout << "PC: " << registers.PC << std::endl; 
-            }
-        }
-        else {
-            if(verbose) {
-                std::cout << std::hex << std::setw(2) << std::setfill('0') << registers.PC << " - "; 
-                std::cout << std::setw(2) << (int)opcode << ": " << inst->alt_name << std::endl; 
+    if(!_use_timer || std::chrono::high_resolution_clock::now() - _last_time > _cycles_passed * _cycle_duration) {
+        uint32 last_cycle_counter = cycle_counter; 
+        _last_time += _cycles_passed * _cycle_duration; 
         
-                std::cout << "State before instruction: " << std::endl; 
-                print_state(); 
-            }
-            if(debug_mode) {
-                if(!debug_hold) {
-                    TraceEntry te(registers, inst); 
-                    inst->execute(*this, memory); 
-                    te.registers_after = registers; 
-                    trace.push_back(te); 
-                    if(inst->alt_name == "RST 38H") 
-                        debug_hold = true; 
+        if(!_halt) {
+            uint8 opcode; 
+            Instruction* inst = instructions[opcode = memory.read_8(registers.PC)].get();
+
+            if(inst == NULL) {
+                if(verbose) {
+                    std::cout << "Invalid instruction: " << (int)opcode << std::endl;
+                    std::cout << "PC: " << registers.PC << std::endl; 
                 }
             }
             else {
-                static bool once = false; 
-                if(!once && registers.PC >= 0xFF);  
-                //  once = true; 
-                
-                if(once) {
-                    std::cout << "cpu cycle counter: " << cycle_counter << std::endl; 
-                debug_out << std::hex << std::setw(4) << std::setfill('0') << (int)opcode << std::endl; 
-                debug_out << std::hex << std::setw(4) << std::setfill('0') << registers.PC << " " 
-                        << std::hex << std::setw(4) << std::setfill('0') << registers.AF << " " 
-                        << std::hex << std::setw(4) << std::setfill('0') << registers.BC << " "  
-                        << std::hex << std::setw(4) << std::setfill('0') << registers.DE << " " 
-                        << std::hex << std::setw(4) << std::setfill('0') << registers.HL << " " 
-                        << std::hex << std::setw(4) << std::setfill('0') << registers.SP << std::endl; 
-                }    
-                // std::cout << "registers.PC + inst->bytes: " << registers.PC << " + " << (int)inst->bytes << ": " << registers.PC + inst->bytes << std::endl;  
-                if(_repeat_next_instruction) {
-                    uint16 PC = registers.PC; 
-                    inst->execute(*this, memory); 
-                    registers.PC = PC; 
-                    _repeat_next_instruction = false; 
+                if(verbose) {
+                    std::cout << std::hex << std::setw(2) << std::setfill('0') << registers.PC << " - "; 
+                    std::cout << std::setw(2) << (int)opcode << ": " << inst->alt_name << std::endl; 
+            
+                    std::cout << "State before instruction: " << std::endl; 
+                    print_state(); 
+                }
+                if(debug_mode) {
+                    if(!debug_hold) {
+                        TraceEntry te(registers, inst); 
+                        inst->execute(*this, memory); 
+                        te.registers_after = registers; 
+                        trace.push_back(te); 
+                        if(inst->alt_name == "RST 38H") 
+                            debug_hold = true; 
+                    }
                 }
                 else {
-                    inst->execute(*this, memory); 
-                }
-        
-                if(once) {
-                debug_out << std::hex << std::setw(4) << std::setfill('0') << registers.PC << " " 
-                        << std::hex << std::setw(4) << std::setfill('0') << registers.AF << " " 
-                        << std::hex << std::setw(4) << std::setfill('0') << registers.BC << " " 
-                        << std::hex << std::setw(4) << std::setfill('0') << registers.DE << " " 
-                        << std::hex << std::setw(4) << std::setfill('0') << registers.HL << " " 
-                        << std::hex << std::setw(4) << std::setfill('0') << registers.SP << std::endl << std::endl; 
+                    static bool once = false; 
+                    if(!once && registers.PC >= 0xFF);  
+                    //  once = true; 
+                    
+                    if(once) {
+                        std::cout << "cpu cycle counter: " << cycle_counter << std::endl; 
+                    debug_out << std::hex << std::setw(4) << std::setfill('0') << (int)opcode << std::endl; 
+                    debug_out << std::hex << std::setw(4) << std::setfill('0') << registers.PC << " " 
+                            << std::hex << std::setw(4) << std::setfill('0') << registers.AF << " " 
+                            << std::hex << std::setw(4) << std::setfill('0') << registers.BC << " "  
+                            << std::hex << std::setw(4) << std::setfill('0') << registers.DE << " " 
+                            << std::hex << std::setw(4) << std::setfill('0') << registers.HL << " " 
+                            << std::hex << std::setw(4) << std::setfill('0') << registers.SP << std::endl; 
+                    }    
+                    // std::cout << "registers.PC + inst->bytes: " << registers.PC << " + " << (int)inst->bytes << ": " << registers.PC + inst->bytes << std::endl;  
+                    if(_repeat_next_instruction) {
+                        uint16 PC = registers.PC; 
+                        inst->execute(*this, memory); 
+                        registers.PC = PC; 
+                        _repeat_next_instruction = false; 
+                    }
+                    else {
+                        inst->execute(*this, memory); 
+                    }
+            
+                    if(once) {
+                    debug_out << std::hex << std::setw(4) << std::setfill('0') << registers.PC << " " 
+                            << std::hex << std::setw(4) << std::setfill('0') << registers.AF << " " 
+                            << std::hex << std::setw(4) << std::setfill('0') << registers.BC << " " 
+                            << std::hex << std::setw(4) << std::setfill('0') << registers.DE << " " 
+                            << std::hex << std::setw(4) << std::setfill('0') << registers.HL << " " 
+                            << std::hex << std::setw(4) << std::setfill('0') << registers.SP << std::endl << std::endl; 
+                    }
                 }
             }
         }
-    }
-    else {
-        cycle_counter += 4; // increase cycle counter for interrupts to occur
-        if(_unhalt_cycles > 0) {
-            _unhalt_cycles -= 4; 
-            if(_unhalt_cycles <= 0) 
-                _halt = false; 
-        }
-    }
-        
-        // registers.PC += inst->bytes;
-       //  registers.PC += inst->addedBytes;
-        
-    if(ime /* ||  (_halt && iff->timer_occurred()) */) {
-        if(_interrupt_enable_delay == 0) {
-            // handle interrupts
-            handle_pending_interrupts(); 
-        }
         else {
-            _interrupt_enable_delay--; 
+            cycle_counter += 4; // increase cycle counter for interrupts to occur
+            if(_unhalt_cycles > 0) {
+                _unhalt_cycles -= 4; 
+                if(_unhalt_cycles <= 0) 
+                    _halt = false; 
+            }
         }
-        
+            
+            // registers.PC += inst->bytes;
+        //  registers.PC += inst->addedBytes;
+            
+        if(ime /* ||  (_halt && iff->timer_occurred()) */) {
+            if(_interrupt_enable_delay == 0) {
+                // handle interrupts
+                handle_pending_interrupts(); 
+            }
+            else {
+                _interrupt_enable_delay--; 
+            }
+            
+        }
+        _cycles_passed = cycle_counter - last_cycle_counter; 
     }
     if(verbose) {
         std::cout << "State after instruction: " << std::endl; 

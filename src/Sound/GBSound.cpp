@@ -8,13 +8,16 @@
 
 GBSound::GBSound(const std::string& name, const std::string& description) : 
     MemoryMappedModule(name, description, 0x0, 0x0), 
-    _verbose(false),
-    wave_pattern_ram(0xFF30, 0xFF3F)
+    _verbose(false)
     { 
-        wave_pattern_ram.init(wave_pattern_ram.size()); 
     }
     
-void GBSound::operate() { }
+void GBSound::operate() { 
+    int elapsed = elapsed_cycles(); 
+    ch1.tick(elapsed);
+    ch2.tick(elapsed); 
+    ch3.tick(elapsed); 
+}
 
 void GBSound::connect_channel_1(Memory& memory) {
     memory.connect(this, 0xFF10); // NR10 - Channel 1 Sweep Register (R/W)
@@ -26,7 +29,7 @@ void GBSound::connect_channel_1(Memory& memory) {
 }
 
 void GBSound::connect_channel_2(Memory& memory) {
-    memory.connect(this, 0xFF15); // NR20 - Unused? TODO: Check
+    memory.connect(this, 0xFF15); // NR20 - Unused
     memory.connect(this, 0xFF16); // NR21 - Channel 2 Sound Length/Wave Pattern Duty (R/W partly)
     memory.connect(this, 0xFF17); // NR22 - Channel 2 Volume Envelope (R/W)
     memory.connect(this, 0xFF18); // NR23 - Channel 2 Frequency lo data (W)
@@ -40,12 +43,12 @@ void GBSound::connect_channel_3(Memory& memory) {
     memory.connect(this, 0xFF1C); // NR32 - Channel 3 Select output level (R/W)
     memory.connect(this, 0xFF1D); // NR33 - Channel 3 Frequency's lower data (W)
     memory.connect(this, 0xFF1E); // NR34 - Channel 3 Frequency's higher data (R/W)
-    memory.connect(&wave_pattern_ram); // 0xFF30 - 0xFF3F
+    memory.connect(&(ch3.wave_ram())); // 0xFF30 - 0xFF3F
     std::cout << "[Sound] Channel 3 connected." << std::endl; 
 }
 
 void GBSound::connect_channel_4(Memory& memory) {
-    memory.connect(this, 0xFF19); // NR40 - Unused? TODO: Check
+    memory.connect(this, 0xFF19); // NR40 - Unused
     memory.connect(this, 0xFF20); // NR41 - Channel 4 Sound Length (R/W)
     memory.connect(this, 0xFF21); // NR42 - Channel 4 Volume Envelope (R/W)
     memory.connect(this, 0xFF22); // NR43 - Channel 4 Polynomial Counter (R/W)
@@ -158,11 +161,16 @@ void GBSound::write_8(uint16 address, uint8 value) {
     switch(address) {
         // Channel 1 Registers
         case 0xFF10: 
+            std::cout << "Sweep" << std::endl; 
             _ch1_sweep_time     = (value >> 4) & 0x7; 
             _ch1_sweep_decrease = (value & 8); 
             _ch1_number_of_sweep_shift = (value & 3); 
             _ch1_sweep_time_in_ms = _ch1_sweep_time / 128.; 
             _nr10_sweep_register = value; 
+            
+            ch1.set_sweep_time(_ch1_sweep_time);
+            ch1.set_sweep_increase(!_ch1_sweep_decrease);
+            ch1.set_sweep_shift(_ch1_number_of_sweep_shift);
             
             if(_verbose) { std::cout << "[Sound] " << describe_nr10() << std::endl; }
             break;  
@@ -172,7 +180,11 @@ void GBSound::write_8(uint16 address, uint8 value) {
             _ch1_sound_length      = (value & 0x3F); 
             _ch1_sound_length_in_ms = (64 - _ch1_sound_length) * (1000. / 256.); 
             _nr11_sound_wave       = value; 
-           
+            
+            // Control channel 
+            ch1.set_wave_duty(_ch1_wave_pattern_duty); 
+            ch1.set_sound_length(_ch1_sound_length);
+            
             if(_verbose) { std::cout << "[Sound] " << describe_nr11() << std::endl; }
             break; 
         
@@ -182,6 +194,13 @@ void GBSound::write_8(uint16 address, uint8 value) {
             _ch1_number_of_envelope_sweep= (value & 3); 
             _ch1_envelope_step_length_in_ms = _ch1_number_of_envelope_sweep / 64. * 1000.; 
             _nr12_volume_envelope = value; 
+            
+            ch1.set_initial_volume(_ch1_initial_volume_envelope);
+  
+            ch1.set_volume_env_initial(_ch1_initial_volume_envelope);
+            ch1.set_volume_env_sweep(_ch1_number_of_envelope_sweep);
+            ch1.set_volume_env_increase(_ch1_envelope_increase);
+            
             if(_verbose) { std::cout << "[Sound] " << describe_nr12() << std::endl; }
             break; 
             
@@ -190,6 +209,9 @@ void GBSound::write_8(uint16 address, uint8 value) {
             _ch1_frequency |= value; 
             _nr13_frequency_lo = value; 
             _ch1_frequency_in_hz = 131072. / (2048 - _ch1_frequency); 
+            
+            ch1.set_rate(_ch1_frequency); 
+            
             if(_verbose) { std::cout << "[Sound] " << describe_nr13() << std::endl; }
             break; 
             
@@ -200,6 +222,11 @@ void GBSound::write_8(uint16 address, uint8 value) {
             _ch1_frequency |= (value & 3) << 8; 
             _ch1_frequency_in_hz = 131072. / (2048 - _ch1_frequency); 
             _nr14_frequency_hi  = value; 
+            
+            ch1.set_counter(_ch1_selection);
+            ch1.set_initial(_ch1_initial); 
+            ch1.set_rate(_ch1_frequency); 
+            
             if(_verbose) { std::cout << "[Sound] " << describe_nr14() << std::endl; }
             break; 
             
@@ -210,6 +237,10 @@ void GBSound::write_8(uint16 address, uint8 value) {
             _ch2_sound_length      = (value & 0x3F); 
             _ch2_sound_length_in_ms= (64-_ch2_sound_length) / 256. * 1000.; 
             _nr21_sound_wave = value; 
+            
+            ch2.set_wave_duty(_ch2_wave_pattern_duty); 
+            ch2.set_sound_length(_ch2_sound_length);
+            
             if(_verbose) { std::cout << "[Sound] " << describe_nr21() << std::endl;  }
             break; 
             
@@ -219,6 +250,11 @@ void GBSound::write_8(uint16 address, uint8 value) {
             _ch2_number_of_envelope_sweep= (value & 3); 
             _ch2_envelope_step_length_in_ms = _ch2_number_of_envelope_sweep / 64. * 1000.; 
             _nr22_volume_envelope = value; 
+            
+            ch2.set_initial_volume(_ch2_initial_volume_envelope);
+            ch2.set_volume_env_initial(_ch2_initial_volume_envelope);
+            ch2.set_volume_env_sweep(_ch2_number_of_envelope_sweep);
+            ch2.set_volume_env_increase(_ch2_envelope_increase);
             if(_verbose) { std::cout << "[Sound] " << describe_nr22() << std::endl; }
             break; 
             
@@ -227,6 +263,9 @@ void GBSound::write_8(uint16 address, uint8 value) {
             _ch2_frequency |= value; 
             _nr23_frequency_lo_data = value; 
             _ch2_frequency_in_hz = 131072. / (2048 - _ch2_frequency); 
+            
+            ch2.set_rate(_ch2_frequency); 
+            
             if(_verbose) { std::cout << "[Sound] " << describe_nr23() << std::endl; }
             break;
             
@@ -237,6 +276,11 @@ void GBSound::write_8(uint16 address, uint8 value) {
             _ch2_frequency |= (value & 3) << 8; 
             _ch2_frequency_in_hz = 131072. / (2048 - _ch2_frequency); 
             _nr24_frequency_hi_data  = value; 
+            
+            ch2.set_counter(_ch2_selection);
+            ch2.set_initial(_ch2_initial); 
+            ch2.set_rate(_ch2_frequency); 
+            
             if(_verbose) { std::cout << "[Sound] " << describe_nr24() << std::endl; }
             break; 
             
@@ -244,6 +288,9 @@ void GBSound::write_8(uint16 address, uint8 value) {
         case 0xFF1A: 
             _ch3_sound_on = (value & 0x80); 
             _nr30_sound_on_off = value; 
+            
+            ch3.set_on(_ch3_sound_on); 
+            
             if(_verbose) { std::cout << "[Sound] " << describe_nr30() << std::endl; }
             break; 
             
@@ -251,12 +298,18 @@ void GBSound::write_8(uint16 address, uint8 value) {
             _ch3_sound_length = value; 
             _ch3_sound_length_in_ms = (256-_ch3_sound_length) / 256. * 1000.; 
             _nr31_sound_length = value; 
+            
+            ch3.set_sound_length(_ch3_sound_length); 
+            
             if(_verbose) { std::cout << "[Sound] " << describe_nr31() << std::endl; }
             break; 
             
         case 0xFF1C: 
             _ch3_sound_output_level = (value >> 5) & 3; 
             _nr32_output_level = value; 
+            
+            ch3.set_output_level(_ch3_sound_output_level); 
+            
             if(_verbose) { std::cout << "[Sound] " << describe_nr32() << std::endl; }
             break;
             
@@ -265,6 +318,9 @@ void GBSound::write_8(uint16 address, uint8 value) {
             _ch3_frequency |= value; 
             _nr33_frequency_lo_data = value; 
             _ch3_frequency_in_hz = 65536. / (2048 - _ch3_frequency); 
+            
+            ch3.set_rate(_ch3_frequency); 
+            
             if(_verbose) { std::cout << "[Sound] " << describe_nr33() << std::endl; }
             break;
             
@@ -275,6 +331,11 @@ void GBSound::write_8(uint16 address, uint8 value) {
             _ch3_frequency |= (value & 3) << 8; 
             _ch3_frequency_in_hz = 65536. / (2048 - _ch3_frequency); 
             _nr34_frequency_hi_data  = value; 
+
+            ch3.set_rate(_ch3_frequency);
+            ch3.set_initial(_ch3_initial); 
+            ch3.set_counter(_ch3_selection); 
+            
             if(_verbose) { std::cout << "[Sound] " << describe_nr34() << std::endl; }
             break; 
             
