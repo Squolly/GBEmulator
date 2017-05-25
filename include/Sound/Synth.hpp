@@ -19,7 +19,7 @@ public:
     static const int SAMPLE_WINDOW_SIZE = 256; 
     static const int BUFFER_SIZE = 8192*2; 
     
-    Synth() : _last_idx(0), _time_next(4194304. / 44100.), _time_passed(0)  {
+    Synth() : _last_idx(0), _time_next(4194304. / 44100.), _time_passed(0), _current_buffer_idx(0) {
         _sample_window.fill(0); 
         _current_buffer.fill(0); 
         _default_buffer.fill(0); 

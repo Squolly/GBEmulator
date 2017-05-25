@@ -33,6 +33,7 @@ void GBTimer::operate() {
     while(_divider_update_cycles > divider_cycles) { // 16384 Hz
         _divider_register++; 
         _divider_update_cycles -= divider_cycles; 
+		// std::cout << "Divider update: " << (int)_divider_register << std::endl; 
     }
     
     double cycles_needed = 0; 
@@ -66,11 +67,12 @@ void GBTimer::operate() {
             ScopedTimer st("Timer Increase"); 
             if(_verbose) std::cout << "Timer cycles needed: " << cycles_needed << std::endl; 
             _timer_counter++; 
-            _timer_update_cycles -= cycles_needed; 
+            _timer_update_cycles -= (int)cycles_needed; 
             if(_verbose) std::cout << "up " << (int)_timer_update_cycles << " - " << cycles_needed << std::endl;
             if(_timer_counter == 0) {
                 request_timer_interrupt(); 
                 _timer_counter = _timer_modulo; 
+				std::cout << "Timer interrupt." << std::endl; 
             }
         }
     }
@@ -93,6 +95,7 @@ uint8 GBTimer::read_8(uint16 address) {
     }
     
     std::cout << "[Timer] Error: unknown address (read)" << std::endl; 
+	return 0xFF; 
 }
 
 void GBTimer::write_8(uint16 address, uint8 value) {

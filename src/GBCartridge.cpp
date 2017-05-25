@@ -18,6 +18,7 @@ uint8 GBCartridge::read_8(uint16 address) {
     }
     else 
         std::cout << "Illegal read." << std::endl; 
+	return 0xFF; 
 }
 
 void  GBCartridge::write_8(uint16 address, uint8 value) { 

@@ -24,7 +24,7 @@ uint8 GBMBC1::read_8(uint16 address) {
     ScopedTimer st("GBMBC1::read_8"); 
     
     // stay in ROM 
-    if(address >= 0x0000 && address < 0x3FFF) {
+    if(address >= 0x0000 && address < 0x4000) {
         ScopedTimer st("GBMBC1::read_8 0-4k"); 
         return _switchable_ROM[0].read_8(address); 
     }
@@ -37,7 +37,7 @@ uint8 GBMBC1::read_8(uint16 address) {
         return _switchable_RAM[_selected_RAM].read_8(address); 
     }
     else 
-        std::cout << "Illegal read." << std::endl; 
+        std::cout << "Illegal read at address: " << (int)address << std::endl; 
     return -1; 
 }
 
@@ -117,7 +117,7 @@ void  GBMBC1::write_8(uint16 address, uint8 value) {
 void GBMBC1::read_file(const std::string& filename) {
     ScopedTimer st("GBMBC1::read_file");
     
-    std::ifstream in(filename.c_str()); 
+    std::ifstream in(filename.c_str(), std::ios::binary);
     
     if(!in.is_open()) {
         std::cout << "Unable to open plain ROM Data file " << filename << std::endl; 
@@ -129,16 +129,26 @@ void GBMBC1::read_file(const std::string& filename) {
     in.seekg(0, std::ios_base::beg); 
     
     std::vector<uint8> data(file_size, 0); 
-    std::cout << "File size: " << file_size << std::endl; 
-    
+    std::cout << "File size: " << file_size << std::endl;  
+	
     // read whole file for now
+	int read_ctr = 0; 
     for(int i=0; i<file_size; ++i) {
         uint8 value;
-        if(in.get((char&)value)) {
-            data.at(i) = value; 
-        }
+		if ((value = in.get()) != std::fstream::traits_type::eof()) {
+			data.at(i) = value;
+			read_ctr++;
+		}
+		else
+			break; 
         // std::cout << "value: " << std::hex << (int)data[0] << std::endl; 
     }
+
+	std::cout << "Data 0xebf: " << (int)data[0xebf] << std::endl; 
+	std::cin.get(); 
+	std::cout << "Read ctr: " << read_ctr << std::endl; 
+	std::cout << "File size: " << file_size << std::endl; 
+	std::cin.get(); 
     
     // output header for debug
     std::cout << "Nintendo Logo: " << std::endl; 
@@ -291,7 +301,9 @@ void GBMBC1::read_file(const std::string& filename) {
         std::cerr << "[Cartridge] Error: File to small" << std::endl; 
         return; 
     }
-    
+
+	std::cin.get(); 
+	std::cout << "Roms to read: " << _num_rom_banks << std::endl; 
     for(int rom_i=0; rom_i<_num_rom_banks; ++rom_i) {
         std::cout << "Rom " << rom_i << std::endl; 
         for(int i=0; i<0x4000; ++i) {
@@ -299,8 +311,13 @@ void GBMBC1::read_file(const std::string& filename) {
             if(rom_i != 0) {
                 addr += 0x4000; 
             }
+			if (addr == 0xebf) {
+				std::cout << "Rom: " << rom_i << " writes to address " << addr << ": " << std::endl; 
+				std::cout << (int)data.at(i + rom_i * 0x4000) << std::endl; 
+			}
             _switchable_ROM.at(rom_i).write_8_rom(addr, data.at(i + rom_i * 0x4000)); 
         }
+		std::cin.get(); 
     }
     std::cout << "Filling done." << std::endl; 
 }

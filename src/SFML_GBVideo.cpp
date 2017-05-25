@@ -7,8 +7,7 @@ const int SCREEN_HEIGHT = 144;
 const int SCREEN_BUFFER_WIDTH = 256; 
 const int SCREEN_BUFFER_HEIGHT = 256; 
 SFML_GBVideo::SFML_GBVideo(uint32 start_address, uint32 end_address, const std::string& name, const std::string& description)
-    : _screen_pixels(new sf::Uint8[SCREEN_WIDTH * SCREEN_HEIGHT * 4]), _pixels(new sf::Uint8[256 * 256 * 4]), GBVideo(start_address, end_address, name, description), 
-    _window(sf::VideoMode(160, 144), "Test Window"), 
+    : _screen_pixels(new sf::Uint8[SCREEN_WIDTH * SCREEN_HEIGHT * 4]), _pixels(new sf::Uint8[256 * 256 * 4]), GBVideo(start_address, end_address, name, description),  
     _renderThread(&SFML_GBVideo::render, this), 
     _elapsed(sf::milliseconds(0)), 
     FRAMES_PER_SECOND(60.f), _hold(false), _break_request(false) {
@@ -26,7 +25,15 @@ SFML_GBVideo::~SFML_GBVideo() {
 
 
 void SFML_GBVideo::render() {
-    while(_window.isOpen()) {
+	static bool window_initialized = false; 
+
+	if (!window_initialized) {
+		_window = std::make_shared<sf::RenderWindow>(sf::VideoMode(160, 144), "Test Window");
+		_window->setActive(false);
+		window_initialized = true; 
+	}
+
+    while(_window->isOpen()) {
         // copy display from GBVideo
         static sf::RenderWindow vram_window(sf::VideoMode(16*8, 16*8), "VRAM Window"); 
         
@@ -48,8 +55,8 @@ void SFML_GBVideo::render() {
                 }
             }
             _screen_buffer.update(_screen_pixels); 
-            _window.draw(_screen); 
-            _window.display(); 
+            _window->draw(_screen); 
+            _window->display(); 
             
             int vram_vis_width = 0, vram_vis_height = 0; 
             auto vram_vis = get_vram_visualization(vram_vis_width, vram_vis_height); 
@@ -106,7 +113,7 @@ void SFML_GBVideo::render() {
         */
 
         sf::Event event;
-        while (_window.pollEvent(event))
+        while (_window->pollEvent(event))
         {
             int set_keys = -1; 
             if (event.type == sf::Event::KeyPressed)
@@ -162,7 +169,7 @@ void SFML_GBVideo::render() {
             
             if (event.type == sf::Event::Closed) {
                 _renderThread.terminate(); 
-                _window.close();
+                _window->close();
                 vram_window.close(); 
             }
         }
@@ -186,7 +193,6 @@ void SFML_GBVideo::operate() {
     static bool once = false; 
     if(!once) {
         once = true; 
-        _window.setActive(false); 
         _renderThread.launch(); 
     }
 }

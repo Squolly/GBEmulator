@@ -20,10 +20,13 @@ LR35902::LR35902() :
     cycle_counter(0), 
     ime(false), 
     _interrupt_enable_delay(0), 
-    ie(0), iff(0), 
+    ie(nullptr), iff(nullptr), 
     _cycle_duration(std::chrono::nanoseconds(1000)),
-    _use_timer(false),
-    _cycles_passed(0)
+    _use_timer(true),
+    _cycles_passed(0), 
+	_repeat_next_instruction(false), 
+	_unhalt_cycles(0), 
+	_calls(0)
     {
     instructions = std::vector<std::unique_ptr<Instruction>>(0x100); 
     instructions[0x00] = std::unique_ptr<Instruction>(new         NOP_In());

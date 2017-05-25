@@ -10,7 +10,7 @@
 #include "Memory.hpp"
 #include "Registers.hpp"
 
-class Instruction;  
+struct Instruction;  
 class GBInterruptEnable; 
 class GBInterruptFlag; 
 

@@ -18,13 +18,13 @@
      
      if(_verbose) std::cout << "[Memory]: Reading (8 bit): " << address << " "; 
      if(_mmms[address] == nullptr) {
-         //std::cout << "[Memory]: Not mapped. Skipping (Read of address " << (int)address << ")" << std::endl; 
+         std::cout << "[Memory]: Not mapped. Skipping (Read of address " << (int)address << ")" << std::endl; 
          return 0; 
      }
      
-     if(address >= 0x0000 && address < 0x8000 && !_boot) {
-         return reinterpret_cast<GBMBC1*>(_mmms[address])->read_8(address); 
-     }
+     //if(address >= 0x0000 && address < 0x8000 && !_boot) {
+     //    return reinterpret_cast<GBMBC1*>(_mmms[address])->read_8(address); 
+     //}
      
      uint8 value = _mmms[address]->read_8(address); 
      if(_verbose) std::cout << "[Memory]:     returning: " << (int)value << std::endl; 
@@ -45,14 +45,14 @@
      ScopedTimer st("Memory::write_8"); 
 
       if(_mmms[address] == nullptr) {
-         // std::cout << "[Memory]: Not mapped. Skipping. (Write to " << (int)address << ")" << std::endl; 
+         std::cout << "[Memory]: Not mapped. Skipping. (Write to " << (int)address << ")" << std::endl; 
          return 0; 
      }
      
-    if(address >= 0x0000 && address < 0x8000 && !_boot) {
-         reinterpret_cast<GBMBC1*>(_mmms[address])->write_8(address, value); 
-         return true; 
-     }
+    //if(address >= 0x0000 && address < 0x8000 && !_boot) {
+    //     reinterpret_cast<GBMBC1*>(_mmms[address])->write_8(address, value); 
+    //     return true; 
+    // }
 
      if(_verbose) std::cout << "[Memory]: Writing (8 bit)... " << address << " <- " << (int)value << std::endl; 
      _mmms[address]->write_8(address, value); 
@@ -70,6 +70,7 @@
  
 bool Memory::set_verbose(bool verbose) {
     _verbose = verbose; 
+	return true; 
 }
 
 bool Memory::is_verbose() {

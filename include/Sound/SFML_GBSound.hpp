@@ -21,29 +21,29 @@ public:
     {
         // generate samples
         //std::queue<std::array<int, Synth::BUFFER_SIZE> > data_ch1 = ch1.synth.get_queue();
-        // std::queue<std::array<int, Synth::BUFFER_SIZE> > data_ch2 = ch2.synth.get_queue();
-        std::queue<std::array<int, Synth::BUFFER_SIZE> > data_ch3 = ch3.synth.get_queue();
+        std::queue<std::array<int, Synth::BUFFER_SIZE> > data_ch2 = ch2.synth.get_queue();
+        // std::queue<std::array<int, Synth::BUFFER_SIZE> > data_ch3 = ch3.synth.get_queue();
         
-        int minimum_data_size = std::min(data_ch3.size(), data_ch3.size()); 
+        int minimum_data_size = std::min(data_ch2.size(), data_ch2.size()); 
         int num_samples = minimum_data_size * Synth::BUFFER_SIZE; 
         if(minimum_data_size) {
             _samples = std::vector<sf::Int16>(num_samples); 
             int idx=0; 
             sf::Int16 last_val = 0; 
-            while(/* !data_ch1.empty() && !data_ch2.empty() && */!data_ch3.empty() ) {
+            while(/* !data_ch1.empty() && */!data_ch2.empty() /* && !data_ch3.empty() */ ) {
                 // std::array<int, Synth::BUFFER_SIZE>& arr_ch1 = data_ch1.front(); 
-                // std::array<int, Synth::BUFFER_SIZE>& arr_ch2 = data_ch2.front(); 
-                std::array<int, Synth::BUFFER_SIZE>& arr_ch3 = data_ch3.front(); 
-                for(int i=0; i<arr_ch3.size(); ++i) {
-                    sf::Int16 val = (/* arr_ch1[i] + arr_ch2[i] + */ arr_ch3[i]); 
+                std::array<int, Synth::BUFFER_SIZE>& arr_ch2 = data_ch2.front(); 
+                //std::array<int, Synth::BUFFER_SIZE>& arr_ch3 = data_ch3.front(); 
+                for(int i=0; i<arr_ch2.size(); ++i) {
+					sf::Int16 val = /*( arr_ch1[i] + */ arr_ch2[i]; // +arr_ch3[i]);
                     // val = ((int)last_val + val) / 2; 
                     _samples[idx] = val;
                     // std::cout << (int)arr[i]; 
                     ++idx; 
                 }
                 // data_ch1.pop();
-                // data_ch2.pop();
-                data_ch3.pop(); 
+                data_ch2.pop();
+                // data_ch3.pop(); 
             }
         }
         else {

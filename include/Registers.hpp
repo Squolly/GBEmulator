@@ -21,16 +21,32 @@ struct Registers {
     //       endianess does matter, change in future
 
     // Accumulator (A) & Flags (F)
-    union { struct { uint8 F; uint8 A; }; uint16 AF; }; // 16 Bit: AF, Hi: A, Lo: F
+	/*
+#ifdef WIN32
+
+    union { struct { uint8 A; uint8 F; }; uint16 AF; }; // 16 Bit: AF, Hi: A, Lo: F
 
     // BC 
-    union { struct { uint8 C; uint8 B; }; uint16 BC; }; // 16 Bit: BC, Hi: B, Lo: C
+    union { struct { uint8 B; uint8 C; }; uint16 BC; }; // 16 Bit: BC, Hi: B, Lo: C
 
     // DE
-    union { struct { uint8 E; uint8 D; }; uint16 DE; }; // 16 Bit: DE, Hi: D, Lo: E
+    union { struct { uint8 D; uint8 E; }; uint16 DE; }; // 16 Bit: DE, Hi: D, Lo: E
 
     // HL 
-    union { struct { uint8 L; uint8 H; }; uint16 HL; }; // 16 Bit: HL, Hi: H, Lo: L
+    union { struct { uint8 H; uint8 L; }; uint16 HL; }; // 16 Bit: HL, Hi: H, Lo: L
+#else 
+*/
+	union { struct { uint8 F; uint8 A; }; uint16 AF; }; // 16 Bit: AF, Hi: A, Lo: F
+
+														// BC 
+	union { struct { uint8 C; uint8 B; }; uint16 BC; }; // 16 Bit: BC, Hi: B, Lo: C
+
+														// DE
+	union { struct { uint8 E; uint8 D; }; uint16 DE; }; // 16 Bit: DE, Hi: D, Lo: E
+
+														// HL 
+	union { struct { uint8 L; uint8 H; }; uint16 HL; }; // 16 Bit: HL, Hi: H, Lo: L
+//#endif
 
     // programm counter / pointer
     uint16 PC;

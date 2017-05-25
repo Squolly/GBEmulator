@@ -4,7 +4,7 @@ project(GameBoyEmulator)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 if(EXISTS "${CMAKE_SOURCE_DIR}/cmake/FindSFML.cmake")
-    find_package(SFML 2 COMPONENTS system window graphics audio) 
+    find_package(SFML 2 REQUIRED COMPONENTS system window graphics audio) 
 else()
 
 endif()
