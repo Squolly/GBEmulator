@@ -83,7 +83,7 @@ int main() {
 		char g;
 		//  std::cin >> g; 
 
-		 // read cartridge
+		 // read cartridge 
 		GBMBC1 gbc(0x0000, 0x8000);
 		//GBCartridge gbc(0x0000, 0x8000);
 		gbc.read_file("data\\Bounce.gb");
