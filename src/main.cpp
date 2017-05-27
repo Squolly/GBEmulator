@@ -30,7 +30,7 @@ std::string show_bcd(uint8 v) {
 }
 
 int main() {
-	try {
+	
 		ScopedTimer st("main");
 
 		LR35902 cpu;
@@ -61,7 +61,7 @@ int main() {
 		video.connect_to_memory(cpu.memory);
 		video.set_verbose(false);
 
-		sound.connect_to_memory(cpu.memory);
+		//sound.connect_to_memory(cpu.memory);
 		sound.set_verbose(false);
 
 		// fill rom with boot info
@@ -378,9 +378,8 @@ int main() {
 				}
 			}
 		}
-	}
-	catch (...) {
-	}
+	
+
 	std::cin.get(); 
 	
 }

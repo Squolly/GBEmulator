@@ -538,7 +538,7 @@ void GBVideo::render_scanline() {
                     if(sprite_tile_y > 7) 
                         tilerow = _tileset.at(tile_id_ext).at(sprite_tile_y - 8); 
                     else 
-                        tilerow = _tileset.at(tile_id).at(sprite_tile_y); 
+                        tilerow = _tileset.at(tile_id).at(sprite_tile_y); /// bug 
                 }
             }
 

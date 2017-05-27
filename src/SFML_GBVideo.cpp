@@ -92,6 +92,8 @@ void SFML_GBVideo::render() {
             vram_screen_buffer.update(vram_screen_pixels); 
             vram_window.draw(vram_screen); 
             vram_window.display();
+			sf::Event event;
+			while (vram_window.pollEvent(event));
         }
 
         
@@ -113,6 +115,7 @@ void SFML_GBVideo::render() {
         */
 
         sf::Event event;
+	
         while (_window->pollEvent(event))
         {
             int set_keys = -1; 
