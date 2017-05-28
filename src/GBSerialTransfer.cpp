@@ -6,7 +6,7 @@ GBSerialTransfer::GBSerialTransfer(uint32 start_address, uint32 end_address,
     const std::string& name, 
     const std::string& description) : 
     MemoryMappedModule(name, description, start_address, end_address), 
-    _data(0), _transfer(false), _internalClock(false) {
+    _data(0), _transfer(false), _internalClock(false), _verbose(false) {
         
  }
  
@@ -31,7 +31,9 @@ uint8 GBSerialTransfer::read_8(uint16 address) {
                 _info |= 0x01; // set bit 0 
         }
     }
-    std::cout << "Reading serial transfer" << std::endl; 
+    if(_verbose) {
+        std::cout << "Reading serial transfer" << std::endl; 
+    }
 }
 
 void GBSerialTransfer::write_8(uint16 address, uint8 value) {
@@ -47,9 +49,11 @@ void GBSerialTransfer::write_8(uint16 address, uint8 value) {
             _internalClock = value & 0x01; // set bit 0 
             break; 
     }
-    std::cout << "Serial Transfer (write access): " << std::endl; 
-    std::cout << "    [Data   = " << (int)_data << "]" << std::endl; 
-    std::cout << "    Transfer: " << (_transfer ? "Start Transfer" : "No Transfer") << std::endl; 
-    std::cout << "    Clock   : " << (_internalClock ? "Internal" : "External") << std::endl; 
+    if(_verbose) {
+        std::cout << "Serial Transfer (write access): " << std::endl; 
+        std::cout << "    [Data   = " << (int)_data << "]" << std::endl; 
+        std::cout << "    Transfer: " << (_transfer ? "Start Transfer" : "No Transfer") << std::endl; 
+        std::cout << "    Clock   : " << (_internalClock ? "Internal" : "External") << std::endl; 
+    }
     // std::cin.get(); 
 }

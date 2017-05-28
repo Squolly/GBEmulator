@@ -16,10 +16,10 @@
 class Synth {
 public: 
     
-    static const int SAMPLE_WINDOW_SIZE = 256; 
-    static const int BUFFER_SIZE = 8192*2; 
+    static const int SAMPLE_WINDOW_SIZE = 128; 
+    static const int BUFFER_SIZE = 1024; 
     
-    Synth() : _last_idx(0), _time_next(4194304. / 44100.), _time_passed(0), _current_buffer_idx(0) {
+    Synth() : _last_idx(0), _time_next(4194304. / (44100. / 2)), _time_passed(0), _current_buffer_idx(0) {
         _sample_window.fill(0); 
         _current_buffer.fill(0); 
         _default_buffer.fill(0); 
@@ -55,7 +55,7 @@ public:
     
     void append_to_ready_buffer() {
         std::lock_guard<std::mutex> lg(_buffer_mutex); 
-        if(_ready_buffer.size() > 128) 
+        if(_ready_buffer.size() > 1024) 
             return; 
         _ready_buffer.push(_current_buffer); 
     }
@@ -76,6 +76,15 @@ public:
         while(!_ready_buffer.empty()) 
             _ready_buffer.pop(); 
         return ret; 
+    }
+    
+    bool check_queue(int num) {
+        return _ready_buffer.size() >= num; 
+    }
+    
+    int get_size() {
+        std::lock_guard<std::mutex> lg(_buffer_mutex); 
+        return _ready_buffer.size();
     }
     
 private: 

@@ -72,7 +72,7 @@ void GBTimer::operate() {
             if(_timer_counter == 0) {
                 request_timer_interrupt(); 
                 _timer_counter = _timer_modulo; 
-				std::cout << "Timer interrupt." << std::endl; 
+				// std::cout << "Timer interrupt." << std::endl; 
             }
         }
     }

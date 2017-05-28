@@ -31,7 +31,7 @@ public:
         }
     
     void clock_sweep() {
-        std::cout << "Sweep: " << _on << " - " << _sweep_time << std::endl; 
+        // std::cout << "Sweep: " << _on << " - " << _sweep_time << std::endl; 
         if(!_on || _sweep_time == 0) {
             return; 
         }

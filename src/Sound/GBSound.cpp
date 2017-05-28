@@ -219,7 +219,7 @@ void GBSound::write_8(uint16 address, uint8 value) {
             _ch1_initial        = (value & 0x80); 
             _ch1_selection      = (value & 0x40); 
             _ch1_frequency &= 0xFF; 
-            _ch1_frequency |= (value & 3) << 8; 
+            _ch1_frequency |= (value & 7) << 8; 
             _ch1_frequency_in_hz = 131072. / (2048 - _ch1_frequency); 
             _nr14_frequency_hi  = value; 
             
@@ -273,7 +273,7 @@ void GBSound::write_8(uint16 address, uint8 value) {
             _ch2_initial        = (value & 0x80); 
             _ch2_selection      = (value & 0x40); 
             _ch2_frequency &= 0xFF; 
-            _ch2_frequency |= (value & 3) << 8; 
+            _ch2_frequency |= (value & 7) << 8; 
             _ch2_frequency_in_hz = 131072. / (2048 - _ch2_frequency); 
             _nr24_frequency_hi_data  = value; 
             
@@ -328,7 +328,7 @@ void GBSound::write_8(uint16 address, uint8 value) {
             _ch3_initial        = (value & 0x80); 
             _ch3_selection      = (value & 0x40); 
             _ch3_frequency &= 0xFF; 
-            _ch3_frequency |= (value & 3) << 8; 
+            _ch3_frequency |= (value & 7) << 8; 
             _ch3_frequency_in_hz = 65536. / (2048 - _ch3_frequency); 
             _nr34_frequency_hi_data  = value; 
 

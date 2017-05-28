@@ -83,8 +83,8 @@ public:
         if(_output_level == 0) 
             volume = 0; 
         else {
-            // _volume = (volume >> (_output_level - 1));
-            _volume = volume * 2; 
+            _volume = (volume >> (_output_level - 1));
+            // _volume = volume * 2; 
         }
         
         _current_pos++; 

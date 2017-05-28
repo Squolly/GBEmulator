@@ -17,6 +17,7 @@ class GBSerialTransfer : public MemoryMappedModule { // TODO
         uint8 _data; // R/W data read or to be written
         bool  _transfer; // false: no transfer, true: start transfer
         bool _internalClock; // false: external (500KHz max.), true: internal (8192Hz)
+        bool _verbose; 
 };
 
 #endif
