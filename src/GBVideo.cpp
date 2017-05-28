@@ -534,7 +534,7 @@ void GBVideo::render_scanline() {
                         tilerow = _tileset.at(tile_id).at(sprite_tile_y); 
                 }
                 else if(sprite.flip_y) {
-                    sprite_tile_y = 13 - sprite_tile_y; 
+                    sprite_tile_y = 15 - sprite_tile_y; 
                     if(sprite_tile_y > 7) 
                         tilerow = _tileset.at(tile_id_ext).at(sprite_tile_y - 8); 
                     else 
