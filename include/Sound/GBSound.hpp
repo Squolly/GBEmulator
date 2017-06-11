@@ -1,6 +1,8 @@
 #ifndef GBSOUND_HPP__
 #define GBSOUND_HPP__
 
+#include <fstream>
+
 #include "MemoryMappedModule.hpp"
 #include "GBRAM.hpp"
 #include "Sound/SweepSquareWave.hpp" 
@@ -30,6 +32,19 @@ public:
         void update_cycles(uint32 current_cpu_cycles) { 
             _last_cpu_cycles = _current_cpu_cycles; 
             _current_cpu_cycles = current_cpu_cycles; 
+        }
+        
+        void print_current_synth_indicies() {
+            std::cout << ch1.synth.get_current_buffer_idx() << " "; 
+            std::cout << ch2.synth.get_current_buffer_idx() << " "; 
+            std::cout << ch3.synth.get_current_buffer_idx() << " " << std::endl; 
+        }
+        
+        void debug_out(const std::string& desc, int value) {
+            if(_debug_out) {
+                _out << std::setw(10) << std::setfill(' ') << std::left << _current_cpu_cycles << " [Sound] "
+                << desc << std::hex << value << std::dec << std::endl; 
+            }
         }
         
 protected: 
@@ -203,6 +218,9 @@ private:
         
         uint32 _current_cpu_cycles; 
         uint32 _last_cpu_cycles; 
+        
+        std::ofstream _out;
+        bool          _debug_out; 
 };
 
 #endif

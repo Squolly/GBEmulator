@@ -19,7 +19,8 @@ class Wave {
 public: 
     Synth synth;
     
-    Wave() : 
+    Wave(int channel) :
+        synth(channel),
         _frequency_timer_period(0),  // depends on rate
         _modulation_period(8192),
         _rate(0), 

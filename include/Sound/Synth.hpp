@@ -9,6 +9,8 @@
 #include <mutex>
 #include <iostream>
 #include <iomanip> 
+#include <fstream>
+#include <sstream>
 
 /* 
  * Class for sound synthesis given signal (for one channel) 
@@ -16,18 +18,29 @@
 class Synth {
 public: 
     
-    static const int SAMPLE_WINDOW_SIZE = 128; 
-    static const int BUFFER_SIZE = 1024; 
+    static const int SAMPLE_WINDOW_SIZE = 2048*4; 
+    static const int BUFFER_SIZE = 4096*4; 
     
-    Synth() : _last_idx(0), _time_next(4194304. / (44100. / 2)), _time_passed(0), _current_buffer_idx(0) {
+    std::ofstream _out; 
+    bool _debug; 
+    int _channel; 
+    
+    Synth(int channel) : _last_idx(0), _time_next(4194304. / 44100.), _time_passed(0), _current_buffer_idx(0), _debug(false), _channel(channel) {
         _sample_window.fill(0); 
         _current_buffer.fill(0); 
         _default_buffer.fill(0); 
+        std::stringstream ss; 
+        ss << channel; 
+        _out.open(std::string("synth_ch_") + ss.str() + ".txt"); 
     }
     ~Synth() { }
     
     void out(int volume) { // at emulated CPU speed
-        _sample_window[_last_idx++] = volume * (30000 / 15); 
+        volume *= (30000 / 15) / 3; 
+        // if(_channel != 3) 
+        //    volume *= 2; 
+        
+        _sample_window[_last_idx++] = volume; 
         if(_last_idx >= SAMPLE_WINDOW_SIZE) 
             _last_idx = 0; 
         
@@ -45,6 +58,7 @@ public:
         for(int i=0; i<SAMPLE_WINDOW_SIZE; ++i) 
             avg += _sample_window [i]; 
         avg /= SAMPLE_WINDOW_SIZE; 
+        if(_debug) _out << avg << std::endl; 
         _current_buffer[_current_buffer_idx++] = avg; 
         
         if(_current_buffer_idx >= BUFFER_SIZE) {
@@ -55,7 +69,7 @@ public:
     
     void append_to_ready_buffer() {
         std::lock_guard<std::mutex> lg(_buffer_mutex); 
-        if(_ready_buffer.size() > 1024) 
+        if(_ready_buffer.size() > 16) 
             return; 
         _ready_buffer.push(_current_buffer); 
     }
@@ -72,9 +86,12 @@ public:
     
     std::queue<std::array<int, BUFFER_SIZE> > get_queue() {
         std::lock_guard<std::mutex> lg(_buffer_mutex); 
-        std::queue<std::array<int, BUFFER_SIZE> > ret = _ready_buffer; 
-        while(!_ready_buffer.empty()) 
-            _ready_buffer.pop(); 
+        std::queue<std::array<int, BUFFER_SIZE> > ret; 
+        if(_ready_buffer.size() != 0) {
+            ret = _ready_buffer; 
+            while(!_ready_buffer.empty()) 
+                _ready_buffer.pop(); 
+        }
         return ret; 
     }
     
@@ -85,6 +102,10 @@ public:
     int get_size() {
         std::lock_guard<std::mutex> lg(_buffer_mutex); 
         return _ready_buffer.size();
+    }
+    
+    int get_current_buffer_idx() {
+        return _current_buffer_idx; 
     }
     
 private: 

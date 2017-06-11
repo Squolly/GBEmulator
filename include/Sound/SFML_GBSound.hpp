@@ -12,7 +12,7 @@ public:
                 const std::string& description = std::string("SFML Sound Module")) 
         : GBSound(name, description), 
         _samples(Synth::BUFFER_SIZE, 0) {
-            initialize(1, 44100 / 2); 
+            initialize(1, 44100); 
         }
         
         virtual ~SFML_GBSound() { }
@@ -28,10 +28,10 @@ public:
         int minimum_data_size = 0; 
         int num_samples = 0; 
             
-        const int num_min_data = 8; 
+        const int num_min_data = 2; 
         while(minimum_data_size < num_min_data) {
             sf::sleep(sf::milliseconds(1));
-            if(ch1.synth.check_queue(num_min_data) || ch2.synth.check_queue(num_min_data) || ch3.synth.check_queue(num_min_data)) {
+            if( ch1.synth.check_queue(num_min_data)  || ch2.synth.check_queue(num_min_data) ||  ch3.synth.check_queue(num_min_data)) {
                 if(ch1.synth.get_size() >= num_min_data) data_ch1 = ch1.synth.get_queue();
                 if(ch2.synth.get_size() >= num_min_data) data_ch2 = ch2.synth.get_queue();
                 if(ch3.synth.get_size() >= num_min_data) data_ch3 = ch3.synth.get_queue();

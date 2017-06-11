@@ -85,7 +85,7 @@ int main() {
         // read cartridge 
     GBMBC1 gbc(0x0000, 0x8000);
     //GBCartridge gbc(0x0000, 0x8000);
-    gbc.read_file("data/Bounce.gb");
+    gbc.read_file("/data/pocket.gb");
     cpu.memory.connect(&gbc);
 
     // map cartridge to memory
@@ -132,6 +132,7 @@ int main() {
                         //   std::cin >> a; 
             }
             if (!switched && cpu.registers.PC >= 0xff) {
+                std::cout << "cycles: " << std::dec << (int)cpu.cycle_counter << std::hex << std::endl; 
                 std::cout << "Connecting rom..." << std::endl;
                 cpu.memory.connect(&gbc);
                 switched = true;
@@ -173,7 +174,10 @@ int main() {
                 cpu.memory.write_8(0xFE00 + dma_i, value);
             }
         }
+        // sound.print_current_synth_indicies();
     }
+    
+    std::cout << "boot ended at cycle counter: " << std::dec << (int)cpu.cycle_counter << std::hex << std::endl; 
     cpu.memory.connect(&gbc);
     
     // cpu.memory.connect(&gbc, 0xA000, 0xC000);

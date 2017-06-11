@@ -11,6 +11,8 @@
 #include <mutex>
 #include <iostream>
 #include <iomanip> 
+#include <fstream>
+#include <sstream>
 
 
 class Memory; 
@@ -18,8 +20,10 @@ class Memory;
 class SquareWave {
 public: 
     Synth synth;
+    std::ofstream _out; 
     
-    SquareWave() : 
+    SquareWave(int channel) : 
+        synth(channel), 
         _frequency_timer_period(0),  // depends on rate
         _modulation_period(8192),
         _volume(0), 
@@ -34,7 +38,9 @@ public:
         _current_buffer_time(0),  
         _current_buffer_delay(1)
         {
-
+            std::stringstream ss; 
+            ss << channel; 
+            _out.open(std::string("ch_") + ss.str() + ".txt"); 
         }
     
     void clock_length() {
@@ -54,10 +60,10 @@ public:
     }
     
     void clock_volume() {
-        if(!_on) 
+        if(!_on ) 
             return; 
         
-        if(!_volume_env_sweep) {// n = 0 -> stop
+        if(!_volume_env_sweep || _volume_env_sweep == 8) {// n = 0 -> stop
             return; 
         }
         _volume_env_sweep_ctr--; 
@@ -135,12 +141,15 @@ public:
         }
         
         _frequency_timer_period -= cycles; 
+        // _out << _frequency_timer_period << ", cycles: " << cycles <<  std::endl; 
         if(_frequency_timer_period <= 0) {
             for(int i=0; i< _frequency_timer_period + cycles; ++i) {
                 synth.out(_duty ? _volume : 0); 
             }
+            
             _frequency_timer_period += (2048 - _rate) * 4; 
-            clock_wave(); 
+            
+            clock_wave();
             for(int i=0; i< -_frequency_timer_period; ++i) {
                 synth.out(_duty ? _volume : 0); 
             }
@@ -153,6 +162,7 @@ public:
     }
     
     void set_rate(int new_rate) {
+//         _out << "Set new rate to: " << new_rate << std::endl; 
         _frequency_timer_period = (2048 - new_rate) * 4; 
         _rate = new_rate; 
         // we have 44100 Hz 
@@ -175,7 +185,7 @@ public:
     
     void set_initial(bool initial) {
         _initial = initial; // restart
-        if(!_initial) {
+        if(_initial) { // changed from !initial
             _on = true; 
             _shadow_rate = _rate; 
         }
