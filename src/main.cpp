@@ -43,7 +43,7 @@ int main() {
     GBInterruptEnable ie(0xFFFF, 0x10000);
     GBInterruptFlag iff(0xFF0F, 0xFF10);
     SFML_GBSound sound;
-    sound.play();
+    // sound.play();
     GBTimer timer(0xFF04, 0xFF08);
     timer.set_verbose(false);
     cpu.ie = &ie;
@@ -85,7 +85,7 @@ int main() {
         // read cartridge 
     GBMBC1 gbc(0x0000, 0x8000);
     //GBCartridge gbc(0x0000, 0x8000);
-    gbc.read_file("/data/pocket.gb");
+    gbc.read_file("data/Bounce.gb");
     cpu.memory.connect(&gbc);
 
     // map cartridge to memory
@@ -116,10 +116,16 @@ int main() {
     video.update_cycles(cpu.cycle_counter);
     timer.init(cpu.cycle_counter);
     timer.update_cycles(cpu.cycle_counter);
+    
+    sound.start_sound_grabber();
+    sound.play(); 
+    
     for (int i = 0; i < 100000000; ++i) {
         if (!cpu.debug_hold) {
             cpu.single_step(verbose_instruction);
 
+            sound.sound_grabber(cpu.cycle_counter);
+            
             // system("sleep 0.0001");
             if (use_breakpoint) {
                 if (!once && cpu.registers.PC >= execute_until) { // 0xe60
@@ -192,6 +198,9 @@ int main() {
     verbose_instruction = false;
     // use_breakpoint = true; 
     breakpoint = -1;
+    
+    cpu._use_timer = false; 
+    
     while (!done) {
         // std::cout << "CPU cycles: " << cpu.cycle_counter << std::endl; 
         if (video.break_request()) {
@@ -328,6 +337,7 @@ int main() {
                 cpu.single_step(verbose_instruction);
                 // if(cpu.calls() >= 69856675)
                 //     done = true; 
+                sound.sound_grabber(cpu.cycle_counter);
                 video.update_cycles(cpu.cycle_counter);
                 video.execute();
 
@@ -381,6 +391,8 @@ int main() {
             }
         }
     }
+    
+    sound.end_sound_grabber();
 	
 
 	std::cin.get(); 

@@ -36,7 +36,7 @@ public:
             return; 
         }
         
-        std::cout << "Sweeping!" << std::endl; 
+        // std::cout << "Sweeping!" << std::endl; 
         
         _sweep_time_ctr--; 
         if(_sweep_time_ctr <= 0) {
@@ -50,7 +50,7 @@ public:
             else {
                 new_rate = _rate - _rate / std::pow(2, _sweep_shift); 
             }
-            std::cout << "new rate: " << new_rate << std::endl; 
+            // std::cout << "new rate: " << new_rate << std::endl; 
             if(new_rate < 0)  {
                 new_rate = 0; 
                 _sweep_time = 0; 

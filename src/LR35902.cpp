@@ -21,7 +21,7 @@ LR35902::LR35902() :
     ime(false), 
     _interrupt_enable_delay(0), 
     ie(nullptr), iff(nullptr), 
-    _cycle_duration(std::chrono::nanoseconds(1000)),
+    _cycle_duration(std::chrono::nanoseconds(500)),// _cycle_duration(std::chrono::nanoseconds(1000)),
     _use_timer(true),
     _cycles_passed(0), 
 	_repeat_next_instruction(false), 

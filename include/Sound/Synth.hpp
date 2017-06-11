@@ -11,6 +11,7 @@
 #include <iomanip> 
 #include <fstream>
 #include <sstream>
+#include <atomic>
 
 /* 
  * Class for sound synthesis given signal (for one channel) 
@@ -18,14 +19,15 @@
 class Synth {
 public: 
     
-    static const int SAMPLE_WINDOW_SIZE = 2048*4; 
+    static const int SAMPLE_WINDOW_SIZE = 128; 
     static const int BUFFER_SIZE = 4096*4; 
     
     std::ofstream _out; 
     bool _debug; 
     int _channel; 
+    std::atomic_int _current_output; 
     
-    Synth(int channel) : _last_idx(0), _time_next(4194304. / 44100.), _time_passed(0), _current_buffer_idx(0), _debug(false), _channel(channel) {
+    Synth(int channel) : _last_idx(0), _time_next(4194304. / 44100.), _time_passed(0), _current_buffer_idx(0), _debug(false), _channel(channel), _current_output(0) {
         _sample_window.fill(0); 
         _current_buffer.fill(0); 
         _default_buffer.fill(0); 
@@ -37,6 +39,9 @@ public:
     
     void out(int volume) { // at emulated CPU speed
         volume *= (30000 / 15) / 3; 
+        
+//         _current_output = volume; // added for new mixer
+        
         // if(_channel != 3) 
         //    volume *= 2; 
         
@@ -52,19 +57,24 @@ public:
         }
     }
     
+    int get_current_output() {
+        return _current_output; 
+    }
+    
     void insert_avg_sample_to_current_buffer() {
         // moving average filter
         int avg = 0; 
         for(int i=0; i<SAMPLE_WINDOW_SIZE; ++i) 
             avg += _sample_window [i]; 
         avg /= SAMPLE_WINDOW_SIZE; 
+        _current_output = avg; 
         if(_debug) _out << avg << std::endl; 
-        _current_buffer[_current_buffer_idx++] = avg; 
-        
-        if(_current_buffer_idx >= BUFFER_SIZE) {
-            _current_buffer_idx = 0; 
-            append_to_ready_buffer(); 
-        }
+//         _current_buffer[_current_buffer_idx++] = avg; 
+//         
+//         if(_current_buffer_idx >= BUFFER_SIZE) {
+//             _current_buffer_idx = 0; 
+//             append_to_ready_buffer(); 
+//         }
     }
     
     void append_to_ready_buffer() {

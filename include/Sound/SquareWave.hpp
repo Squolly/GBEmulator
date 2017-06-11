@@ -46,7 +46,7 @@ public:
     void clock_length() {
         if(_sound_length > 0 && _counter) {
             _sound_length--; 
-            std::cout << "Counter: "  << _sound_length << std::endl; 
+            // std::cout << "Counter: "  << _sound_length << std::endl; 
             if(_sound_length == 0) { // Off
                  _on = false; 
             }

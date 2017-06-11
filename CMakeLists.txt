@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.1)
 project(GameBoyEmulator) 
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
@@ -15,6 +15,8 @@ include_directories(
     # SFML (optional) 
     ${SFML_INCLUDE_DIR}
 )
+
+find_package(Threads REQUIRED)
 
 set(GAME_BOY_EMULATOR_SOURCE_FILES
     ${PROJECT_SOURCE_DIR}/src/GBCartridge.cpp
@@ -88,4 +90,4 @@ else(SFML_FOUND)
 endif(SFML_FOUND)
 
 add_executable(game_boy_emulator ${GAME_BOY_EMULATOR_SOURCE_FILES} ${GAME_BOY_EMULATOR_HEADER_FILES})
-target_link_libraries(game_boy_emulator ${SFML_LIBRARIES})
+target_link_libraries(game_boy_emulator ${SFML_LIBRARIES} Threads::Threads)
