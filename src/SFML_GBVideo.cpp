@@ -16,7 +16,7 @@ SFML_GBVideo::SFML_GBVideo(uint32 start_address, uint32 end_address, const std::
 }
 
 SFML_GBVideo::~SFML_GBVideo() {
-    _renderThread.terminate(); 
+  //  _renderThread.terminate(); 
     if(_screen_pixels)
         delete[] _screen_pixels; 
     if(_pixels)
@@ -35,7 +35,7 @@ void SFML_GBVideo::render() {
 
     while(_window->isOpen()) {
         // copy display from GBVideo
-        static sf::RenderWindow vram_window(sf::VideoMode(16*8, 16*8), "VRAM Window"); 
+        // static sf::RenderWindow vram_window(sf::VideoMode(16*8, 16*8), "VRAM Window"); 
         
         if(refresh()) {
             refreshed(); 
@@ -58,14 +58,15 @@ void SFML_GBVideo::render() {
             _window->draw(_screen); 
             _window->display(); 
             
-            int vram_vis_width = 0, vram_vis_height = 0; 
-            auto vram_vis = get_vram_visualization(vram_vis_width, vram_vis_height); 
+            // int vram_vis_width = 0, vram_vis_height = 0; 
+            // auto vram_vis = get_vram_visualization(vram_vis_width, vram_vis_height); 
             
             
-            static sf::Uint8 vram_screen_pixels[16 * 8 * 16 * 8 * 4]; 
-            static sf::Texture vram_screen_buffer; 
-            static sf::Sprite  vram_screen; 
+            // static sf::Uint8 vram_screen_pixels[16 * 8 * 16 * 8 * 4]; 
+            // static sf::Texture vram_screen_buffer; 
+            // static sf::Sprite  vram_screen; 
             
+/* 
             static bool vram_first = false; 
             if(!vram_first) {
                 vram_screen_buffer.create(16 * 8, 16 * 8);
@@ -94,8 +95,8 @@ void SFML_GBVideo::render() {
             vram_window.display();
 			sf::Event event;
 			while (vram_window.pollEvent(event));
+*/
         }
-
         
         /* 
         for(int y=0; y<256; ++y) {
@@ -171,13 +172,14 @@ void SFML_GBVideo::render() {
             }
             
             if (event.type == sf::Event::Closed) {
-                _renderThread.terminate(); 
+ //               _renderThread.terminate(); 
                 _window->close();
-                vram_window.close(); 
+                // vram_window.close(); 
             }
         }
     }
     
+    std::cout << "Leaving render thread." << std::endl; 
 }
 
 void SFML_GBVideo::operate() {

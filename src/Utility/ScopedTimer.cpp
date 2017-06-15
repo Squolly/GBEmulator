@@ -5,26 +5,23 @@
 #include <set>
 
 // #define SCOPED_TIMER_ENABLED 
+    
+#ifdef SCOPED_TIMER_ENABLED
 
 std::map<std::string, TimeEntry> ScopedTimer::_timetable; 
 std::vector<std::map<std::string, TimeEntry> > ScopedTimer::_timeline; 
 std::chrono::high_resolution_clock::time_point ScopedTimer::_begin = std::chrono::high_resolution_clock::now(); 
-    
+
 ScopedTimer::ScopedTimer(const std::string& name) : _name(name) {
-#ifdef SCOPED_TIMER_ENABLED
     start(); 
-#endif
 }
 
 ScopedTimer::~ScopedTimer() {
-    #ifdef SCOPED_TIMER_ENABLED
     stop(); 
     if(_name == "main") {
         write_timetable("performance.txt"); 
         write_timeline("timeline.csv"); 
     }
-    
-    #endif
 }
     
 void ScopedTimer::start() {
@@ -92,3 +89,4 @@ void ScopedTimer::write_timeline(const std::string filename) {
         out << std::endl; 
     }
 }
+#endif

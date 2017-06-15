@@ -77,8 +77,8 @@ public:
             _current_block_idx = 0; 
         }
         
-        if(sleep_a_bit) 
-            std::this_thread::sleep_for(std::chrono::duration<double>(1./22050. * 1024 * 1.5));
+     //   if(sleep_a_bit) 
+       //     std::this_thread::sleep_for(std::chrono::duration<double>(1./22050. * 1024 * 1.5));
     }
     
     virtual bool onGetData(Chunk& chunk) {
@@ -88,8 +88,10 @@ public:
                 std::lock_guard<std::mutex> lg(_prepared_samples_mutex);
                 filled = !(_prepared_samples.size() < 1); 
             }
-            std::cout << "." << std::endl; 
+//             std::cout << "." << std::endl; 
             std::this_thread::sleep_for(std::chrono::duration<double>(1./22050. * 1024)); 
+	    if(_quit_thread) 
+	      return false;
         }
         
         {
@@ -99,7 +101,7 @@ public:
         }
         chunk.samples = &_samples[0];
         chunk.sampleCount = _samples.size(); 
-        return true; 
+        return !_quit_thread; 
     }
     
     virtual bool onGetData2(Chunk& chunk)

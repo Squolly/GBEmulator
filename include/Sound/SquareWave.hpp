@@ -143,22 +143,22 @@ public:
         _frequency_timer_period -= cycles; 
         // _out << _frequency_timer_period << ", cycles: " << cycles <<  std::endl; 
         if(_frequency_timer_period <= 0) {
-            for(int i=0; i< _frequency_timer_period + cycles; ++i) {
-                synth.out(_duty ? _volume : 0); 
-            }
+//             for(int i=0; i< _frequency_timer_period + cycles; ++i) {
+//                 synth.out(_duty ? _volume : 0); 
+//             }
             
             _frequency_timer_period += (2048 - _rate) * 4; 
             
             clock_wave();
-            for(int i=0; i< -_frequency_timer_period; ++i) {
+//             for(int i=0; i< -_frequency_timer_period; ++i) {
                 synth.out(_duty ? _volume : 0); 
-            }
-        }
+//             }
+        } /* 
         else {
             for(int i=0; i< cycles; ++i) {
                 synth.out(_duty ? _volume : 0); 
             }
-        }
+        } */
     }
     
     void set_rate(int new_rate) {
