@@ -457,6 +457,56 @@ uint8 GBVideo::get_background_pixel(uint8 x, uint8 y, bool window /* = false */)
     return _tileset[tile_id][tile_y][tile_x]; 
 }
 
+void GBVideo::render_background_line(uint8 line, bool window, std::vector<uint8>& scanline_row) {
+    uint8 background_map_switch = 0; 
+    if(!window) {
+        background_map_switch = _lcd_control & 0x08; 
+    }
+    else {
+        background_map_switch = _lcd_control & 0x40; 
+    }
+    
+    uint16 map_offset = (background_map_switch) ? 0x9C00 : 0x9800; 
+    uint8 scroll_y = _background_vertical_scrolling; 
+    uint8 scroll_x = _background_horizontal_scrolling; 
+
+    if(window) {
+        scroll_y = scroll_x = 0; 
+    }
+    
+    GBRAM *background_map; 
+    if(!background_map_switch) 
+        background_map = &_background_map_1_ram; 
+    else 
+        background_map = &_background_map_2_ram; 
+    
+    const uint8 tile_table_switch = (_lcd_control & 0x10); 
+    const uint8 tile_y = (line + scroll_y) & 0x7;
+    const uint8 bg_tile_y = ((line + scroll_y) & 0xFF) >> 3;
+    
+    for(int i=0; i<160; ++i) {
+      uint8 x_i = i; 
+      
+      if(window && i >= _window_x_position - 7) {
+	x_i = i - (_window_x_position - 7); 
+      }
+      const uint8 tile_x = (x_i + scroll_x) & 0x7; 
+      const uint8 bg_tile_x = ((x_i + scroll_x) & 0xFF) >> 3; 
+      uint16 offset = map_offset + (bg_tile_y * 32 + bg_tile_x); 
+  
+      int tile_id = background_map->read_8(offset); 
+
+      if(!tile_table_switch && tile_id < 128) 
+	  tile_id += 256; 
+      
+      const uint8 color_ind = _tileset[tile_id][tile_y][tile_x];   
+      const uint8 color = (_background_palette >> (color_ind * 2)) & 0x3; 
+      _offscreen_display[_current_scanline * 160 + i] = color; 
+      scanline_row[i] = color_ind; 
+    }
+}
+
+
 void GBVideo::render_scanline() {
     ScopedTimer st("GBVideo::render_scanline"); 
     
@@ -467,16 +517,23 @@ void GBVideo::render_scanline() {
     
     std::vector<uint8> scanline_row(160, 0); 
     if(_lcd_control & 0x01) { // draw background if enabled
+      /* 
         for(int i=0; i<160; ++i) {
             const uint8 color_ind = get_background_pixel(i, _current_scanline); 
             const uint8 color = (_background_palette >> (color_ind * 2)) & 0x3; 
             _offscreen_display[_current_scanline * 160 + i] = color; 
             scanline_row[i] = color_ind; 
         }
+       */
+      render_background_line(_current_scanline, false, scanline_row); 
     }
     
     // if window enabled
     if(_lcd_control & 0x20) {
+      if(_current_scanline >= _window_y_position) {
+	render_background_line(_current_scanline - _window_y_position, true, scanline_row); 
+      }
+      /*
         for(int i=0; i<160; ++i) {
             if(i >= _window_x_position - 7 && _current_scanline >= _window_y_position) {
                 const uint8 color_ind = get_background_pixel(i - (_window_x_position - 7), _current_scanline - _window_y_position, true); 
@@ -484,7 +541,7 @@ void GBVideo::render_scanline() {
                 _offscreen_display[_current_scanline * 160 + i] = color; 
                 scanline_row[i] = color_ind; 
             }
-        }
+        }*/
     }
     
     
