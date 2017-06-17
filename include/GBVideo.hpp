@@ -46,6 +46,7 @@ class GBVideo : public MemoryMappedModule {
         void render_scanline(); 
         void render_image(); 
         uint8 get_background_pixel(uint8 x, uint8 y, bool window = false ); // returns color of background at (WINX + x, WINY + y)
+        void render_background_line(uint8 line, bool window, std::vector< uint8 >& scanline_row); // returns background scanline
         void update_tile(uint16 address, uint8 value); 
         void update_sprite(uint16 address, uint8 value); 
         
@@ -149,6 +150,7 @@ class GBVideo : public MemoryMappedModule {
         }; 
         
         std::vector<Sprite> _sprites;
+        
 }; 
     
 #endif

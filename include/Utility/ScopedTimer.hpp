@@ -14,6 +14,8 @@ struct TimeEntry {
     std::string name; 
 }; 
 
+#ifdef SCOPED_TIMER_ENABLED
+
 class ScopedTimer {
 public: 
     ScopedTimer(const std::string& name); 
@@ -34,5 +36,15 @@ private:
     static std::vector<std::map<std::string, TimeEntry> > _timeline; 
     static std::chrono::high_resolution_clock::time_point _begin; 
 }; 
+
+#else 
+
+class ScopedTimer {
+public: 
+    ScopedTimer(const std::string& name) {}; 
+    ~ScopedTimer() {}; 
+};
+
+#endif
 
 #endif

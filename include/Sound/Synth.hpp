@@ -19,7 +19,7 @@
 class Synth {
 public: 
     
-    static const int SAMPLE_WINDOW_SIZE = 128; 
+    static const int SAMPLE_WINDOW_SIZE = 64;
     static const int BUFFER_SIZE = 4096*4; 
     
     std::ofstream _out; 
@@ -40,8 +40,9 @@ public:
     void out(int volume) { // at emulated CPU speed
         volume *= (30000 / 15) / 3; 
         
-//         _current_output = volume; // added for new mixer
+         _current_output = volume; // added for new mixer
         
+        return; 
         // if(_channel != 3) 
         //    volume *= 2; 
         

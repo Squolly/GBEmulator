@@ -393,8 +393,8 @@ int main() {
     }
     
     sound.end_sound_grabber();
-	
+    std::cout << "Ending..." << std::endl; 
 
-	std::cin.get(); 
+//	std::cin.get(); 
 	
 }
