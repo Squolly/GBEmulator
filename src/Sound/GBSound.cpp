@@ -129,7 +129,7 @@ GBSound::GBSound(const std::string& name, const std::string& description) :
      _sc_ch1_on(0), 
     _verbose(false), 
     _out("sound_debug.txt"), 
-    _debug_out(true)
+    _debug_out(false)
     { 
     }
     

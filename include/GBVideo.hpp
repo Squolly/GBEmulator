@@ -6,6 +6,7 @@
 #include "GBRAM.hpp"
 
 #include <mutex>
+#include <chrono>
 
 enum class GPUMode {
     HBlank = 0, 
@@ -149,7 +150,9 @@ class GBVideo : public MemoryMappedModule {
             Sprite() : x(0), y(0), tile_id(0), palette(false), flip_x(false), flip_y(false), priority(false) { }
         }; 
         
-        std::vector<Sprite> _sprites;
+        std::vector<Sprite> _sprites; 
+        
+        std::chrono::high_resolution_clock::time_point _last_frame_time; 
         
 }; 
     

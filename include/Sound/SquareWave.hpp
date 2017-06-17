@@ -48,15 +48,15 @@ public:
             _sound_length--; 
             // std::cout << "Counter: "  << _sound_length << std::endl; 
             if(_sound_length == 0) { // Off
-                 _on = false; 
+                  _on = false; 
             }
         }
         else if(_sound_length == 0 && _counter) {
              _on = false; 
-        }
+        } /* 
         else if(!_counter) {
             _on = true; 
-        }
+        } */ 
     }
     
     void clock_volume() {

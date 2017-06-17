@@ -39,17 +39,17 @@ public:
     void clock_length() {
         if(_sound_length > 0 && _counter) {
             _sound_length--; 
-            std::cout << "Counter: "  << _sound_length << std::endl; 
+            // std::cout << "Counter: "  << _sound_length << std::endl; 
             if(_sound_length == 0) { // Off
-                _on = false; 
+                _output_level = 0; // _on = false; 
             }
-        }
+        } 
         else if(_sound_length == 0 && _counter) {
-            _on = false; 
-        }
+           _output_level = 0; // _on = false; 
+        } /* 
         else if(!_counter) {
-            _on = true; 
-        }
+           _output_level = 0; //  _on = true; 
+        } */
     }
     
     virtual void clock_modulation() { 

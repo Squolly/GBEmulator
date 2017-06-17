@@ -67,12 +67,10 @@ public:
         if(_current_block_idx >= _block.size()) {
             std::lock_guard<std::mutex> lg(_prepared_samples_mutex); 
             
-            for(int i=0; i<_block.size(); ++i)   {
-                _prepared_samples.push_back(_block[i]); 
-            }
-            // std::cout << "Added new block." << std::endl; 
-            if(_prepared_samples.size() > 1024 * 4) {
-                sleep_a_bit = true; 
+            if(_prepared_samples.size() < 1024 * 4) { // buffer should not grow indefintely
+                for(int i=0; i<_block.size(); ++i)   {
+                    _prepared_samples.push_back(_block[i]); 
+                }
             }
             _current_block_idx = 0; 
         }

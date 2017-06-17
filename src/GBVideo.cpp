@@ -4,6 +4,8 @@
 
 #include <iostream>
 #include <cassert>
+#include <chrono>
+#include <thread>
 
 GBVideo::GBVideo(uint32 start_address, uint32 end_address, const std::string& name, const std::string& description) :
         MemoryMappedModule(name, description, start_address, end_address),
@@ -22,7 +24,8 @@ GBVideo::GBVideo(uint32 start_address, uint32 end_address, const std::string& na
          _refresh(false), 
          _verbose(false),
          _dma_request(false), 
-         _sprites(40, GBVideo::Sprite())
+         _sprites(40, GBVideo::Sprite()),
+         _last_frame_time(std::chrono::high_resolution_clock::now())
           { }
 
 GBVideo::~GBVideo() { }
@@ -626,6 +629,21 @@ void GBVideo::render_image() {
     ScopedTimer st("GBVideo::render_image"); 
     // std::lock_guard<std::mutex> lg(_display_mutex); 
     _display = _offscreen_display; 
+       
+    auto current_time = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> work_time; 
+    const double time_per_frame = 1/59.7 * 1000; // limit to 60 fps
+
+    do {
+        auto current_time = std::chrono::high_resolution_clock::now();
+        work_time = current_time - _last_frame_time; 
+        // if(work_time.count() < time_per_frame) {
+            // std::cout << "Sleep for: " << time_per_frame - work_time.count() << " ms" << std::endl; 
+          //   std::chrono::duration<double, std::milli> speed_break(time_per_frame - work_time.count());
+          //   std::this_thread::sleep_for(speed_break);
+        //}
+    } while(work_time.count() < time_per_frame); 
+    _last_frame_time = std::chrono::high_resolution_clock::now();; 
 }
 
 // note: access to video RAM will happen transparent to this module currently
