@@ -47,14 +47,14 @@ void  GBMBC1::write_8(uint16 address, uint8 value) {
     // RAM Enable (00h disable, xAh enable)
     if(address >= 0x0000 && address <= 0x1FFF) {
         ScopedTimer st("GBMBC1::write_8 0-2k");
-        std::cout << "Wrote: " << (int)value << std::endl;
+//         std::cout << "Wrote: " << (int)value << std::endl;
         if((value & 0xF) == 0xA) {
             _ram_enabled = true; 
         }
         else {
             _ram_enabled = false; 
         }
-        std::cout << "External RAM enabled: " << (_ram_enabled ? "true" : "false") << std::endl; 
+//         std::cout << "External RAM enabled: " << (_ram_enabled ? "true" : "false") << std::endl; 
     }
     
     // ROM Bank Number

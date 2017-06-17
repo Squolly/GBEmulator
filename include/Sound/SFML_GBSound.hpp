@@ -88,7 +88,7 @@ public:
                 std::lock_guard<std::mutex> lg(_prepared_samples_mutex);
                 filled = !(_prepared_samples.size() < 1); 
             }
-            std::cout << "." << std::endl; 
+//             std::cout << "." << std::endl; 
             std::this_thread::sleep_for(std::chrono::duration<double>(1./22050. * 1024)); 
         }
         
